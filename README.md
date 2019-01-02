@@ -40,7 +40,7 @@ Illumination flags:
   * "-no_indirect" => Disables indirect illumination (light that bounces diffusely off of at least one surface — this is the primary global illumination component) in scene. Indirect illumination is enabled by default
   * "-no_caustic" => Disables caustic illumination (light that is focused through mirror and optical media) in scene. Caustic illumination is enabled by default
   * "-photon_viz" => Enables direct radiance sampling of the global photon map for vizualization. This layer will (nearly) approach global illumination on its own if given large enough samples. Disabled by default
-  * "-photon_viz" => Enables a faster estimate of global illumination by combining direct lighting with direct radiance sampling of a version of the global photon map where photons are only stored after their first diffuse bounce. Disabled by default
+  * "-fast_global" => Enables a faster estimate of global illumination by combining direct lighting with direct radiance sampling of a version of the global photon map where photons are only stored after their first diffuse bounce. Disabled by default
 * Monte Carlo flags:
   * "-no-monte" => Disables Monte Carlo path-tracing (used to compute specular and transmissive illumination). Monte Carlo is path-tracing is enabled by default
   * "-md \<int N>" => Sets the max recursion depth of a Monte Carlo path-trace. Default is N=128
@@ -63,3 +63,18 @@ Illumination flags:
   * "-no_ss" => Disables soft shadows. Soft shadows are enabled by default
   * "-lt \<int N>" => Sets the number of occlusion + reflectance rays sent per light per sample. Used to compute both soft shadows and direct illumination by area light. Default is N=128
   * "-s \<int N>" => Sets the number of occlusion (only) rays sent per light per sample. Used to take additional soft shadow estimates (on top of the number specified by the `-lt` flag). Default is N=128
+
+
+## Implementation Details
+
+This section contains descriptions and examples of the rendering programs various features.
+
+### BRDF Sampling & Lighting Cloning
+
+#### The BRDF Function
+Before modifications, the provided light classes sample reflectance from the Phong BRDF. These implementations were altered to use a physically-based Phong BRDF suggested by Jason Lawrence in ["Importance Sampling of the Phong Reflectance Model](http://www.cs.princeton.edu/courses/archive/fall18/cos526/papers/importance.pdf).
+
+Note that the (n + 2) / (2*PI) specular term was dropped for 2D lights because it increased noise too sharply.
+
+#### Importance Sampling the BRDF
+In order to converge more quickly on the correct solution to the rendering equation, it is necessary to importance sample the BRDF when tracing a ray through a specular or diffuse bounce. In other words, rather than sampling all directions and weighting them according to the probability of a bounce heading in each direction, it is better to sample each direction at a frequency proportional to its probability, and then weight all bounces evenly when averaging.
