@@ -76,22 +76,32 @@ This section contains descriptions and examples of the rendering program's vario
 ### The BRDF Function
 Before modifications, the provided light classes sample reflectance from the Phong BRDF. These implementations were altered to use a physically-based Phong BRDF suggested by Jason Lawrence in ["Importance Sampling of the Phong Reflectance Model"](http://www.cs.princeton.edu/courses/archive/fall18/cos526/papers/importance.pdf).
 
-Note that the (n + 2) / (2*PI) specular term was dropped for 2D lights because it increased noise too sharply.
+Note that the (n + 2) / (2π) specular term was dropped for 2D lights because it increased noise too sharply.
 
 ### Importance Sampling the BRDF
 In order to converge more quickly on the correct solution to the rendering equation, it is necessary to importance sample the BRDF when tracing a ray through a specular or diffuse bounce. In other words, rather than sampling all directions and weighting them according to the probability of a bounce heading in each direction, it is better to sample each direction at a frequency proportional to its probability, and then weight all bounces evenly when averaging.
 
 #### Diffuse Importance Sampling
-Under our BRDF model, the outgoing direction of a diffuse bounce is independent of the incident angle of the incoming ray (beyond determining the side of the surface off of which to bounce). Rather, its pdf is determined by a normalized cosine-weighted hemisphere along the surface normal. Using the inverse mapping provided by Lawrence, the outgoing ray
+Under our BRDF model, the outgoing direction of a diffuse bounce is independent of the incident angle of the incoming ray (beyond determining the side of the surface off of which to bounce). Rather, its pdf is determined by a normalized cosine-weighted hemisphere along the surface normal. Borrowing the inverse mapping provided by Lawrence, the direction of the outgoing ray is sampled in spherical coordinates as (θ, φ) = (arccos(sqrt(u)), 2πv), where (u, v) are uniformly-distributed random variables in the range \[0, 1), θ is the angle between the outgoing ray and the surface normal, and φ is the angle around the plane perpendicular to the surface normal.
 
-##### Figure 1: Diffuse importance sampling at three different angles and two different viewpoints.
+##### Figure 1: Diffuse importance sampling of 500 rays at three angles and two viewpoints.
 
 || Viewpoint A | Viewpoint B |
 |:----------------:|:----------------:|:----------------:|
 | 90° | ![Fig_1a.i](/gallery/figures/fig_1a-i.png?raw=true) | ![Fig_1a.ii](/gallery/figures/fig_1a-ii.png?raw=true) |
 | 45° | ![Fig_1b.i](/gallery/figures/fig_1b-i.png?raw=true) | ![Fig_1b.ii](/gallery/figures/fig_1b-ii.png?raw=true) |
-| 5° | ![Fig_1c.i](/gallery/figures/fig_1c-i.png?raw=true) | ![Fig_1c.iii](/gallery/figures/fig_1c-ii.png?raw=true) |
+| 5° | ![Fig_1c.i](/gallery/figures/fig_1c-i.png?raw=true) | ![Fig_1c.ii](/gallery/figures/fig_1c-ii.png?raw=true) |
 
+#### Specular Importance Sampling
+For specular importance sampling, the outgoing direction is sampled as a perturbance from the direction of perfect reflection of the incident ray. Again referencing Lawrence's note, we initially sample this direction as (α, φ) = (arccos(pow(u,1/(n+1))), 2πv), where (u, v) are uniformly-distributed random variables in the range \[0, 1), α is the angle between the outgoing ray and the direction of perfect reflection, and φ is the angle around the plane perpendicular to the direction of perfect reflection. Finally, although this is not mentioned in the notes, in order to ensure the sampled outgoing ray is on the same side of the surface as the incoming ray, it is necessary to scale alpha from the range \[0, pi/2) to \[0, θ], where θ is the angle between the direction of perfect reflection and the plane of the surface. Note that this rescaling is not a perfectly accurate model and somewhat inconsistent with our BRDF (rejection sampling would be a more accurate approach, but significantly more inefficient and not worth the cost), but it is still has a physical basis since glossy reflections become significantly sharper at increasingly grazing angles.
+
+##### Figure 2: Specular importance sampling of 500 rays at three angles and two viewpoints for two materials with shininess of n = 100 and n = 1000 respectively.
+
+|| Viewpoint A, n = 100| Viewpoint B, n = 100 | Viewpoint A, n = 1000 | Viewpoint B, n = 1000 |
+|:----------------:|:----------------:|:----------------:|:----------------:|:----------------:|
+| 90° | ![Fig_2a.i](/gallery/figures/fig_2a-i.png?raw=true) | ![Fig_2a.ii](/gallery/figures/fig_2a-ii.png?raw=true) | ![Fig_2a.iii](/gallery/figures/fig_2a-iii.png?raw=true) | ![Fig_2a.iv](/gallery/figures/fig_2a-iv.png?raw=true) |
+| 45° | ![Fig_2b.i](/gallery/figures/fig_2b-i.png?raw=true) | ![Fig_2b.ii](/gallery/figures/fig_2b-ii.png?raw=true) | ![Fig_2b.iii](/gallery/figures/fig_2b-iii.png?raw=true) | ![Fig_2b.iv](/gallery/figures/fig_2b-iv.png?raw=true) |
+| 5° | ![Fig_2c.i](/gallery/figures/fig_2c-i.png?raw=true) | ![Fig_2c.ii](/gallery/figures/fig_2c-ii.png?raw=true) | ![Fig_2c.iii](/gallery/figures/fig_2c-iii.png?raw=true) | ![Fig_2c.iv](/gallery/figures/fig_2c-iv.png?raw=true) |
 
 Poisson cloning is the main workhorse of this program and is run without flags:
 
