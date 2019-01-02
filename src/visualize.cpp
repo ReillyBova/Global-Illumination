@@ -274,12 +274,16 @@ DrawCustom(R3Scene *scene)
   RNScalar t;
   // Ray drawing variables
   double radius = 0.025;
-  R3Ray ray = R3Ray(R3Point(0, 2.25, 0), R3Vector(0, -2.25, 0));
+  R3Vector beam = R3Vector(cos(0.0872665), sin(0.0872665), 0);
+  beam.Normalize();
+  beam *= 1.25;
+  R3Point top = beam.Point() + R3Vector(0, 1, 0);
+  R3Ray ray = R3Ray(top, -beam);
   if (scene->Intersects(ray, &node, &element, &shape, &point, &normal, &t)) {
       glColor3d(0.7, 0.1, 0.1);
       R3Sphere(point, radius).Draw();
-      R3Sphere(R3Point(0, 2.25, 0), radius).Draw();
-      R3Span(point, R3Point(0, 2.25, 0)).Draw();
+      R3Sphere(top, radius).Draw();
+      R3Span(point, top).Draw();
       radius = 0.015;
       for (int i = 0; i < 500; i++) {
         // Pick spherical coords
@@ -614,7 +618,7 @@ void GLUTInit(int *argc, char **argv)
   glutInitWindowPosition(100, 100);
   glutInitWindowSize(GLUTwindow_width, GLUTwindow_height);
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH); // | GLUT_STENCIL
-  GLUTwindow = glutCreateWindow("Property Viewer");
+  GLUTwindow = glutCreateWindow("Scene Visualization");
 
   // Initialize lighting
   glMatrixMode(GL_MODELVIEW);
