@@ -86,11 +86,11 @@ Under our BRDF model, the outgoing direction of a diffuse bounce is independent 
 
 ##### Figure 1: Diffuse importance sampling at three different angles and two different viewpoints.
 
-| Fig 1 | Viewpoint A | Viewpoint B |
+|| Viewpoint A | Viewpoint B |
 |:----------------:|:----------------:|:----------------:|
-| 90° | ![Fig_1a.i](/gallery/figures/fig_1a.png?raw=true) | ![Fig_1a.ii](/gallery/figures/fig_1b.png?raw=true) |
-| 45° | ![Fig_1b.i](/gallery/figures/fig_1a.png?raw=true) | ![Fig_1b.ii](/gallery/figures/fig_1b.png?raw=true) |
-| 5° | ![Fig_1c.i](/gallery/figures/fig_1a.png?raw=true) | ![Fig_1c.iii](/gallery/figures/fig_1b.png?raw=true) |
+| 90° | ![Fig_1a.i](/gallery/figures/fig_1a-i.png?raw=true) | ![Fig_1a.ii](/gallery/figures/fig_1a-ii.png?raw=true) |
+| 45° | ![Fig_1b.i](/gallery/figures/fig_1b-i.png?raw=true) | ![Fig_1b.ii](/gallery/figures/fig_1b-ii.png?raw=true) |
+| 5° | ![Fig_1c.i](/gallery/figures/fig_1c-i.png?raw=true) | ![Fig_1c.iii](/gallery/figures/fig_1c-ii.png?raw=true) |
 
 
 Poisson cloning is the main workhorse of this program and is run without flags:
