@@ -1,0 +1,20 @@
+# This scene has an area light source.
+# It is good for testing soft shadows.
+
+# A camera
+camera -0.469 10.273 10.643  0.033 -0.701 -0.713  -0.012 0.713 -0.701  0.25  0.01 100
+
+# A circular area light source with color (1,1,1) centered at (0,3,0),
+# on the plane with normal (0,-1,0) and radius 0.5.  The last three numbers
+# indicate no attenuation with distance.
+area_light 1 1 1   0 3 0   0 -1 0   0.5   1.0 0.0 0.0   
+
+# Three materials
+material  0 0 0  1 0 0    1 1 1   0 0 0  0 0 0  10 1 0
+material  0 0 0  0 1 0    1 1 1   0 0 0  0 0 0  10 1 0
+material  0 0 0  0.2 0.2 0.2  1 1 1  0 0 0  0 0 0  10 1 0
+
+# Two spheres on a box
+sphere   0  -1 1 0  1   
+sphere   1   1 1 0  1   
+box      2   -4 -1 -4  4 0 4

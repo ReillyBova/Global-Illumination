@@ -1,0 +1,1095 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Support Libraries">
+      <UniqueIdentifier>{e32a563d-c2ba-4a9d-8e82-4f3951038ab5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Support Libraries\R2Shapes">
+      <UniqueIdentifier>{6043e642-0011-4df4-bc41-d741cb8bca02}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Support Libraries\fglut">
+      <UniqueIdentifier>{343c5d31-32bb-47db-b1d9-0db1f0433f34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Support Libraries\jpeg">
+      <UniqueIdentifier>{e74946f6-09bd-4b87-8538-a3dcae519c3e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Support Libraries\png">
+      <UniqueIdentifier>{e74946f6-09bd-4b87-8538-a3dcae519c3d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Support Libraries\R3Shapes">
+      <UniqueIdentifier>{9caf78e9-6392-4fb5-9189-efefb81032cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Support Libraries\R3Graphics">
+      <UniqueIdentifier>{d7454215-4d6f-4266-a322-4d62a066ce0c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Support Libraries\RNBasics">
+      <UniqueIdentifier>{fb6976bb-be18-482a-a95b-1198b1e64417}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Main Program">
+      <UniqueIdentifier>{8a563ddc-480a-496f-8d46-5f2312702d88}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="R2Shapes\R2Affine.cpp">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R2Shapes\R2Align.cpp">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R2Shapes\R2Arc.cpp">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R2Shapes\R2Box.cpp">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R2Shapes\R2Circle.cpp">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R2Shapes\R2Cont.cpp">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R2Shapes\R2Crdsys.cpp">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R2Shapes\R2Curve.cpp">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R2Shapes\R2Diad.cpp">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R2Shapes\R2Dist.cpp">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R2Shapes\R2Draw.cpp">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R2Shapes\R2Grid.cpp">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R2Shapes\R2Halfspace.cpp">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R2Shapes\R2Image.cpp">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R2Shapes\R2Io.cpp">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R2Shapes\R2Isect.cpp">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R2Shapes\R2Kdtree.cpp">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R2Shapes\R2Line.cpp">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R2Shapes\R2Parall.cpp">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R2Shapes\R2Perp.cpp">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R2Shapes\R2Point.cpp">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R2Shapes\R2Polygon.cpp">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R2Shapes\R2Polyline.cpp">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R2Shapes\R2Ray.cpp">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R2Shapes\R2Relate.cpp">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R2Shapes\R2Shape.cpp">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R2Shapes\R2Shapes.cpp">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R2Shapes\R2Solid.cpp">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R2Shapes\R2Span.cpp">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R2Shapes\R2Vector.cpp">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R2Shapes\R2Xform.cpp">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R2Shapes\R3Matrix.cpp">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="fglut\freeglut_callbacks.c">
+      <Filter>Support Libraries\fglut</Filter>
+    </ClCompile>
+    <ClCompile Include="fglut\freeglut_cursor.c">
+      <Filter>Support Libraries\fglut</Filter>
+    </ClCompile>
+    <ClCompile Include="fglut\freeglut_display.c">
+      <Filter>Support Libraries\fglut</Filter>
+    </ClCompile>
+    <ClCompile Include="fglut\freeglut_ext.c">
+      <Filter>Support Libraries\fglut</Filter>
+    </ClCompile>
+    <ClCompile Include="fglut\freeglut_font.c">
+      <Filter>Support Libraries\fglut</Filter>
+    </ClCompile>
+    <ClCompile Include="fglut\freeglut_glutfont_definitions.c">
+      <Filter>Support Libraries\fglut</Filter>
+    </ClCompile>
+    <ClCompile Include="fglut\freeglut_font_data.c">
+      <Filter>Support Libraries\fglut</Filter>
+    </ClCompile>
+    <ClCompile Include="fglut\freeglut_stroke_roman.c">
+      <Filter>Support Libraries\fglut</Filter>
+    </ClCompile>
+    <ClCompile Include="fglut\freeglut_stroke_mono_roman.c">
+      <Filter>Support Libraries\fglut</Filter>
+    </ClCompile>
+    <ClCompile Include="fglut\freeglut_gamemode.c">
+      <Filter>Support Libraries\fglut</Filter>
+    </ClCompile>
+    <ClCompile Include="fglut\freeglut_geometry.c">
+      <Filter>Support Libraries\fglut</Filter>
+    </ClCompile>
+    <ClCompile Include="fglut\freeglut_init.c">
+      <Filter>Support Libraries\fglut</Filter>
+    </ClCompile>
+    <ClCompile Include="fglut\freeglut_input_devices.c">
+      <Filter>Support Libraries\fglut</Filter>
+    </ClCompile>
+    <ClCompile Include="fglut\freeglut_spaceball.c">
+      <Filter>Support Libraries\fglut</Filter>
+    </ClCompile>
+    <ClCompile Include="fglut\freeglut_joystick.c">
+      <Filter>Support Libraries\fglut</Filter>
+    </ClCompile>
+    <ClCompile Include="fglut\freeglut_main.c">
+      <Filter>Support Libraries\fglut</Filter>
+    </ClCompile>
+    <ClCompile Include="fglut\freeglut_menu.c">
+      <Filter>Support Libraries\fglut</Filter>
+    </ClCompile>
+    <ClCompile Include="fglut\freeglut_misc.c">
+      <Filter>Support Libraries\fglut</Filter>
+    </ClCompile>
+    <ClCompile Include="fglut\freeglut_overlay.c">
+      <Filter>Support Libraries\fglut</Filter>
+    </ClCompile>
+    <ClCompile Include="fglut\freeglut_state.c">
+      <Filter>Support Libraries\fglut</Filter>
+    </ClCompile>
+    <ClCompile Include="fglut\freeglut_structure.c">
+      <Filter>Support Libraries\fglut</Filter>
+    </ClCompile>
+    <ClCompile Include="fglut\freeglut_teapot.c">
+      <Filter>Support Libraries\fglut</Filter>
+    </ClCompile>
+    <ClCompile Include="fglut\freeglut_videoresize.c">
+      <Filter>Support Libraries\fglut</Filter>
+    </ClCompile>
+    <ClCompile Include="fglut\freeglut_window.c">
+      <Filter>Support Libraries\fglut</Filter>
+    </ClCompile>
+    <ClCompile Include="png\png.c">
+      <Filter>Support Libraries\png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\pngset.c">
+      <Filter>Support Libraries\png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\pngget.c">
+      <Filter>Support Libraries\png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\pngrutil.c">
+      <Filter>Support Libraries\png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\pngtrans.c">
+      <Filter>Support Libraries\png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\pngwutil.c">
+      <Filter>Support Libraries\png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\pngread.c">
+      <Filter>Support Libraries\png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\pngrio.c">
+      <Filter>Support Libraries\png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\pngwio.c">
+      <Filter>Support Libraries\png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\pngwrite.c">
+      <Filter>Support Libraries\png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\pngrtran.c">
+      <Filter>Support Libraries\png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\pngwtran.c">
+      <Filter>Support Libraries\png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\pngmem.c">
+      <Filter>Support Libraries\png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\pngerror.c">
+      <Filter>Support Libraries\png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\pngpread.c 
+      <Filter>Support Libraries\png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\adler32.c">
+      <Filter>Support Libraries\png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\compress.c">
+      <Filter>Support Libraries\png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\crc32.c">
+      <Filter>Support Libraries\png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\deflate.c">
+      <Filter>Support Libraries\png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\gzclose.c">
+      <Filter>Support Libraries\png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\gzlib.c">
+      <Filter>Support Libraries\png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\gzread.c">
+      <Filter>Support Libraries\png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\gzwrite.c">
+      <Filter>Support Libraries\png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\infback.c">
+      <Filter>Support Libraries\png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\inffast.c">
+      <Filter>Support Libraries\png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\inflate.c">
+      <Filter>Support Libraries\png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\inftrees.c">
+      <Filter>Support Libraries\png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\trees.c">
+      <Filter>Support Libraries\png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\uncompr.c"> 
+      <Filter>Support Libraries\png</Filter>
+    </ClCompile>
+    <ClCompile Include="png\zutil.c">
+      <Filter>Support Libraries\png</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jcapimin.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jcapistd.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jccoefct.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jccolor.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jcdctmgr.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jchuff.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jcinit.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jcmainct.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jcmarker.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jcmaster.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jcomapi.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jcparam.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jcphuff.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jcprepct.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jcsample.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jctrans.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jdapimin.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jdapistd.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jdatadst.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jdatasrc.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jdcoefct.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jdcolor.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jddctmgr.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jdhuff.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jdinput.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jdmainct.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jdmarker.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jdmaster.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jdmerge.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jdphuff.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jdpostct.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jdsample.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jdtrans.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jerror.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jfdctflt.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jfdctfst.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jfdctint.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jidctflt.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jidctfst.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jidctint.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jidctred.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jmemmgr.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jmemnobs.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jquant1.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jquant2.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="jpeg\jutils.c">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\ply.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3Affine.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3Align.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3Base.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3Box.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3CatmullRomSpline.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3Circle.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3Cone.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3Cont.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3Crdsys.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3Curve.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3Cylinder.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3Dist.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3Draw.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3Ellipse.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3Ellipsoid.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3Grid.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3Halfspace.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3Isect.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3Kdtree.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3Line.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3Mesh.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3MeshProperty.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3MeshPropertySet.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3MeshSearchTree.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3OrientedBox.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3Parall.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3Perp.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3PlanarGrid.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3Plane.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3Point.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3Polyline.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3Quaternion.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3Ray.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3Relate.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3Shape.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3Shapes.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3Solid.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3Span.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3Sphere.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3Surface.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3Triad.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3Triangle.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3TriangleArray.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3Vector.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R3Xform.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Shapes\R4Matrix.cpp">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Graphics\R2Texture.cpp">
+      <Filter>Support Libraries\R3Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Graphics\R2Viewport.cpp">
+      <Filter>Support Libraries\R3Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Graphics\R3AreaLight.cpp">
+      <Filter>Support Libraries\R3Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Graphics\R3Brdf.cpp">
+      <Filter>Support Libraries\R3Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Graphics\R3Camera.cpp">
+      <Filter>Support Libraries\R3Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Graphics\R3Frustum.cpp">
+      <Filter>Support Libraries\R3Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Graphics\R3DirectionalLight.cpp">
+      <Filter>Support Libraries\R3Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Graphics\R3Graphics.cpp">
+      <Filter>Support Libraries\R3Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Graphics\R3Light.cpp">
+      <Filter>Support Libraries\R3Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Graphics\R3Material.cpp">
+      <Filter>Support Libraries\R3Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Graphics\R3PointLight.cpp">
+      <Filter>Support Libraries\R3Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Graphics\R3Scene.cpp">
+      <Filter>Support Libraries\R3Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Graphics\R3SceneElement.cpp">
+      <Filter>Support Libraries\R3Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Graphics\R3SceneNode.cpp">
+      <Filter>Support Libraries\R3Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Graphics\R3SpotLight.cpp">
+      <Filter>Support Libraries\R3Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Graphics\R3Viewer.cpp">
+      <Filter>Support Libraries\R3Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="RNBasics\RNArray.cpp">
+      <Filter>Support Libraries\RNBasics</Filter>
+    </ClCompile>
+    <ClCompile Include="RNBasics\RNBase.cpp">
+      <Filter>Support Libraries\RNBasics</Filter>
+    </ClCompile>
+    <ClCompile Include="RNBasics\RNBasics.cpp">
+      <Filter>Support Libraries\RNBasics</Filter>
+    </ClCompile>
+    <ClCompile Include="RNBasics\RNError.cpp">
+      <Filter>Support Libraries\RNBasics</Filter>
+    </ClCompile>
+    <ClCompile Include="RNBasics\RNFlags.cpp">
+      <Filter>Support Libraries\RNBasics</Filter>
+    </ClCompile>
+    <ClCompile Include="RNBasics\RNFile.cpp">
+      <Filter>Support Libraries\RNBasics</Filter>
+    </ClCompile>
+    <ClCompile Include="RNBasics\RNGrfx.cpp">
+      <Filter>Support Libraries\RNBasics</Filter>
+    </ClCompile>
+    <ClCompile Include="RNBasics\RNHeap.cpp">
+      <Filter>Support Libraries\RNBasics</Filter>
+    </ClCompile>
+    <ClCompile Include="RNBasics\RNIntval.cpp">
+      <Filter>Support Libraries\RNBasics</Filter>
+    </ClCompile>
+    <ClCompile Include="RNBasics\RNMem.cpp">
+      <Filter>Support Libraries\RNBasics</Filter>
+    </ClCompile>
+    <ClCompile Include="RNBasics\RNQueue.cpp">
+      <Filter>Support Libraries\RNBasics</Filter>
+    </ClCompile>
+    <ClCompile Include="RNBasics\RNRgb.cpp">
+      <Filter>Support Libraries\RNBasics</Filter>
+    </ClCompile>
+    <ClCompile Include="RNBasics\RNScalar.cpp">
+      <Filter>Support Libraries\RNBasics</Filter>
+    </ClCompile>
+    <ClCompile Include="RNBasics\RNSvd.cpp">
+      <Filter>Support Libraries\RNBasics</Filter>
+    </ClCompile>
+    <ClCompile Include="RNBasics\RNTime.cpp">
+      <Filter>Support Libraries\RNBasics</Filter>
+    </ClCompile>
+    <ClCompile Include="RNBasics\RNType.cpp">
+      <Filter>Support Libraries\RNBasics</Filter>
+    </ClCompile>
+    <ClCompile Include="photonmap.cpp">
+      <Filter>Main Program</Filter>
+    </ClCompile>
+    <ClCompile Include="render.cpp">
+      <Filter>Main Program</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="R2Shapes\R2Affine.h">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R2Shapes\R2Align.h">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R2Shapes\R2Arc.h">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R2Shapes\R2Box.h">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R2Shapes\R2Circle.h">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R2Shapes\R2Cont.h">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R2Shapes\R2Crdsys.h">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R2Shapes\R2Curve.h">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R2Shapes\R2Diad.h">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R2Shapes\R2Dist.h">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R2Shapes\R2Draw.h">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R2Shapes\R2Grid.h">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R2Shapes\R2Halfspace.h">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R2Shapes\R2Image.h">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R2Shapes\R2Io.h">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R2Shapes\R2Isect.h">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R2Shapes\R2Kdtree.h">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R2Shapes\R2Line.h">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R2Shapes\R2Parall.h">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R2Shapes\R2Perp.h">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R2Shapes\R2Point.h">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R2Shapes\R2Polygon.h">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R2Shapes\R2Polyline.h">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R2Shapes\R2Ray.h">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R2Shapes\R2Relate.h">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R2Shapes\R2Shape.h">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R2Shapes\R2Shapes.h">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R2Shapes\R2Solid.h">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R2Shapes\R2Span.h">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R2Shapes\R2Vector.h">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R2Shapes\R2Xform.h">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R2Shapes\R3Matrix.h">
+      <Filter>Support Libraries\R2Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="png\config.h">
+      <Filter>Support Libraries\png</Filter>
+    </ClInclude>
+    <ClInclude Include="png\crc32.h">
+      <Filter>Support Libraries\png</Filter>
+    </ClInclude>
+    <ClInclude Include="png\deflate.h">
+      <Filter>Support Libraries\png</Filter>
+    </ClInclude>
+    <ClInclude Include="png\gzguts.h">
+      <Filter>Support Libraries\png</Filter>
+    </ClInclude>
+    <ClInclude Include="png\inffast.h">
+      <Filter>Support Libraries\png</Filter>
+    </ClInclude>
+    <ClInclude Include="png\inffixed.h">
+      <Filter>Support Libraries\png</Filter>
+    </ClInclude>
+    <ClInclude Include="png\inflate.h">
+      <Filter>Support Libraries\png</Filter>
+    </ClInclude>
+    <ClInclude Include="png\inftrees.h">
+      <Filter>Support Libraries\png</Filter>
+    </ClInclude>
+    <ClInclude Include="png\png.h">
+      <Filter>Support Libraries\png</Filter>
+    </ClInclude>
+    <ClInclude Include="png\pngconf.h">
+      <Filter>Support Libraries\png</Filter>
+    </ClInclude>
+    <ClInclude Include="png\pngpriv.h">
+      <Filter>Support Libraries\png</Filter>
+    </ClInclude>
+    <ClInclude Include="png\trees.h">
+      <Filter>Support Libraries\png</Filter>
+    </ClInclude>
+    <ClInclude Include="png\zconf.h">
+      <Filter>Support Libraries\png</Filter>
+    </ClInclude>
+    <ClInclude Include="png\zlib.h">
+      <Filter>Support Libraries\png</Filter>
+    </ClInclude>
+    <ClInclude Include="png\zutil.h">
+      <Filter>Support Libraries\png</Filter>
+    </ClInclude>
+    <ClInclude Include="jpeg\jchuff.h">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="jpeg\jconfig.h">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="jpeg\jdct.h">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="jpeg\jdhuff.h">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="jpeg\jerror.h">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="jpeg\jinclude.h">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="jpeg\jmemsys.h">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="jpeg\jmorecfg.h">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="jpeg\jpegint.h">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="jpeg\jpeglib.h">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="jpeg\jversion.h">
+      <Filter>Support Libraries\jpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\ply.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3Affine.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3Align.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3Base.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3Box.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3CatmullRomSpline.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3Circle.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3Cone.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3Cont.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3Crdsys.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3Curve.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3Cylinder.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3Dist.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3Draw.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3Ellipse.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3Ellipsoid.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3Grid.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3Halfspace.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3Isect.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3Kdtree.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3Line.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3Mesh.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3MeshProperty.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3MeshPropertySet.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3MeshSearchTree.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3OrientedBox.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3Parall.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3Perp.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3PlanarGrid.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3Plane.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3Point.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3Polyline.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3Quaternion.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3Ray.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3Relate.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3Shape.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3Shapes.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3Solid.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3Span.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3Sphere.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3Surface.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3Triad.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3Triangle.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3TriangleArray.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3Vector.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R3Xform.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Shapes\R4Matrix.h">
+      <Filter>Support Libraries\R3Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Graphics\R2Texture.h">
+      <Filter>Support Libraries\R3Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Graphics\R2Viewport.h">
+      <Filter>Support Libraries\R3Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Graphics\R3AreaLight.h">
+      <Filter>Support Libraries\R3Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Graphics\R3Brdf.h">
+      <Filter>Support Libraries\R3Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Graphics\R3Camera.h">
+      <Filter>Support Libraries\R3Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Graphics\R3Frustum.h">
+      <Filter>Support Libraries\R3Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Graphics\R3DirectionalLight.h">
+      <Filter>Support Libraries\R3Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Graphics\R3Graphics.h">
+      <Filter>Support Libraries\R3Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Graphics\R3Light.h">
+      <Filter>Support Libraries\R3Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Graphics\R3Material.h">
+      <Filter>Support Libraries\R3Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Graphics\R3PointLight.h">
+      <Filter>Support Libraries\R3Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Graphics\R3Scene.h">
+      <Filter>Support Libraries\R3Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Graphics\R3SceneElement.h">
+      <Filter>Support Libraries\R3Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Graphics\R3SceneNode.h">
+      <Filter>Support Libraries\R3Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Graphics\R3SpotLight.h">
+      <Filter>Support Libraries\R3Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Graphics\R3Viewer.h">
+      <Filter>Support Libraries\R3Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="RNBasics\RNArray.h">
+      <Filter>Support Libraries\RNBasics</Filter>
+    </ClInclude>
+    <ClInclude Include="RNBasics\RNBase.h">
+      <Filter>Support Libraries\RNBasics</Filter>
+    </ClInclude>
+    <ClInclude Include="RNBasics\RNBasics.h">
+      <Filter>Support Libraries\RNBasics</Filter>
+    </ClInclude>
+    <ClInclude Include="RNBasics\RNCompat.h">
+      <Filter>Support Libraries\RNBasics</Filter>
+    </ClInclude>
+    <ClInclude Include="RNBasics\RNError.h">
+      <Filter>Support Libraries\RNBasics</Filter>
+    </ClInclude>
+    <ClInclude Include="RNBasics\RNExtern.h">
+      <Filter>Support Libraries\RNBasics</Filter>
+    </ClInclude>
+    <ClInclude Include="RNBasics\RNFile.h">
+      <Filter>Support Libraries\RNBasics</Filter>
+    </ClInclude>
+    <ClInclude Include="RNBasics\RNFlags.h">
+      <Filter>Support Libraries\RNBasics</Filter>
+    </ClInclude>
+    <ClInclude Include="RNBasics\RNGrfx.h">
+      <Filter>Support Libraries\RNBasics</Filter>
+    </ClInclude>
+    <ClInclude Include="RNBasics\RNHeap.h">
+      <Filter>Support Libraries\RNBasics</Filter>
+    </ClInclude>
+    <ClInclude Include="RNBasics\RNIntval.h">
+      <Filter>Support Libraries\RNBasics</Filter>
+    </ClInclude>
+    <ClInclude Include="RNBasics\RNMem.h">
+      <Filter>Support Libraries\RNBasics</Filter>
+    </ClInclude>
+    <ClInclude Include="RNBasics\RNQueue.h">
+      <Filter>Support Libraries\RNBasics</Filter>
+    </ClInclude>
+    <ClInclude Include="RNBasics\RNRgb.h">
+      <Filter>Support Libraries\RNBasics</Filter>
+    </ClInclude>
+    <ClInclude Include="RNBasics\RNScalar.h">
+      <Filter>Support Libraries\RNBasics</Filter>
+    </ClInclude>
+    <ClInclude Include="RNBasics\RNSvd.h">
+      <Filter>Support Libraries\RNBasics</Filter>
+    </ClInclude>
+    <ClInclude Include="RNBasics\RNTime.h">
+      <Filter>Support Libraries\RNBasics</Filter>
+    </ClInclude>
+    <ClInclude Include="RNBasics\RNType.h">
+      <Filter>Support Libraries\RNBasics</Filter>
+    </ClInclude>
+    <ClInclude Include="render.h">
+      <Filter>Main Program</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

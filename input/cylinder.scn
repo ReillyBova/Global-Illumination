@@ -1,0 +1,9 @@
+# This scene shows one cylinder from the side
+# It is useful to test shading 
+
+# A point light source above and right (behind camera)
+point_light   5 5 0           2 2 2   0 0 1
+point_light   5 0 5           -2 2 2   0 0 1
+
+# A cylinder with default material (-1) centered at (0,0,0) with radius 1 and height 1
+cylinder   -1    0 0 0    1 1

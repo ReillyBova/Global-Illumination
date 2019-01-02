@@ -1,0 +1,7 @@
+# This scene shows a close-up view of a teapot mesh 
+
+# A point light source above and right (behind camera)
+point_light   5 5 5           2 2 2   0 0 1
+
+# A mesh with default material (-1) read from teapot.off
+mesh   -1    teapot.off

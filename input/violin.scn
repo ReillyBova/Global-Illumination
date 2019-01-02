@@ -1,0 +1,21 @@
+# Scene created by Nora Willet
+
+# This scene shows a close-up view of a violin
+camera 5.7 12.6 -16.0   -0.4 -0.7 0.8   0 1 -0.5   0.329   0.01 100
+
+# A point light source above and right (behind camera)
+point_light   9.4 8.8 5.8           4 3 2   0 0 10
+dir_light .47 .55 .75   0.710 -.680 -0.410   
+
+#materials
+material 0 0 0   .95 .95 .95   0 0 0   0 0 0   0 0 0   10 1.0 0
+material 0 0 0   .45 .23 .03   .94 .85 .56   0 0 0   0 0 0   50 1.0 0
+material 0 0 0   .05 .05 .07   .1 .1 .1   0 0 0   0 0 0   10 1.0 0
+material 0 0 0   0 0 0   0 0 0   1 1 1   0 0 0   10 1.8 0
+
+# Meshes with different materials
+box    0  -10 -2 -12  10 -.5 10 
+mesh   1    violinBody.off
+mesh   2    nobs.off
+mesh   3    strings.off
+

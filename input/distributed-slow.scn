@@ -1,0 +1,47 @@
+# spheres inside a box.
+
+# A camera 
+camera  0.0 2 8        0 0 -1     0.000 1 0             0.78 0.01 100
+
+# One light, black, to suppress automatic generation of light sources.
+point_light   0 0 0           0 3.5 1    0 0 1
+
+# Three diffuse materials (red, green, gray)
+material  0 0 0  1 0 0         0 0 0   0 0 0  0 0 0  10 1 0
+material  0 0 0  0 1 0         0 0 0   0 0 0  0 0 0  10 1 0
+material  0 0 0  0.8 0.8 0.8   0 0 0   0 0 0  0 0 0  10 1 0
+
+# one mirroring material
+material  0 0 0  0 0 0   1 1 1   0 0 0  0 0 0  100 1 0
+
+# one glass material, blue tint
+material  .1 .1 .1  0 0 0   0.25 0.25 0.25   .5 .5 .75  0 0 0  20 2 0
+
+# emissive ceiling light
+material   0 0  0 0 0 0   0.0 0 0    0 0 0       4 4 4      1 1 0
+
+# box
+
+# floor
+box      2   -4 -1 -4  4 0  5
+# roof
+box      2   -4 4 -4  4 5  5
+# back wall
+box      2   -4 0 -4  4 5 -3
+# front wall
+# box      2   -4 0 9  4 5  5
+# left wall
+box      0   -5 -1 -4  -4 5  5
+# right wall
+box      1   4 -1 -4  5 5  5
+
+# emissive ceiling light
+box      5   -2 3.9 -2  2 4 2
+
+
+# diffuse sphere sitting to the left in the box
+sphere   2   -2 1 1  1
+# mirroring sphere sitting in the center of the box
+sphere   3    0 1 1  1
+# glass sphere sitting to the right (lower than the other spheres so that its caustic hopefully becomes visible)
+sphere   4    2 1 1  1

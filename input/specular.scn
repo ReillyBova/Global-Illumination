@@ -1,0 +1,19 @@
+# This is a scene that has two shiny spheres on top of a shiny box.
+# It is useful for testing specular reflections.
+
+# A camera 
+camera  0.5 3 8    -0.053 -0.316 -0.947    0.003 0.949 -0.316    0.25   0.01 100
+
+# Two lights
+point_light   1 1 1           0.5 1 2   0 0 1
+dir_light     0.2 0.2 0.2     0 -1 0
+
+# Three shiny materials (red, green, gray)
+material  0 0 0  1 0 0    1 1 1   0 0 0  0 0 0  10 1 0
+material  0 0 0  0 1 0    1 1 1   0 0 0  0 0 0  10 1 0
+material  0 0 0  0.2 0.2 0.2  1 1 1  0 0 0  0 0 0  10 1 0
+
+# Two spheres touching one another on a box
+sphere   0  -1 1 0  1   
+sphere   1   1 1 0  1   
+box      2   -4 -1 -4  4 0 4

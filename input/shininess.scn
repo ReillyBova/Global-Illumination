@@ -1,0 +1,18 @@
+# This is a scene that has four shiny spheres .
+# Each of the spheres has the same reflectance properties, except the shininess
+# It is useful for testing illumination and specular reflections.
+
+# One point light source in middle above scene
+point_light   1 1 1           0 0 1   0 0 1
+
+# Four materials for spheres with different shininess values
+material   0 0 0  1 0 0    1 1 1   0 0 0  0 0 0  1 1 0
+material   0 0 0  1 0 0    1 1 1   0 0 0  0 0 0  10 1 0
+material   0 0 0  1 0 0    1 1 1   0 0 0  0 0 0  100 1 0
+material   0 0 0  1 0 0    1 1 1   0 0 0  0 0 0  1000 1 0
+
+# Four spheres touching one another
+sphere   0  -1 -1 0  1   
+sphere   1  -1  1 0  1   
+sphere   2   1 -1 0  1   
+sphere   3   1  1 0  1   

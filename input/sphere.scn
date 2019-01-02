@@ -1,0 +1,8 @@
+# This scene shows one sphere with one light source
+# It is useful for testing shading
+
+# A point light source above and right (behind camera)
+point_light   5 5 5           2 2 2   0 0 1
+
+# A sphere with default material (-1) centered at (0,0,0) with radius 1
+sphere   -1    0 0 0    1   

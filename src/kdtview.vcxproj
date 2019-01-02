@@ -1,0 +1,450 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{97451871-161B-4C75-9EDE-C15518F67476}</ProjectGuid>
+    <RootNamespace>kdtview</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>.;..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <DisableSpecificWarnings>4244;4267;4996;4305;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <OutputFile>kdtview.exe</OutputFile>
+      <IgnoreSpecificDefaultLibraries>libcmtd;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>.;..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4244;4267;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <OutputFile>kdtview.exe</OutputFile>
+      <IgnoreSpecificDefaultLibraries>libcmtd;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="R2Shapes\R2Affine.cpp" />
+    <ClCompile Include="R2Shapes\R2Align.cpp" />
+    <ClCompile Include="R2Shapes\R2Arc.cpp" />
+    <ClCompile Include="R2Shapes\R2Box.cpp" />
+    <ClCompile Include="R2Shapes\R2Circle.cpp" />
+    <ClCompile Include="R2Shapes\R2Cont.cpp" />
+    <ClCompile Include="R2Shapes\R2Crdsys.cpp" />
+    <ClCompile Include="R2Shapes\R2Curve.cpp" />
+    <ClCompile Include="R2Shapes\R2Diad.cpp" />
+    <ClCompile Include="R2Shapes\R2Dist.cpp" />
+    <ClCompile Include="R2Shapes\R2Draw.cpp" />
+    <ClCompile Include="R2Shapes\R2Grid.cpp" />
+    <ClCompile Include="R2Shapes\R2Halfspace.cpp" />
+    <ClCompile Include="R2Shapes\R2Image.cpp" />
+    <ClCompile Include="R2Shapes\R2Io.cpp" />
+    <ClCompile Include="R2Shapes\R2Isect.cpp" />
+    <ClCompile Include="R2Shapes\R2Kdtree.cpp" />
+    <ClCompile Include="R2Shapes\R2Line.cpp" />
+    <ClCompile Include="R2Shapes\R2Parall.cpp" />
+    <ClCompile Include="R2Shapes\R2Perp.cpp" />
+    <ClCompile Include="R2Shapes\R2Point.cpp" />
+    <ClCompile Include="R2Shapes\R2Polygon.cpp" />
+    <ClCompile Include="R2Shapes\R2Line.cpp" />
+    <ClCompile Include="R2Shapes\R2Ray.cpp" />
+    <ClCompile Include="R2Shapes\R2Relate.cpp" />
+    <ClCompile Include="R2Shapes\R2Shape.cpp" />
+    <ClCompile Include="R2Shapes\R2Shapes.cpp" />
+    <ClCompile Include="R2Shapes\R2Solid.cpp" />
+    <ClCompile Include="R2Shapes\R2Span.cpp" />
+    <ClCompile Include="R2Shapes\R2Vector.cpp" />
+    <ClCompile Include="R2Shapes\R2Xform.cpp" />
+    <ClCompile Include="R2Shapes\R3Matrix.cpp" />
+    <ClCompile Include="fglut\freeglut_callbacks.c" />
+    <ClCompile Include="fglut\freeglut_cursor.c" />
+    <ClCompile Include="fglut\freeglut_display.c" />
+    <ClCompile Include="fglut\freeglut_ext.c" />
+    <ClCompile Include="fglut\freeglut_font.c" />
+    <ClCompile Include="fglut\freeglut_glutfont_definitions.c" />
+    <ClCompile Include="fglut\freeglut_font_data.c" />
+    <ClCompile Include="fglut\freeglut_stroke_roman.c" />
+    <ClCompile Include="fglut\freeglut_stroke_mono_roman.c" />
+    <ClCompile Include="fglut\freeglut_gamemode.c" />
+    <ClCompile Include="fglut\freeglut_geometry.c" />
+    <ClCompile Include="fglut\freeglut_init.c" />
+    <ClCompile Include="fglut\freeglut_input_devices.c" />
+    <ClCompile Include="fglut\freeglut_spaceball.c" />
+    <ClCompile Include="fglut\freeglut_joystick.c" />
+    <ClCompile Include="fglut\freeglut_main.c" />
+    <ClCompile Include="fglut\freeglut_menu.c" />
+    <ClCompile Include="fglut\freeglut_misc.c" />
+    <ClCompile Include="fglut\freeglut_overlay.c" />
+    <ClCompile Include="fglut\freeglut_state.c" />
+    <ClCompile Include="fglut\freeglut_structure.c" />
+    <ClCompile Include="fglut\freeglut_teapot.c" />
+    <ClCompile Include="fglut\freeglut_videoresize.c" />
+    <ClCompile Include="fglut\freeglut_window.c" />
+    <ClCompile Include="png\png.c" />
+    <ClCompile Include="png\pngset.c" />
+    <ClCompile Include="png\pngget.c" />
+    <ClCompile Include="png\pngrutil.c" />
+    <ClCompile Include="png\pngtrans.c" />
+    <ClCompile Include="png\pngwutil.c" />
+    <ClCompile Include="png\pngread.c" />
+    <ClCompile Include="png\pngrio.c" />
+    <ClCompile Include="png\pngwio.c" />
+    <ClCompile Include="png\pngwrite.c" />
+    <ClCompile Include="png\pngrtran.c" />
+    <ClCompile Include="png\pngwtran.c" />
+    <ClCompile Include="png\pngmem.c" />
+    <ClCompile Include="png\pngerror.c" />
+    <ClCompile Include="png\pngpread.c" />
+    <ClCompile Include="png\adler32.c" />
+    <ClCompile Include="png\compress.c" />
+    <ClCompile Include="png\crc32.c" />
+    <ClCompile Include="png\deflate.c" />
+    <ClCompile Include="png\gzclose.c" />
+    <ClCompile Include="png\gzlib.c" />
+    <ClCompile Include="png\gzread.c" />
+    <ClCompile Include="png\gzwrite.c" />
+    <ClCompile Include="png\infback.c" />
+    <ClCompile Include="png\inffast.c" />
+    <ClCompile Include="png\inflate.c" />
+    <ClCompile Include="png\inftrees.c" />
+    <ClCompile Include="png\trees.c" />
+    <ClCompile Include="png\uncompr.c" /> 
+    <ClCompile Include="png\zutil.c" />
+    <ClCompile Include="jpeg\jcapimin.c" />
+    <ClCompile Include="jpeg\jcapistd.c" />
+    <ClCompile Include="jpeg\jccoefct.c" />
+    <ClCompile Include="jpeg\jccolor.c" />
+    <ClCompile Include="jpeg\jcdctmgr.c" />
+    <ClCompile Include="jpeg\jchuff.c" />
+    <ClCompile Include="jpeg\jcinit.c" />
+    <ClCompile Include="jpeg\jcmainct.c" />
+    <ClCompile Include="jpeg\jcmarker.c" />
+    <ClCompile Include="jpeg\jcmaster.c" />
+    <ClCompile Include="jpeg\jcomapi.c" />
+    <ClCompile Include="jpeg\jcparam.c" />
+    <ClCompile Include="jpeg\jcphuff.c" />
+    <ClCompile Include="jpeg\jcprepct.c" />
+    <ClCompile Include="jpeg\jcsample.c" />
+    <ClCompile Include="jpeg\jctrans.c" />
+    <ClCompile Include="jpeg\jdapimin.c" />
+    <ClCompile Include="jpeg\jdapistd.c" />
+    <ClCompile Include="jpeg\jdatadst.c" />
+    <ClCompile Include="jpeg\jdatasrc.c" />
+    <ClCompile Include="jpeg\jdcoefct.c" />
+    <ClCompile Include="jpeg\jdcolor.c" />
+    <ClCompile Include="jpeg\jddctmgr.c" />
+    <ClCompile Include="jpeg\jdhuff.c" />
+    <ClCompile Include="jpeg\jdinput.c" />
+    <ClCompile Include="jpeg\jdmainct.c" />
+    <ClCompile Include="jpeg\jdmarker.c" />
+    <ClCompile Include="jpeg\jdmaster.c" />
+    <ClCompile Include="jpeg\jdmerge.c" />
+    <ClCompile Include="jpeg\jdphuff.c" />
+    <ClCompile Include="jpeg\jdpostct.c" />
+    <ClCompile Include="jpeg\jdsample.c" />
+    <ClCompile Include="jpeg\jdtrans.c" />
+    <ClCompile Include="jpeg\jerror.c" />
+    <ClCompile Include="jpeg\jfdctflt.c" />
+    <ClCompile Include="jpeg\jfdctfst.c" />
+    <ClCompile Include="jpeg\jfdctint.c" />
+    <ClCompile Include="jpeg\jidctflt.c" />
+    <ClCompile Include="jpeg\jidctfst.c" />
+    <ClCompile Include="jpeg\jidctint.c" />
+    <ClCompile Include="jpeg\jidctred.c" />
+    <ClCompile Include="jpeg\jmemmgr.c" />
+    <ClCompile Include="jpeg\jmemnobs.c" />
+    <ClCompile Include="jpeg\jquant1.c" />
+    <ClCompile Include="jpeg\jquant2.c" />
+    <ClCompile Include="jpeg\jutils.c" />
+    <ClCompile Include="R3Shapes\ply.cpp" />
+    <ClCompile Include="R3Shapes\R3Affine.cpp" />
+    <ClCompile Include="R3Shapes\R3Align.cpp" />
+    <ClCompile Include="R3Shapes\R3Base.cpp" />
+    <ClCompile Include="R3Shapes\R3Box.cpp" />
+    <ClCompile Include="R3Shapes\R3CatmullRomSpline.cpp" />
+    <ClCompile Include="R3Shapes\R3Circle.cpp" />
+    <ClCompile Include="R3Shapes\R3Cone.cpp" />
+    <ClCompile Include="R3Shapes\R3Cont.cpp" />
+    <ClCompile Include="R3Shapes\R3Crdsys.cpp" />
+    <ClCompile Include="R3Shapes\R3Curve.cpp" />
+    <ClCompile Include="R3Shapes\R3Cylinder.cpp" />
+    <ClCompile Include="R3Shapes\R3Dist.cpp" />
+    <ClCompile Include="R3Shapes\R3Draw.cpp" />
+    <ClCompile Include="R3Shapes\R3Ellipse.cpp" />
+    <ClCompile Include="R3Shapes\R3Ellipsoid.cpp" />
+    <ClCompile Include="R3Shapes\R3Grid.cpp" />
+    <ClCompile Include="R3Shapes\R3Halfspace.cpp" />
+    <ClCompile Include="R3Shapes\R3Isect.cpp" />
+    <ClCompile Include="R3Shapes\R3Kdtree.cpp" />
+    <ClCompile Include="R3Shapes\R3Line.cpp" />
+    <ClCompile Include="R3Shapes\R3Mesh.cpp" />
+    <ClCompile Include="R3Shapes\R3MeshProperty.cpp" />
+    <ClCompile Include="R3Shapes\R3MeshPropertySet.cpp" />
+    <ClCompile Include="R3Shapes\R3MeshSearchTree.cpp" />
+    <ClCompile Include="R3Shapes\R3OrientedBox.cpp" />
+    <ClCompile Include="R3Shapes\R3Parall.cpp" />
+    <ClCompile Include="R3Shapes\R3Perp.cpp" />
+    <ClCompile Include="R3Shapes\R3PlanarGrid.cpp" />
+    <ClCompile Include="R3Shapes\R3Plane.cpp" />
+    <ClCompile Include="R3Shapes\R3Point.cpp" />
+    <ClCompile Include="R3Shapes\R3Polyline.cpp" />
+    <ClCompile Include="R3Shapes\R3Quaternion.cpp" />
+    <ClCompile Include="R3Shapes\R3Ray.cpp" />
+    <ClCompile Include="R3Shapes\R3Relate.cpp" />
+    <ClCompile Include="R3Shapes\R3Shape.cpp" />
+    <ClCompile Include="R3Shapes\R3Shapes.cpp" />
+    <ClCompile Include="R3Shapes\R3Solid.cpp" />
+    <ClCompile Include="R3Shapes\R3Span.cpp" />
+    <ClCompile Include="R3Shapes\R3Sphere.cpp" />
+    <ClCompile Include="R3Shapes\R3Surface.cpp" />
+    <ClCompile Include="R3Shapes\R3Triad.cpp" />
+    <ClCompile Include="R3Shapes\R3Triangle.cpp" />
+    <ClCompile Include="R3Shapes\R3TriangleArray.cpp" />
+    <ClCompile Include="R3Shapes\R3Vector.cpp" />
+    <ClCompile Include="R3Shapes\R3Xform.cpp" />
+    <ClCompile Include="R3Shapes\R4Matrix.cpp" />
+    <ClCompile Include="R3Graphics\R2Texture.cpp" />
+    <ClCompile Include="R3Graphics\R2Viewport.cpp" />
+    <ClCompile Include="R3Graphics\R3AreaLight.cpp" />
+    <ClCompile Include="R3Graphics\R3Brdf.cpp" />
+    <ClCompile Include="R3Graphics\R3Camera.cpp" />
+    <ClCompile Include="R3Graphics\R3Frustum.cpp" />
+    <ClCompile Include="R3Graphics\R3DirectionalLight.cpp" />
+    <ClCompile Include="R3Graphics\R3Graphics.cpp" />
+    <ClCompile Include="R3Graphics\R3Light.cpp" />
+    <ClCompile Include="R3Graphics\R3Material.cpp" />
+    <ClCompile Include="R3Graphics\R3PointLight.cpp" />
+    <ClCompile Include="R3Graphics\R3Scene.cpp" />
+    <ClCompile Include="R3Graphics\R3SceneElement.cpp" />
+    <ClCompile Include="R3Graphics\R3SceneNode.cpp" />
+    <ClCompile Include="R3Graphics\R3SpotLight.cpp" />
+    <ClCompile Include="R3Graphics\R3Viewer.cpp" />
+    <ClCompile Include="R3Graphics\p5d.cpp" />
+    <ClCompile Include="R3Graphics\json.cpp" />
+    <ClCompile Include="RNBasics\RNArray.cpp" />
+    <ClCompile Include="RNBasics\RNBase.cpp" />
+    <ClCompile Include="RNBasics\RNBasics.cpp" />
+    <ClCompile Include="RNBasics\RNError.cpp" />
+    <ClCompile Include="RNBasics\RNFlags.cpp" />
+    <ClCompile Include="RNBasics\RNGrfx.cpp" />
+    <ClCompile Include="RNBasics\RNHeap.cpp" />
+    <ClCompile Include="RNBasics\RNIntval.cpp" />
+    <ClCompile Include="RNBasics\RNMem.cpp" />
+    <ClCompile Include="RNBasics\RNQueue.cpp" />
+    <ClCompile Include="RNBasics\RNRgb.cpp" />
+    <ClCompile Include="RNBasics\RNScalar.cpp" />
+    <ClCompile Include="RNBasics\RNSvd.cpp" />
+    <ClCompile Include="RNBasics\RNTime.cpp" />
+    <ClCompile Include="RNBasics\RNType.cpp" />
+    <ClCompile Include="kdtview.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="R2Shapes\R2Affine.h" />
+    <ClInclude Include="R2Shapes\R2Align.h" />
+    <ClInclude Include="R2Shapes\R2Arc.h" />
+    <ClInclude Include="R2Shapes\R2Box.h" />
+    <ClInclude Include="R2Shapes\R2Circle.h" />
+    <ClInclude Include="R2Shapes\R2Cont.h" />
+    <ClInclude Include="R2Shapes\R2Crdsys.h" />
+    <ClInclude Include="R2Shapes\R2Curve.h" />
+    <ClInclude Include="R2Shapes\R2Diad.h" />
+    <ClInclude Include="R2Shapes\R2Dist.h" />
+    <ClInclude Include="R2Shapes\R2Draw.h" />
+    <ClInclude Include="R2Shapes\R2Grid.h" />
+    <ClInclude Include="R2Shapes\R2Halfspace.h" />
+    <ClInclude Include="R2Shapes\R2Image.h" />
+    <ClInclude Include="R2Shapes\R2Io.h" />
+    <ClInclude Include="R2Shapes\R2Isect.h" />
+    <ClInclude Include="R2Shapes\R2Kdtree.h" />
+    <ClInclude Include="R2Shapes\R2Line.h" />
+    <ClInclude Include="R2Shapes\R2Parall.h" />
+    <ClInclude Include="R2Shapes\R2Perp.h" />
+    <ClInclude Include="R2Shapes\R2Point.h" />
+    <ClInclude Include="R2Shapes\R2Polygon.h" />
+    <ClInclude Include="R2Shapes\R2Polyline.h" />
+    <ClInclude Include="R2Shapes\R2Ray.h" />
+    <ClInclude Include="R2Shapes\R2Relate.h" />
+    <ClInclude Include="R2Shapes\R2Shape.h" />
+    <ClInclude Include="R2Shapes\R2Shapes.h" />
+    <ClInclude Include="R2Shapes\R2Solid.h" />
+    <ClInclude Include="R2Shapes\R2Span.h" />
+    <ClInclude Include="R2Shapes\R2Vector.h" />
+    <ClInclude Include="R2Shapes\R2Xform.h" />
+    <ClInclude Include="R2Shapes\R3Matrix.h" />
+    <ClInclude Include="png\config.h" />
+    <ClInclude Include="png\crc32.h" />
+    <ClInclude Include="png\deflate.h" />
+    <ClInclude Include="png\gzguts.h" />
+    <ClInclude Include="png\inffast.h" />
+    <ClInclude Include="png\inffixed.h" />
+    <ClInclude Include="png\inflate.h" />
+    <ClInclude Include="png\inftrees.h" />
+    <ClInclude Include="png\png.h" />
+    <ClInclude Include="png\pngconf.h" />
+    <ClInclude Include="png\pngpriv.h" />
+    <ClInclude Include="png\trees.h" />
+    <ClInclude Include="png\zconf.h" />
+    <ClInclude Include="png\zlib.h" />
+    <ClInclude Include="png\zutil.h" />
+    <ClInclude Include="jpeg\jchuff.h" />
+    <ClInclude Include="jpeg\jconfig.h" />
+    <ClInclude Include="jpeg\jdct.h" />
+    <ClInclude Include="jpeg\jdhuff.h" />
+    <ClInclude Include="jpeg\jerror.h" />
+    <ClInclude Include="jpeg\jinclude.h" />
+    <ClInclude Include="jpeg\jmemsys.h" />
+    <ClInclude Include="jpeg\jmorecfg.h" />
+    <ClInclude Include="jpeg\jpegint.h" />
+    <ClInclude Include="jpeg\jpeglib.h" />
+    <ClInclude Include="jpeg\jversion.h" />
+    <ClInclude Include="R3Shapes\ply.h" />
+    <ClInclude Include="R3Shapes\R3Affine.h" />
+    <ClInclude Include="R3Shapes\R3Align.h" />
+    <ClInclude Include="R3Shapes\R3Base.h" />
+    <ClInclude Include="R3Shapes\R3Box.h" />
+    <ClInclude Include="R3Shapes\R3CatmullRomSpline.h" />
+    <ClInclude Include="R3Shapes\R3Circle.h" />
+    <ClInclude Include="R3Shapes\R3Cone.h" />
+    <ClInclude Include="R3Shapes\R3Cont.h" />
+    <ClInclude Include="R3Shapes\R3Crdsys.h" />
+    <ClInclude Include="R3Shapes\R3Curve.h" />
+    <ClInclude Include="R3Shapes\R3Cylinder.h" />
+    <ClInclude Include="R3Shapes\R3Dist.h" />
+    <ClInclude Include="R3Shapes\R3Draw.h" />
+    <ClInclude Include="R3Shapes\R3Ellipse.h" />
+    <ClInclude Include="R3Shapes\R3Ellipsoid.h" />
+    <ClInclude Include="R3Shapes\R3Grid.h" />
+    <ClInclude Include="R3Shapes\R3Halfspace.h" />
+    <ClInclude Include="R3Shapes\R3Isect.h" />
+    <ClInclude Include="R3Shapes\R3Kdtree.h" />
+    <ClInclude Include="R3Shapes\R3Line.h" />
+    <ClInclude Include="R3Shapes\R3Mesh.h" />
+    <ClInclude Include="R3Shapes\R3MeshProperty.h" />
+    <ClInclude Include="R3Shapes\R3MeshPropertySet.h" />
+    <ClInclude Include="R3Shapes\R3MeshSearchTree.h" />
+    <ClInclude Include="R3Shapes\R3OrientedBox.h" />
+    <ClInclude Include="R3Shapes\R3Parall.h" />
+    <ClInclude Include="R3Shapes\R3Perp.h" />
+    <ClInclude Include="R3Shapes\R3PlanarGrid.h" />
+    <ClInclude Include="R3Shapes\R3Plane.h" />
+    <ClInclude Include="R3Shapes\R3Point.h" />
+    <ClInclude Include="R3Shapes\R3Polyline.h" />
+    <ClInclude Include="R3Shapes\R3Quaternion.h" />
+    <ClInclude Include="R3Shapes\R3Ray.h" />
+    <ClInclude Include="R3Shapes\R3Relate.h" />
+    <ClInclude Include="R3Shapes\R3Shape.h" />
+    <ClInclude Include="R3Shapes\R3Shapes.h" />
+    <ClInclude Include="R3Shapes\R3Solid.h" />
+    <ClInclude Include="R3Shapes\R3Span.h" />
+    <ClInclude Include="R3Shapes\R3Sphere.h" />
+    <ClInclude Include="R3Shapes\R3Surface.h" />
+    <ClInclude Include="R3Shapes\R3Triad.h" />
+    <ClInclude Include="R3Shapes\R3Triangle.h" />
+    <ClInclude Include="R3Shapes\R3TriangleArray.h" />
+    <ClInclude Include="R3Shapes\R3Vector.h" />
+    <ClInclude Include="R3Shapes\R3Xform.h" />
+    <ClInclude Include="R3Shapes\R4Matrix.h" />
+    <ClInclude Include="R3Graphics\R2Texture.h" />
+    <ClInclude Include="R3Graphics\R2Viewport.h" />
+    <ClInclude Include="R3Graphics\R3AreaLight.h" />
+    <ClInclude Include="R3Graphics\R3Brdf.h" />
+    <ClInclude Include="R3Graphics\R3Camera.h" />
+    <ClInclude Include="R3Graphics\R3Frustum.h" />
+    <ClInclude Include="R3Graphics\R3DirectionalLight.h" />
+    <ClInclude Include="R3Graphics\R3Graphics.h" />
+    <ClInclude Include="R3Graphics\R3Light.h" />
+    <ClInclude Include="R3Graphics\R3Material.h" />
+    <ClInclude Include="R3Graphics\R3PointLight.h" />
+    <ClInclude Include="R3Graphics\R3Scene.h" />
+    <ClInclude Include="R3Graphics\R3SceneElement.h" />
+    <ClInclude Include="R3Graphics\R3SceneNode.h" />
+    <ClInclude Include="R3Graphics\R3SpotLight.h" />
+    <ClInclude Include="R3Graphics\R3Viewer.h" />
+    <ClInclude Include="R3Graphics\p5d.h" />
+    <ClInclude Include="R3Graphics\json.h" />
+    <ClInclude Include="RNBasics\RNArray.h" />
+    <ClInclude Include="RNBasics\RNBase.h" />
+    <ClInclude Include="RNBasics\RNBasics.h" />
+    <ClInclude Include="RNBasics\RNCompat.h" />
+    <ClInclude Include="RNBasics\RNError.h" />
+    <ClInclude Include="RNBasics\RNExtern.h" />
+    <ClInclude Include="RNBasics\RNFlags.h" />
+    <ClInclude Include="RNBasics\RNGrfx.h" />
+    <ClInclude Include="RNBasics\RNHeap.h" />
+    <ClInclude Include="RNBasics\RNIntval.h" />
+    <ClInclude Include="RNBasics\RNMem.h" />
+    <ClInclude Include="RNBasics\RNQueue.h" />
+    <ClInclude Include="RNBasics\RNRgb.h" />
+    <ClInclude Include="RNBasics\RNScalar.h" />
+    <ClInclude Include="RNBasics\RNSvd.h" />
+    <ClInclude Include="RNBasics\RNTime.h" />
+    <ClInclude Include="RNBasics\RNType.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

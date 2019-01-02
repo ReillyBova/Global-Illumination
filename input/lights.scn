@@ -1,0 +1,31 @@
+# This scene shows has 8 spheres with the same material, 
+# lit by three different lights.  It is useful for testing
+# illumination code.
+
+# A camera
+camera  0 0 50  0 0 -1  0 1 0  0.25   0.01 100
+
+# A white point light in the middle of the spheres (0,0,0)
+# with no attenuation with distance
+point_light 1 1 1  0 0 0  1 0 0
+
+# A bright red (10,0,0) point light to the right of the spheres (10,0,0)
+# with linear attenuation with distance
+point_light 10 0 0  10 0 0  0 1 0
+
+# A bright blue (0,0,100) spot light to the left of the spheres (-10,0,0)
+# pointing up and right (1,1,0) with quadradic attenuation with distance
+spot_light 0 0 100  -10 0 0  1 1 0  0 0 1  1.57 1  
+
+# Material
+material  0 0 0  1 1 1  0.5 0.5 0.5  0 0 0  0 0 0  10 1 0
+
+# Spheres 
+sphere  0    -5 -5 -5    1
+sphere  0     5 -5 -5    1
+sphere  0    -5  5 -5    1
+sphere  0    -5 -5  5    1
+sphere  0     5  5 -5    1
+sphere  0    -5  5  5    1
+sphere  0     5 -5  5    1
+sphere  0     5  5  5    1

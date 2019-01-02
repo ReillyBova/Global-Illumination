@@ -1,0 +1,17 @@
+# This scene shows a one box
+# It is useful for testing basic stuff
+
+# Camera looking at box from corner angle
+# It's eye point is (-2.227 -6.085 1.989).
+# It's view direction (towards vector) is (0.343 0.892 -0.295).
+# It's up vector is (-0.262 0.392 0.882).
+# The xfov is 0.25, while the yfov will be computed to match the aspect ratio of the image
+# The near and far distances are 0.01 and 1000, which conservatively contain the scene
+camera -2.227 -6.085 1.989  0.343 0.892 -0.295  -0.262 0.392 0.882   0.25  0.01 1000
+
+# A point light source above and left of cube
+point_light   5 5 5           -2 -2 2   0 0 1
+
+# An axis-aligned box with default material (-1) and 
+# with lower corner (-1,-1,-1) and upper corner (1,1,1)
+box   -1    -1 -1 -1   1 1 1  

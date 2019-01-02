@@ -1,0 +1,17 @@
+# This scene has three spot lights
+# It is good for testing illuminaton with spot lights.
+
+# A camera
+camera 0 2 0   0 -1 0   0 0 1   0.25   0.01 100
+
+# Three spot lights
+spot_light 1 0 0   0.0 1.0 -1.0      0.0 -.7071 0.7071   0 0 1   0.331 100
+spot_light 0 1 0   0.866 1.0 .5    -0.710 -.580 -0.410   0 0 1   0.331 100
+spot_light 0 0 1   -0.866 1.0 0.5   0.710 -.580 -0.410   0 0 1   0.331 100
+
+# A mostly diffuse material
+material   0 0 0   1 1 1  0.2 0.2 0.2   0.0 0.0 0.0  0.0 0.0 0.0  10 1 0 
+
+# A sphere on a box
+sphere 0 0.0 0.2 0.0 0.2
+box    0  -2 -1 -2  2 0 2 

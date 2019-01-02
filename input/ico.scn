@@ -1,0 +1,8 @@
+# This scene shows a close-up view of a icosahedron mesh 
+# It is useful for testing shading
+
+# A point light source above and right (behind camera)
+point_light   5 5 5           2 2 2   0 0 1
+
+# A mesh with default material (-1) read from ico.off
+mesh   -1    ico.off

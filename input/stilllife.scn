@@ -1,0 +1,69 @@
+# This scene has the five platonic solids arranged on a box
+# It is good for testing combinations of ray-mesh interesections, 
+# transformations, and illumination
+
+# A camera 
+camera   0.640 9.446 5.606   -0.055 -0.851 -0.522   -0.005 0.523 -0.853   0.25   0.01 100
+
+# Two colored point lights and directional light
+point_light   5 5 0           -2 2 3   0 0 1
+point_light   5 0 5            2 2 3   0 0 1
+point_light   0 5 5           -2 2 -3   0 0 1
+point_light   5 0 0            2 2 -3   0 0 1
+
+# Shiny materials
+material  0 0 0   1 1 1   1 1 1   0 0 0  0 0 0  100 1 0
+material  0 0 0   1 1 0   1 1 1   0 0 0  0 0 0  100 1 0
+material  0 0 0   1 0 1   1 1 1   0 0 0  0 0 0  100 1 0
+material  0 0 0   0 1 1   1 1 1   0 0 0  0 0 0  100 1 0
+material  0 0 0   1 0 0   1 1 1   0 0 0  0 0 0  100 1 0
+
+# Box for "table top"
+box    1   -3 -1 -3  3 0 3
+
+# Platonic solids "sitting" on table
+begin -1
+  1 0 0 0
+  0 1 0 2
+  0 0 1 0
+  0 0 0 1
+  mesh   0  tetra.off
+end
+begin -1
+  1 0 0 -1
+  0 1 0 1
+  0 0 1 -1
+  0 0 0 1
+  mesh   1  octa.off
+end
+begin -1
+  1 0 0 1
+  0 1 0 1
+  0 0 1 -1
+  0 0 0 1
+  mesh   2  cube.off
+end
+begin -1
+  1 0 0 -1
+  0 1 0 1
+  0 0 1 1
+  0 0 0 1
+  mesh   3  dodeca.off
+end
+begin -1
+  1 0 0 1
+  0 1 0 1
+  0 0 1 1
+  0 0 0 1
+  mesh   4  ico.off
+end
+
+
+
+
+
+
+
+
+
+
