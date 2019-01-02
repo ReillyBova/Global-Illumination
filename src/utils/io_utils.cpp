@@ -155,8 +155,8 @@ int ParseArgs(int argc, char **argv, char*& input_scene_name,
   }
 
   // Check scene filename
-  if (!input_scene_name) {
-    fprintf(stderr, "Usage: photonmap inputscenefile [outputimagefile] [-resolution <int> <int>] [-v]\n");
+  if (!input_scene_name || !output_scene_name) {
+    fprintf(stderr, "Usage: photonmap inputscenefile outputimagefile [-FLAGS]\n");
     return 0;
   }
 

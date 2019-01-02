@@ -1,30 +1,44 @@
 // Source file for the scene viewer program
 
 // Include files
+
 #include "R3Graphics/R3Graphics.h"
 #include "fglut/fglut.h"
 
+
 // Program variables
+
+static char *input_scene_name = NULL;
+static char *output_image_name = NULL;
 static char *screenshot_image_name = NULL;
 static int render_image_width = 64;
 static int render_image_height = 64;
 static int print_verbose = 0;
 
+
+
 // GLUT variables
+
 static int GLUTwindow = 0;
-static int GLUTwindow_height = 800;
-static int GLUTwindow_width = 800;
+static int GLUTwindow_height = 900;
+static int GLUTwindow_width = 900;
 static int GLUTmouse[2] = { 0, 0 };
 static int GLUTbutton[3] = { 0, 0, 0 };
 static int GLUTmouse_drag = 0;
 static int GLUTmodifiers = 0;
 
+
+
 // Application variables
+
 static R3Viewer *viewer = NULL;
 static R3Scene *scene = NULL;
 static R3Point center(0, 0, 0);
 
+
+
 // Display variables
+
 static int show_shapes = 1;
 static int show_camera = 0;
 static int show_lights = 0;
@@ -56,7 +70,10 @@ LoadLights(R3Scene *scene)
   }
 }
 
+
+
 #if 0
+
 static void
 DrawText(const R3Point& p, const char *s)
 {
@@ -64,6 +81,7 @@ DrawText(const R3Point& p, const char *s)
   glRasterPos3d(p[0], p[1], p[2]);
   while (*s) glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, *(s++));
 }
+
 #endif
 
 
@@ -77,6 +95,8 @@ DrawText(const R2Point& p, const char *s)
   glRasterPos3d(position[0], position[1], position[2]);
   while (*s) glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, *(s++));
 }
+
+
 
 static void
 DrawCamera(R3Scene *scene)
@@ -110,6 +130,8 @@ DrawCamera(R3Scene *scene)
   glVertex3d(ul[0], ul[1], ul[2]);
   glEnd();
 }
+
+
 
 static void
 DrawLights(R3Scene *scene)
@@ -159,6 +181,8 @@ DrawLights(R3Scene *scene)
   }
 }
 
+
+
 static void
 DrawShapes(R3Scene *scene, R3SceneNode *node, RNFlags draw_flags = R3_DEFAULT_DRAW_FLAGS)
 {
@@ -202,6 +226,8 @@ DrawBBoxes(R3Scene *scene, R3SceneNode *node)
   node->Transformation().Pop();
 }
 
+
+
 static void
 DrawRays(R3Scene *scene)
 {
@@ -234,6 +260,56 @@ DrawRays(R3Scene *scene)
   }
 }
 
+static void
+DrawCustom(R3Scene *scene)
+{
+  // Ray intersection variables
+  glDisable(GL_LIGHTING);
+  glLineWidth(2);
+  R3SceneNode *node;
+  R3SceneElement *element;
+  R3Shape *shape;
+  R3Point point;
+  R3Vector normal;
+  RNScalar t;
+  // Ray drawing variables
+  double radius = 0.025;
+  R3Ray ray = R3Ray(R3Point(0, 2.25, 0), R3Vector(0, -2.25, 0));
+  if (scene->Intersects(ray, &node, &element, &shape, &point, &normal, &t)) {
+      glColor3d(0.7, 0.1, 0.1);
+      R3Sphere(point, radius).Draw();
+      R3Sphere(R3Point(0, 2.25, 0), radius).Draw();
+      R3Span(point, R3Point(0, 2.25, 0)).Draw();
+      radius = 0.015;
+      for (int i = 0; i < 500; i++) {
+        // Pick spherical coords
+        const RNAngle theta = acos(sqrt(RNRandomScalar()));
+        const RNAngle phi = 2*RN_PI*RNRandomScalar();
+
+        // Build a vector with angle alpha relative to the normal direction
+        R3Vector perpendicular_direction = R3Vector(normal[1], -normal[0], 0);
+        if (1.0 - abs(normal[2]) < 0.1) {
+          perpendicular_direction = R3Vector(normal[2], 0, -normal[0]);
+        }
+        perpendicular_direction.Normalize();
+        R3Vector result = perpendicular_direction*sin(theta) + normal*cos(theta);
+
+        // Rotate around axis by phi and normalize
+        result.Rotate(normal, phi);
+        result.Normalize();
+        R3Point end = result + point;
+        glColor3d(0, 0, 0);
+        R3Sphere(end, radius).Draw();
+        glColor3d(0.1, 0.1, 0.7);
+        R3Span(point, end).Draw();
+      }
+  }
+
+  glLineWidth(1);
+}
+
+
+
 ////////////////////////////////////////////////////////////////////////
 // Glut user interface functions
 ////////////////////////////////////////////////////////////////////////
@@ -246,6 +322,8 @@ void GLUTStop(void)
   // Exit
   exit(0);
 }
+
+
 
 void GLUTRedraw(void)
 {
@@ -290,6 +368,9 @@ void GLUTRedraw(void)
     glLineWidth(1);
   }
 
+
+  DrawCustom(scene);
+
   // Draw scene nodes
   if (show_shapes) {
     glEnable(GL_LIGHTING);
@@ -332,6 +413,8 @@ void GLUTRedraw(void)
   glutSwapBuffers();
 }
 
+
+
 void GLUTResize(int w, int h)
 {
   // Resize window
@@ -350,6 +433,8 @@ void GLUTResize(int w, int h)
   // Redraw
   glutPostRedisplay();
 }
+
+
 
 void GLUTMotion(int x, int y)
 {
@@ -373,6 +458,8 @@ void GLUTMotion(int x, int y)
   GLUTmouse[0] = x;
   GLUTmouse[1] = y;
 }
+
+
 
 void GLUTMouse(int button, int state, int x, int y)
 {
@@ -420,6 +507,8 @@ void GLUTMouse(int button, int state, int x, int y)
   glutPostRedisplay();
 }
 
+
+
 void GLUTSpecial(int key, int x, int y)
 {
   // Invert y coordinate
@@ -437,6 +526,8 @@ void GLUTSpecial(int key, int x, int y)
   // Redraw
   glutPostRedisplay();
 }
+
+
 
 void GLUTKeyboard(unsigned char key, int x, int y)
 {
@@ -459,19 +550,32 @@ void GLUTKeyboard(unsigned char key, int x, int y)
   case 'c':
     show_camera = !show_camera;
     break;
-
   case 'L':
   case 'l':
     show_lights = !show_lights;
     break;
-
+  case 'W':
+  case 'w':
+    viewer->ScaleWorld(1.0, center, 0, 0, 5.0, 0.0);
+    break;
+  case 'S':
+  case 's':
+    viewer->ScaleWorld(1.0, center, 0, 0, -5.0, 0.0);
+    break;
+  case 'E':
+  case 'e':
+    viewer->RotateCameraRoll(-.05);
+    break;
+  case 'Q':
+  case 'q':
+    viewer->RotateCameraRoll(.05);
+    break;
   case 'R':
   case 'r':
     show_rays = !show_rays;
     break;
-
-  case 'S':
-  case 's':
+  case 'O':
+  case 'o':
     show_shapes = !show_shapes;
     break;
 
@@ -499,6 +603,9 @@ void GLUTKeyboard(unsigned char key, int x, int y)
   // Redraw
   glutPostRedisplay();
 }
+
+
+
 
 void GLUTInit(int *argc, char **argv)
 {
@@ -538,6 +645,8 @@ void GLUTInit(int *argc, char **argv)
   glutMotionFunc(GLUTMotion);
 }
 
+
+
 void GLUTMainLoop(void)
 {
   // Initialize viewing center
@@ -547,19 +656,101 @@ void GLUTMainLoop(void)
   glutMainLoop();
 }
 
+
+
+////////////////////////////////////////////////////////////////////////
+// Input/output
+////////////////////////////////////////////////////////////////////////
+
+static R3Scene *
+ReadScene(char *filename)
+{
+  // Start statistics
+  RNTime start_time;
+  start_time.Read();
+
+  // Allocate scene
+  R3Scene *scene = new R3Scene();
+  if (!scene) {
+    fprintf(stderr, "Unable to allocate scene for %s\n", filename);
+    return NULL;
+  }
+
+  // Read scene from file
+  if (!scene->ReadFile(filename)) {
+    delete scene;
+    return NULL;
+  }
+
+  // Print statistics
+  if (print_verbose) {
+    printf("Read scene from %s ...\n", filename);
+    printf("  Time = %.2f seconds\n", start_time.Elapsed());
+    printf("  # Nodes = %d\n", scene->NNodes());
+    printf("  # Lights = %d\n", scene->NLights());
+    fflush(stdout);
+  }
+
+  // Return scene
+  return scene;
+}
+
+////////////////////////////////////////////////////////////////////////
+// Program argument parsing
+////////////////////////////////////////////////////////////////////////
+
+static int
+ParseArgs(int argc, char **argv)
+{
+  // Parse arguments
+  argc--; argv++;
+  while (argc > 0) {
+    if ((*argv)[0] == '-') {
+      if (!strcmp(*argv, "-v")) {
+        print_verbose = 1;
+      }
+      else if (!strcmp(*argv, "-resolution")) {
+        argc--; argv++; render_image_width = atoi(*argv);
+        argc--; argv++; render_image_height = atoi(*argv);
+      }
+      else {
+        fprintf(stderr, "Invalid program argument: %s", *argv);
+        exit(1);
+      }
+      argv++; argc--;
+    }
+    else {
+      if (!input_scene_name) input_scene_name = *argv;
+      else if (!output_image_name) output_image_name = *argv;
+      else { fprintf(stderr, "Invalid program argument: %s", *argv); exit(1); }
+      argv++; argc--;
+    }
+  }
+
+  // Check scene filename
+  if (!input_scene_name) {
+    fprintf(stderr, "Usage: visualize inputscenefile [-v]\n");
+    return 0;
+  }
+
+  // Return OK status
+  return 1;
+}
+
+
+
 ////////////////////////////////////////////////////////////////////////
 // Main program
 ////////////////////////////////////////////////////////////////////////
 
-int RunViewer(R3Scene * viewer_scene, int width, int height, int verbose, int argc, char **argv)
+int main(int argc, char **argv)
 {
-  // Read scene
-  scene = viewer_scene;
-  if (!scene) exit(-1);
+  // Parse program arguments
+  if (!ParseArgs(argc, argv)) exit(-1);
 
-  render_image_width = width;
-  render_image_height = height;
-  print_verbose = verbose;
+  // Read scene
+  scene = ReadScene(input_scene_name);
+  if (!scene) exit(-1);
 
   // Initialize GLUT
   GLUTInit(&argc, argv);

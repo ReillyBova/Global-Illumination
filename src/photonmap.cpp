@@ -4,7 +4,6 @@
 #include "R3Graphics/R3Graphics.h"
 #include "render.h"
 #include "photontracer.h"
-#include "interactive_viewer.h"
 #include "utils/io_utils.h"
 #include "utils/graphics_utils.h"
 #include "utils/photon_utils.h"
@@ -86,7 +85,7 @@ int CAUSTIC_PHOTON_COUNT = 60000; // Number of photons emmited for caustic map
 int MAX_PHOTON_DEPTH = 128;
 
 // Photon Map Sampling Parameters
-int INDIRECT_TEST = 64;
+int INDIRECT_TEST = 256;
 int GLOBAL_ESTIMATE_SIZE = 50;
 RNScalar GLOBAL_ESTIMATE_DIST = 2.5;
 int CAUSTIC_ESTIMATE_SIZE = 60;
@@ -419,7 +418,19 @@ int main(int argc, char **argv)
     // Render image
     R2Image *image = RenderImage(aa, render_image_width, render_image_height);
 
-    // Cleanup Photon Map Memory TODO!!!
+    // Cleanup Photon Map Memory
+    for (int i = 0; i < GLOBAL_PHOTONS.NEntries(); i++) {
+      delete GLOBAL_PHOTONS[i];
+    }
+    for (int i = 0; i < CAUSTIC_PHOTONS.NEntries(); i++) {
+      delete CAUSTIC_PHOTONS[i];
+    }
+    if (GLOBAL_PMAP) {
+      delete GLOBAL_PMAP;
+    }
+    if (CAUSTIC_PMAP) {
+      delete CAUSTIC_PMAP;
+    }
 
     // Error Check
     if (!image) exit(-1);
@@ -429,9 +440,6 @@ int main(int argc, char **argv)
 
     // Delete image
     delete image;
-  } else {
-    // Launch viewer
-    RunViewer(SCENE, render_image_width, render_image_height, VERBOSE, argc, argv);
   }
 
   // Return success

@@ -8,14 +8,13 @@
 # List of source files
 #
 
-PHOTONMAP_SRCS=photonmap.cpp render.cpp interactive_viewer.cpp \
+PHOTONMAP_SRCS=photonmap.cpp render.cpp raytracer.cpp photontracer.cpp montecarlo.cpp \
 	utils/io_utils.cpp utils/graphics_utils.cpp utils/illumination_utils.cpp \
-	utils/photon_utils.cpp montecarlo.cpp raytracer.cpp photontracer.cpp
+	utils/photon_utils.cpp
 PHOTONMAP_OBJS=$(PHOTONMAP_SRCS:.cpp=.o)
 
-KDTVIEW_SRCS=kdtview.cpp
-KDTVIEW_OBJS=$(KDTVIEW_SRCS:.cpp=.o)
-
+VIZ_SRCS=visualize.cpp
+VIZ_OBJS=$(VIZ_SRCS:.cpp=.o)
 
 
 #
@@ -27,12 +26,19 @@ CPPFLAGS=-Wall -I. -O3 -DNDEBUG -std=c++17
 LDFLAGS=
 
 
-
 #
 # Pkg Libraries
 #
 
-PKG_LIBS= \
+PHOTON_LIBS= \
+  R3Graphics/libR3Graphics.a \
+  R3Shapes/libR3Shapes.a \
+  R2Shapes/libR2Shapes.a \
+  RNBasics/libRNBasics.a \
+  png/libpng.a \
+  jpeg/libjpeg.a
+
+VIZ_LIBS= \
   R3Graphics/libR3Graphics.a \
   R3Shapes/libR3Shapes.a \
   R2Shapes/libR2Shapes.a \
@@ -40,7 +46,6 @@ PKG_LIBS= \
   fglut/libfglut.a \
   png/libpng.a \
   jpeg/libjpeg.a
-
 
 
 #
@@ -79,13 +84,13 @@ endif
 # Make targets
 #
 
-all: $(PKG_LIBS) photonmap kdtview
+all: $(PKG_LIBS) photonmap visualize
 
 photonmap: $(PKG_LIBS) $(PHOTONMAP_OBJS)
-	    $(CC) -o photonmap $(CPPFLAGS) $(LDFLAGS) $(PHOTONMAP_OBJS) $(PKG_LIBS) $(OPENGL_LIBS) -lm
+	    $(CC) -o photonmap $(CPPFLAGS) $(LDFLAGS) $(PHOTONMAP_OBJS) $(PHOTON_LIBS) -lm
 
-kdtview: $(PKG_LIBS) $(KDTVIEW_OBJS)
-	    $(CC) -o kdtview $(CPPFLAGS) $(LDFLAGS) $(KDTVIEW_OBJS) $(PKG_LIBS) $(OPENGL_LIBS) -lm
+visualize: $(PKG_LIBS) $(VIZ_OBJS)
+	    $(CC) -o visualize $(CPPFLAGS) $(LDFLAGS) $(VIZ_OBJS) $(VIZ_LIBS) $(OPENGL_LIBS) -lm
 
 R3Graphics/libR3Graphics.a:
 	    cd R3Graphics; make
@@ -109,7 +114,7 @@ jpeg/libjpeg.a:
 	    cd jpeg; make
 
 clean:
-	    ${RM} -f */*.a */*/*.a *.o */*.o */*/*.o photonmap photonmap.exe kdtview kdtview.exe $(PKG_LIBS)
+	    ${RM} -f */*.a */*/*.a *.o */*.o */*/*.o photonmap photonmap.exe visualize visualize.exe $(PHOTON_LIBS) $(VIZ_LIBS)
 
 distclean:  clean
 	    ${RM} -f *~

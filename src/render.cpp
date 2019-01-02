@@ -86,6 +86,8 @@ static void Threadable_RayTracer(vector<vector<RNRgb> >& image_buffer, int width
 
         // Update ray count
         LOCAL_RAY_COUNT++;
+      } else {
+        image_buffer[i][j] = scene->Background();
       }
     }
 

@@ -760,10 +760,16 @@ FindClosestQuick(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
         if (!IsCompatible || !query_point || IsCompatible(query_point, point, compatible_data)) {
           // Modify heap based on PREINSERTION size
           PointAndDistanceSqd<PtrType> node = {point, distance_squared};
-          if (size < max_points) {
+          if (size < max_points - 1) {
+            // Regular insertion; delay heap construction
+            nearby_points.push_back(node);
+            size++;
+          } else if (size == max_points - 1) {
             // Heap is full post insertion; make heap
             nearby_points.push_back(node);
-            push_heap(nearby_points.begin(), nearby_points.end());
+            make_heap(nearby_points.begin(), nearby_points.end());
+            size++;
+            max_distance_squared = nearby_points[0].distance_squared;
           } else {
             // Replace largest element
             pop_heap(nearby_points.begin(), nearby_points.end());
@@ -771,7 +777,6 @@ FindClosestQuick(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
             push_heap(nearby_points.begin(), nearby_points.end());
             max_distance_squared = nearby_points[0].distance_squared;
           }
-          size++;
         }
       }
     }

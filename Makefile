@@ -5,14 +5,14 @@
 ########################################################################
 
 #RESOLUTION= 400 400
-CFLAGS= -resolution $(RESOLUTION) -aa 1 -v -lt 128 -ss 128 -tt 256 -st 256 -it 1024 -md 128 -threads 8
+#CFLAGS= -resolution $(RESOLUTION) -aa 0 -v -lt 128 -ss 128 -tt 128 -st 128 -it 128 -md 64 -threads 8 -no_indirect -no_direct -photon_viz
 #RESOLUTION= 300 300
 #CFLAGS= -resolution $(RESOLUTION) -aa 0 -v -lt 128 -no_rs -no_ss -no_fresnel -no_dt -no_ds -tt 32 -st 32 -md 8 -threads 8
 #RESOLUTION= 1024 1024
 #CFLAGS= -resolution $(RESOLUTION) -aa 1 -v -real -lt 64 -ss 64 -tt 128 -st 128 -md 64 -threads 8
 RESOLUTION= 4096 4096
-#CFLAGS= -resolution $(RESOLUTION) -aa 1 -v -real -lt 128 -ss 128 -tt 128 -st 128 -md 128 -threads 8 -it 512
-NICE=-20# -20 is highest priority; negative values require root permissions
+CFLAGS= -resolution $(RESOLUTION) -aa 1 -v -real -lt 128 -ss 128 -tt 128 -st 128 -md 128 -threads 8 -it 512
+NICE=0# -20 is highest priority; negative values require root permissions
 
 ########################################################################
 # Executable name
@@ -34,6 +34,9 @@ output/%.png: input/%.scn
 
 all:
 	cd src; make photonmap
+
+visualize:
+	cd src; make visualize
 
 clean:
 	cd src; make clean
