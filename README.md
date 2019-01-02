@@ -84,11 +84,13 @@ In order to converge more quickly on the correct solution to the rendering equat
 #### Diffuse Importance Sampling
 Under our BRDF model, the outgoing direction of a diffuse bounce is independent of the incident angle of the incoming ray (beyond determining the side of the surface off of which to bounce). Rather, its pdf is determined by a normalized cosine-weighted hemisphere along the surface normal. Using the inverse mapping provided by Lawrence, the outgoing ray
 
-##### Figure 1
+##### Figure 1: Diffuse importance sampling at three different angles and two different viewpoints.
 
-| Source | Background Decolorization |
-|:--------------:|:----------------:|
-| ![Source](/gallery/figures/fig_1a.png?raw=true) | ![Decolorization](/gallery/figures/fig_1b.png?raw=true) |
+| Fig 1 | Viewpoint A | Viewpoint B |
+|:----------------:|:----------------:|:----------------:|
+| 90° | ![Fig_1a.i](/gallery/figures/fig_1a.png?raw=true) | ![Fig_1a.ii](/gallery/figures/fig_1b.png?raw=true) |
+| 45° | ![Fig_1b.i](/gallery/figures/fig_1a.png?raw=true) | ![Fig_1b.ii](/gallery/figures/fig_1b.png?raw=true) |
+| 5° | ![Fig_1c.i](/gallery/figures/fig_1a.png?raw=true) | ![Fig_1c.iii](/gallery/figures/fig_1b.png?raw=true) |
 
 
 Poisson cloning is the main workhorse of this program and is run without flags:
