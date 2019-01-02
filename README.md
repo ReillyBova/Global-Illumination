@@ -18,12 +18,14 @@ Change the directory to the root folder of the program and enter `make all` into
 Once `photonmap` has been compiled, run it in the command line using the following arguments:
 
 ```
-$ ./photonmap src.scn [output.png] [-FLAGS]
+$ ./photonmap src.scn output.png [-FLAGS]
 ```
 
-Here is a breakdown of the meaning of the arguments and avaliable flags:
+There are also provided shortcuts in the Makefile to expedite the scene-rendering process (as the number of flags can grow rather lengthy).
+
+Here is a breakdown of the meaning of the arguments, as well as the avaliable flags:
 * src.scn => file path to input scene image (required)
-* output.png => file path output; if not provided, program will launch OpenGL viewer
+* output.png => file path to output (required)
 * General flag arguments:
   * `-resolution <int X> <int Y>` => Sets output image dimensions to X by Y. Default is X=1024 Y=1024
   * `-v` => Enables verbose output, which prints rendering statistics to the screen. Off by default
@@ -67,12 +69,12 @@ Illumination flags:
 
 # Implementation Details
 
-This section contains descriptions and examples of the rendering programs various features.
+This section contains descriptions and examples of the rendering program's various features. The feature visualizations below (as opposed to renderings) were made with the provided `visualize` program.
 
 ## BRDF Sampling & Lighting Cloning
 
 ### The BRDF Function
-Before modifications, the provided light classes sample reflectance from the Phong BRDF. These implementations were altered to use a physically-based Phong BRDF suggested by Jason Lawrence in ["Importance Sampling of the Phong Reflectance Model](http://www.cs.princeton.edu/courses/archive/fall18/cos526/papers/importance.pdf).
+Before modifications, the provided light classes sample reflectance from the Phong BRDF. These implementations were altered to use a physically-based Phong BRDF suggested by Jason Lawrence in ["Importance Sampling of the Phong Reflectance Model"](http://www.cs.princeton.edu/courses/archive/fall18/cos526/papers/importance.pdf).
 
 Note that the (n + 2) / (2*PI) specular term was dropped for 2D lights because it increased noise too sharply.
 
@@ -81,6 +83,12 @@ In order to converge more quickly on the correct solution to the rendering equat
 
 #### Diffuse Importance Sampling
 Under our BRDF model, the outgoing direction of a diffuse bounce is independent of the incident angle of the incoming ray (beyond determining the side of the surface off of which to bounce). Rather, its pdf is determined by a normalized cosine-weighted hemisphere along the surface normal. Using the inverse mapping provided by Lawrence, the outgoing ray
+
+##### Figure 1
+
+| Source | Background Decolorization |
+|:--------------:|:----------------:|
+| ![Source](/gallery/figures/fig_1a.png?raw=true) | ![Decolorization](/gallery/figures/fig_1b.png?raw=true) |
 
 
 Poisson cloning is the main workhorse of this program and is run without flags:
