@@ -34,6 +34,7 @@ class R3SceneElement;
 #include "R3Graphics/R3PointLight.h"
 #include "R3Graphics/R3SpotLight.h"
 #include "R3Graphics/R3AreaLight.h"
+#include "R3Graphics/R3RectLight.h"
 
 
 
@@ -62,14 +63,3 @@ void R3StopGraphics(void);
 
 
 #endif
-
-
-
-
-
-
-
-
-
-
-

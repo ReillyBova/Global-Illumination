@@ -76,11 +76,11 @@ public:
     RNScalar min_t = 0.0, RNScalar max_t = RN_INFINITY) const;
 
   // I/O functions
-  int ReadFile(const char *filename);
+  int ReadFile(const char *filename, const bool REAL_MATERIAL = true);
   int ReadObjFile(const char *filename);
   int ReadMeshFile(const char *filename);
   int ReadPlanner5DFile(const char *filename);
-  int ReadPrincetonFile(const char *filename);
+  int ReadPrincetonFile(const char *filename, const bool REAL_MATERIAL = true);
   int ReadParseFile(const char *filename);
   int ReadSupportHierarchyFile(const char *filename);
   int ReadGrammarHierarchyFile(const char *filename);
@@ -278,7 +278,7 @@ Background(void) const
 
 
 inline void R3Scene::
-SetAmbient(const RNRgb& ambient) 
+SetAmbient(const RNRgb& ambient)
 {
   // Set ambient light color
   this->ambient = ambient;
@@ -287,11 +287,8 @@ SetAmbient(const RNRgb& ambient)
 
 
 inline void R3Scene::
-SetBackground(const RNRgb& background) 
+SetBackground(const RNRgb& background)
 {
   // Set background color
   this->background = background;
 }
-
-
-

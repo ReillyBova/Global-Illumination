@@ -240,7 +240,7 @@
     <ClCompile Include="png\pngerror.c">
       <Filter>Support Libraries\png</Filter>
     </ClCompile>
-    <ClCompile Include="png\pngpread.c 
+    <ClCompile Include="png\pngpread.c
       <Filter>Support Libraries\png</Filter>
     </ClCompile>
     <ClCompile Include="png\adler32.c">
@@ -282,7 +282,7 @@
     <ClCompile Include="png\trees.c">
       <Filter>Support Libraries\png</Filter>
     </ClCompile>
-    <ClCompile Include="png\uncompr.c"> 
+    <ClCompile Include="png\uncompr.c">
       <Filter>Support Libraries\png</Filter>
     </ClCompile>
     <ClCompile Include="png\zutil.c">
@@ -574,6 +574,9 @@
       <Filter>Support Libraries\R3Graphics</Filter>
     </ClCompile>
     <ClCompile Include="R3Graphics\R3AreaLight.cpp">
+      <Filter>Support Libraries\R3Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="R3Graphics\R3RectLight.cpp">
       <Filter>Support Libraries\R3Graphics</Filter>
     </ClCompile>
     <ClCompile Include="R3Graphics\R3Brdf.cpp">
@@ -993,6 +996,9 @@
       <Filter>Support Libraries\R3Graphics</Filter>
     </ClInclude>
     <ClInclude Include="R3Graphics\R3AreaLight.h">
+      <Filter>Support Libraries\R3Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="R3Graphics\R3RectLight.h">
       <Filter>Support Libraries\R3Graphics</Filter>
     </ClInclude>
     <ClInclude Include="R3Graphics\R3Brdf.h">

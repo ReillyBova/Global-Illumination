@@ -6,7 +6,7 @@ NAME=R3Graphics
 CCSRCS=$(NAME).cpp \
     R3Scene.cpp R3SceneNode.cpp R3SceneElement.cpp \
     R3Viewer.cpp R3Frustum.cpp R3Camera.cpp R2Viewport.cpp \
-    R3AreaLight.cpp R3SpotLight.cpp R3PointLight.cpp R3DirectionalLight.cpp R3Light.cpp \
+    R3AreaLight.cpp R3RectLight.cpp R3SpotLight.cpp R3PointLight.cpp R3DirectionalLight.cpp R3Light.cpp \
     R3Material.cpp R3Brdf.cpp R2Texture.cpp \
     p5d.cpp json.cpp
 
@@ -16,7 +16,7 @@ CCSRCS=$(NAME).cpp \
 # Targets
 #
 
-OBJS=$(CCSRCS:.cpp=.o) $(CSRCS:.c=.o) 
+OBJS=$(CCSRCS:.cpp=.o) $(CSRCS:.c=.o)
 INCS=$(HSRCS) $(CCSRCS:.cpp=.h) $(CSRCS:.c=.h)
 
 
@@ -60,12 +60,12 @@ LIB=./lib$(NAME).a
 #
 
 opt:
-	    $(MAKE) $(LIB) "CFLAGS=$(OPT_CFLAGS)" 
+	    $(MAKE) $(LIB) "CFLAGS=$(OPT_CFLAGS)"
 
 debug:
-	    $(MAKE) $(LIB) "CFLAGS=$(DEBUG_CFLAGS)" 
+	    $(MAKE) $(LIB) "CFLAGS=$(DEBUG_CFLAGS)"
 
-$(LIB):     $(CCSRCS) $(CSRCS) $(OSRCS) $(OBJS) 
+$(LIB):     $(CCSRCS) $(CSRCS) $(OSRCS) $(OBJS)
 	    rm -f $(LIB)
 	    ar ur $(LIB) $(OBJS) $(USER_OBJS)
 

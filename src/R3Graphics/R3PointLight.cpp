@@ -22,7 +22,7 @@ RN_CLASS_TYPE_DEFINITIONS(R3PointLight);
 
 /* Public functions */
 
-int 
+int
 R3InitPointLight()
 {
     /* Return success */
@@ -31,7 +31,7 @@ R3InitPointLight()
 
 
 
-void 
+void
 R3StopPointLight()
 {
 }
@@ -159,7 +159,7 @@ SphereOfInfluence(RNScalar intensity_threshold) const
 
 
 RNRgb R3PointLight::
-DiffuseReflection(const R3Brdf& brdf, 
+DiffuseReflection(const R3Brdf& brdf,
     const R3Point& point, const R3Vector& normal) const
 {
     // Check if light is active
@@ -171,20 +171,17 @@ DiffuseReflection(const R3Brdf& brdf,
     // Get light properties
     const RNRgb& Ic = Color();
     RNScalar I = IntensityAtPoint(point);
-    R3Vector L = DirectionFromPoint(point);
-
-    // Compute geometric stuff
-    RNScalar NL = normal.Dot(L);
-    if (RNIsNegativeOrZero(NL)) return RNblack_rgb;
 
     // Return diffuse component of reflection
-    return (I * NL) * Dc * Ic;
+    R3Vector L = DirectionFromPoint(point);
+    RNScalar NL = normal.Dot(L);
+    return (I * abs(NL) / RN_PI) * Dc * Ic;
 }
 
 
 
 RNRgb R3PointLight::
-SpecularReflection(const R3Brdf& brdf, const R3Point& eye, 
+SpecularReflection(const R3Brdf& brdf, const R3Point& eye,
     const R3Point& point, const R3Vector& normal) const
 {
     // Check if light is active
@@ -201,7 +198,6 @@ SpecularReflection(const R3Brdf& brdf, const R3Point& eye,
 
     // Compute geometric stuff
     RNScalar NL = normal.Dot(L);
-    if (RNIsNegativeOrZero(NL)) return RNblack_rgb;
     R3Vector R = (2.0 * NL) * normal - L;
     R3Vector V = eye - point;
     V.Normalize();
@@ -209,13 +205,13 @@ SpecularReflection(const R3Brdf& brdf, const R3Point& eye,
     if (RNIsNegativeOrZero(VR)) return RNblack_rgb;
 
     // Return specular component of reflection
-    return (I * pow(VR,s)) * Sc * Ic;
+    return (I * pow(VR,s) * Sc * Ic * (s + 2.0) / (RN_TWO_PI));
 }
 
 
 
 RNRgb R3PointLight::
-Reflection(const R3Brdf& brdf, const R3Point& eye, 
+Reflection(const R3Brdf& brdf, const R3Point& eye,
     const R3Point& point, const R3Vector& normal) const
 {
     // Check if light is active
@@ -233,23 +229,40 @@ Reflection(const R3Brdf& brdf, const R3Point& eye,
 
     // Compute geometric stuff
     RNScalar NL = normal.Dot(L);
-    if (RNIsNegativeOrZero(NL)) return RNblack_rgb;
     R3Vector R = (2.0 * NL) * normal - L;
     R3Vector V = eye - point;
     V.Normalize();
     RNScalar VR = V.Dot(R);
 
     // Compute diffuse reflection
-    RNRgb rgb = (I * NL) * Dc * Ic;
-
+    RNRgb rgb = I * Dc * Ic * abs(NL) / RN_PI;
     // Compute specular reflection
-    if (RNIsPositive(VR)) rgb += (I * pow(VR,s)) * Sc * Ic;
+    if (RNIsPositive(VR)) rgb += (I * pow(VR,s)) * (s+2.0) / 2.0 * Sc * Ic / RN_PI;
 
     // Return total reflection
     return rgb;
 }
 
+RNRgb R3PointLight::
+DiffuseReflection(const R3Brdf& brdf, const R3Point& point,
+  const R3Vector& normal, int max_samples) const
+{
+  return DiffuseReflection(brdf, point, normal);
+}
 
+RNRgb R3PointLight::
+SpecularReflection(const R3Brdf& brdf, const R3Point& eye,
+    const R3Point& point, const R3Vector& normal, const int max_samples) const
+{
+  return SpecularReflection(brdf, eye, point, normal);
+}
+
+RNRgb R3PointLight::
+Reflection(const R3Brdf& brdf, const R3Point& eye,
+    const R3Point& point, const R3Vector& normal, const int max_samples) const
+{
+  return Reflection(brdf, eye, point, normal);
+}
 
 void R3PointLight::
 Draw(int i) const
@@ -279,6 +292,3 @@ Draw(int i) const
     glLightf(index, GL_LINEAR_ATTENUATION, buffer[1]);
     glLightf(index, GL_QUADRATIC_ATTENUATION, buffer[2]);
 }
-
-
-

@@ -142,7 +142,7 @@ Print(FILE *fp) const
 {
   // Resolve output file
   if (!fp) fp = stdout;
-  
+
   // Print attributes
   fprintf(fp, "    Object\n");
   fprintf(fp, "    className = %s\n", (className) ? className : "None");
@@ -215,7 +215,7 @@ Print(FILE *fp) const
   fprintf(fp, "    sX = %g\n", sX);
   fprintf(fp, "    sY = %g\n", sY);
   fprintf(fp, "\n");
-  
+
   // Print walls
   for (int i = 0; i < NWalls(); i++) {
     P5DWall *wall = Wall(i);
@@ -264,7 +264,7 @@ Print(FILE *fp) const
   // Print attributes
   fprintf(fp, "  Floor\n");
   fprintf(fp, "  h = %g\n", h);
-  
+
   // Print rooms
   for (int i = 0; i < NRooms(); i++) {
     P5DRoom *room = Room(i);
@@ -356,7 +356,7 @@ GetJsonObjectMember(Json::Value *&result, Json::Value *object, const char *str, 
       return 0;
     }
   }
-  
+
   // Check for empty strings
   if (result->type() == Json::stringValue) {
     if (result->asString().length() == 0) {
@@ -400,49 +400,49 @@ GetJsonArrayEntry(Json::Value *&result, Json::Value *array, unsigned int k, int 
       return 0;
     }
   }
-  
+
   // Return success
   return 1;
 }
 
 
 
-static int 
+static int
 ParseObject(P5DObject *object, Json::Value *json_object, int idx_index)
 {
   // Parse attributes
   Json::Value *json_value;
-  if (GetJsonObjectMember(json_value, json_object, "className", Json::stringValue)) 
+  if (GetJsonObjectMember(json_value, json_object, "className", Json::stringValue))
     object->className = strdup(json_value->asString().c_str());
-  if (GetJsonObjectMember(json_value, json_object, "id", Json::stringValue)) 
+  if (GetJsonObjectMember(json_value, json_object, "id", Json::stringValue))
     object->id = strdup(json_value->asString().c_str());
-  if (GetJsonObjectMember(json_value, json_object, "x")) 
+  if (GetJsonObjectMember(json_value, json_object, "x"))
     object->x = 0.01 * json_value->asDouble();
-  if (GetJsonObjectMember(json_value, json_object, "y")) 
+  if (GetJsonObjectMember(json_value, json_object, "y"))
     object->y = 0.01 * json_value->asDouble();
-  if (GetJsonObjectMember(json_value, json_object, "z")) 
+  if (GetJsonObjectMember(json_value, json_object, "z"))
     object->z = 0.01 * json_value->asDouble();
-  if (GetJsonObjectMember(json_value, json_object, "sX")) 
+  if (GetJsonObjectMember(json_value, json_object, "sX"))
     object->sX = 0.01 * json_value->asDouble();
-  if (GetJsonObjectMember(json_value, json_object, "sY")) 
+  if (GetJsonObjectMember(json_value, json_object, "sY"))
     object->sY = 0.01 * json_value->asDouble();
-  if (GetJsonObjectMember(json_value, json_object, "sZ")) 
+  if (GetJsonObjectMember(json_value, json_object, "sZ"))
     object->sZ = 0.01 * json_value->asDouble();
-  if (GetJsonObjectMember(json_value, json_object, "a")) 
+  if (GetJsonObjectMember(json_value, json_object, "a"))
     object->a = 3.14159265358979323846 * json_value->asDouble() / 180.0;
-  if (GetJsonObjectMember(json_value, json_object, "aframe", Json::intValue)) 
+  if (GetJsonObjectMember(json_value, json_object, "aframe", Json::intValue))
     object->aframe = json_value->asInt();
-  if (GetJsonObjectMember(json_value, json_object, "fX", Json::intValue)) 
+  if (GetJsonObjectMember(json_value, json_object, "fX", Json::intValue))
     object->fX = json_value->asInt();
-  if (GetJsonObjectMember(json_value, json_object, "fY", Json::intValue)) 
+  if (GetJsonObjectMember(json_value, json_object, "fY", Json::intValue))
     object->fY = json_value->asInt();
-  // if (GetJsonObjectMember(json_value, json_object, "otf", Json::intValue)) 
+  // if (GetJsonObjectMember(json_value, json_object, "otf", Json::intValue))
   //   object->otf = json_value->asInt();
   object->idx_index = idx_index;
-  
+
   // Fix id
   if (object->id) {
-    if (strchr(object->id, '/') >= 0) {
+    if (strchr(object->id, '/') != NULL) {
       char *copy = strdup(object->id);
       free(object->id);
       object->id = (char *) malloc(2*strlen(copy));
@@ -470,13 +470,13 @@ ParseObject(P5DObject *object, Json::Value *json_object, int idx_index)
       if (!GetJsonArrayEntry(json_material, json_materials, index)) continue;
       if (json_material->type() != Json::objectValue) continue;
       P5DMaterial *material = new P5DMaterial(object);
-      if (GetJsonObjectMember(json_value, json_material, "name", Json::stringValue)) 
+      if (GetJsonObjectMember(json_value, json_material, "name", Json::stringValue))
         material->name = strdup(json_value->asString().c_str());
-      if (GetJsonObjectMember(json_value, json_material, "texture", Json::stringValue)) 
+      if (GetJsonObjectMember(json_value, json_material, "texture", Json::stringValue))
         material->texture_name = strdup(json_value->asString().c_str());
-      if (GetJsonObjectMember(json_value, json_material, "color")) 
+      if (GetJsonObjectMember(json_value, json_material, "color"))
         material->color = strdup(json_value->asString().c_str());
-      if (GetJsonObjectMember(json_value, json_material, "tcolor")) 
+      if (GetJsonObjectMember(json_value, json_material, "tcolor"))
         material->tcolor = strdup(json_value->asString().c_str());
     }
   }
@@ -487,7 +487,7 @@ ParseObject(P5DObject *object, Json::Value *json_object, int idx_index)
 
 
 
-static int 
+static int
 ParseWall(P5DWall *wall, Json::Value *json_wall, int idx_index)
 {
   // Parse attributes
@@ -521,12 +521,12 @@ ParseWall(P5DWall *wall, Json::Value *json_wall, int idx_index)
 
 
 
-static int 
+static int
 ParseRoom(P5DRoom *room, Json::Value *json_room, int idx_index)
 {
   // Parse attributes
   Json::Value *json_value;
-  if (GetJsonObjectMember(json_value, json_room, "className", Json::stringValue)) 
+  if (GetJsonObjectMember(json_value, json_room, "className", Json::stringValue))
     room->className = strdup(json_value->asString().c_str());
   if (GetJsonObjectMember(json_value, json_room, "h"))
     room->h = 0.01 * json_value->asDouble();
@@ -538,18 +538,18 @@ ParseRoom(P5DRoom *room, Json::Value *json_room, int idx_index)
     room->sX = 0.01 * json_value->asDouble();
   if (GetJsonObjectMember(json_value, json_room, "sY"))
     room->sY = 0.01 * json_value->asDouble();
-  if (GetJsonObjectMember(json_value, json_room, "rtype")) 
+  if (GetJsonObjectMember(json_value, json_room, "rtype"))
     room->rtype = strdup(json_value->asString().c_str());
-  if (GetJsonObjectMember(json_value, json_room, "texture", Json::stringValue)) 
+  if (GetJsonObjectMember(json_value, json_room, "texture", Json::stringValue))
     room->texture = strdup(json_value->asString().c_str());
-  if (GetJsonObjectMember(json_value, json_room, "otexture", Json::stringValue)) 
+  if (GetJsonObjectMember(json_value, json_room, "otexture", Json::stringValue))
     room->otexture = strdup(json_value->asString().c_str());
-  if (GetJsonObjectMember(json_value, json_room, "rtexture", Json::stringValue)) 
+  if (GetJsonObjectMember(json_value, json_room, "rtexture", Json::stringValue))
     room->rtexture = strdup(json_value->asString().c_str());
   if (GetJsonObjectMember(json_value, json_room, "wtexture", Json::stringValue))
     room->wtexture = strdup(json_value->asString().c_str());
   room->idx_index = idx_index;
-  
+
   // Check/fix stuff
   if (room->h <= 0) room->h = 2.7;
 
@@ -572,15 +572,15 @@ ParseRoom(P5DRoom *room, Json::Value *json_room, int idx_index)
 
 
 
-static int 
+static int
 ParseFloor(P5DFloor *floor, Json::Value *json_floor, int idx_index)
 {
   // Parse attributes
   Json::Value *json_value;
-  if (GetJsonObjectMember(json_value, json_floor, "h")) 
+  if (GetJsonObjectMember(json_value, json_floor, "h"))
     floor->h = 0.01 * json_value->asDouble();
   floor->idx_index = idx_index;
-  
+
   // Check/fix stuff
   if (floor->h <= 0) floor->h = 2.7;
 
@@ -645,7 +645,7 @@ ParseFloor(P5DFloor *floor, Json::Value *json_floor, int idx_index)
       }
     }
   }
-  
+
   // Return success
   return 1;
 }
@@ -655,7 +655,7 @@ ParseFloor(P5DFloor *floor, Json::Value *json_floor, int idx_index)
 static int
 ParseProject(P5DProject *project, Json::Value *json_project)
 {
-  // Parse 
+  // Parse
   Json::Value *json_items, *json_item, *json_className;
   if (!GetJsonObjectMember(json_items, json_project, "items", Json::arrayValue)) return 0;
   for (Json::ArrayIndex index = 0; index < json_items->size(); index++) {
@@ -683,7 +683,7 @@ ReadFile(const char *filename)
     return 0;
   }
 
-  // Read file 
+  // Read file
   std::string text;
   fseek(fp, 0, SEEK_END);
   long const size = ftell(fp);
@@ -729,6 +729,3 @@ ReadFile(const char *filename)
   fprintf(stderr, "Planner5d project %s has no projects\n", filename);
   return 0;
 }
-
-
-

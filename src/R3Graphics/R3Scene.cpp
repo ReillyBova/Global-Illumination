@@ -10,7 +10,7 @@
 
 /* Member functions */
 
-int 
+int
 R3InitScene()
 {
   /* Return success */
@@ -19,7 +19,7 @@ R3InitScene()
 
 
 
-void 
+void
 R3StopScene()
 {
 }
@@ -136,7 +136,7 @@ Texture(const char *name) const
 
 
 void R3Scene::
-InsertNode(R3SceneNode *node) 
+InsertNode(R3SceneNode *node)
 {
   // Insert node
   assert(!node->scene);
@@ -149,7 +149,7 @@ InsertNode(R3SceneNode *node)
 
 
 void R3Scene::
-RemoveNode(R3SceneNode *node) 
+RemoveNode(R3SceneNode *node)
 {
   // Remove node
   assert(node->scene == this);
@@ -167,7 +167,7 @@ RemoveNode(R3SceneNode *node)
 
 
 void R3Scene::
-InsertLight(R3Light *light) 
+InsertLight(R3Light *light)
 {
   // Insert light
   assert(!light->scene);
@@ -180,7 +180,7 @@ InsertLight(R3Light *light)
 
 
 void R3Scene::
-RemoveLight(R3Light *light) 
+RemoveLight(R3Light *light)
 {
   // Remove light
   assert(light->scene == this);
@@ -198,7 +198,7 @@ RemoveLight(R3Light *light)
 
 
 void R3Scene::
-InsertMaterial(R3Material *material) 
+InsertMaterial(R3Material *material)
 {
   // Insert material
   assert(!material->scene);
@@ -211,7 +211,7 @@ InsertMaterial(R3Material *material)
 
 
 void R3Scene::
-RemoveMaterial(R3Material *material) 
+RemoveMaterial(R3Material *material)
 {
   // Remove material
   assert(material->scene == this);
@@ -229,7 +229,7 @@ RemoveMaterial(R3Material *material)
 
 
 void R3Scene::
-InsertBrdf(R3Brdf *brdf) 
+InsertBrdf(R3Brdf *brdf)
 {
   // Insert brdf
   assert(!brdf->scene);
@@ -242,7 +242,7 @@ InsertBrdf(R3Brdf *brdf)
 
 
 void R3Scene::
-RemoveBrdf(R3Brdf *brdf) 
+RemoveBrdf(R3Brdf *brdf)
 {
   // Remove brdf
   assert(brdf->scene == this);
@@ -260,7 +260,7 @@ RemoveBrdf(R3Brdf *brdf)
 
 
 void R3Scene::
-InsertTexture(R2Texture *texture) 
+InsertTexture(R2Texture *texture)
 {
   // Insert texture
   assert(!texture->scene);
@@ -273,7 +273,7 @@ InsertTexture(R2Texture *texture)
 
 
 void R3Scene::
-RemoveTexture(R2Texture *texture) 
+RemoveTexture(R2Texture *texture)
 {
   // Remove texture
   assert(texture->scene == this);
@@ -291,7 +291,7 @@ RemoveTexture(R2Texture *texture)
 
 
 void R3Scene::
-SetCamera(const R3Camera& camera) 
+SetCamera(const R3Camera& camera)
 {
   // Remember camera
   viewer.SetCamera(camera);
@@ -300,7 +300,7 @@ SetCamera(const R3Camera& camera)
 
 
 void R3Scene::
-SetViewport(const R2Viewport& viewport) 
+SetViewport(const R2Viewport& viewport)
 {
   // Remember viewport
   viewer.SetViewport(viewport);
@@ -309,7 +309,7 @@ SetViewport(const R2Viewport& viewport)
 
 
 void R3Scene::
-SetViewer(const R3Viewer& viewer) 
+SetViewer(const R3Viewer& viewer)
 {
   // Remember viewer
   this->viewer = viewer;
@@ -488,7 +488,7 @@ Draw(const R3DrawFlags draw_flags, RNBoolean set_camera, RNBoolean set_lights) c
 
   // Set camera
   if (set_camera) {
-    viewer.Camera().Load(); 
+    viewer.Camera().Load();
   }
 
   // Set lights
@@ -512,7 +512,7 @@ Draw(const R3DrawFlags draw_flags, RNBoolean set_camera, RNBoolean set_lights) c
 ////////////////////////////////////////////////////////////////////////
 
 int R3Scene::
-ReadFile(const char *filename)
+ReadFile(const char *filename, const bool REAL_MATERIAL)
 {
   // Parse input filename extension
   const char *extension;
@@ -523,7 +523,7 @@ ReadFile(const char *filename)
 
   // Read file of appropriate type
   if (!strncmp(extension, ".scn", 4)) {
-    if (!ReadPrincetonFile(filename)) return 0;
+    if (!ReadPrincetonFile(filename, REAL_MATERIAL)) return 0;
   }
   else if (!strncmp(extension, ".ssc", 4)) {
     if (!ReadParseFile(filename)) return 0;
@@ -630,7 +630,7 @@ WriteFile(const char *filename) const
 #include <map>
 
 static int
-InsertSceneElement(R3Scene *scene, R3SceneNode *node, const char *object_name, R3Material *material, 
+InsertSceneElement(R3Scene *scene, R3SceneNode *node, const char *object_name, R3Material *material,
   const RNArray<R3TriangleVertex *>& verts, const RNArray<R3Triangle *>& tris)
 {
   // Create material if none
@@ -640,7 +640,7 @@ InsertSceneElement(R3Scene *scene, R3SceneNode *node, const char *object_name, R
     material = new R3Material(brdf, "Default");
     scene->InsertMaterial(material);
   }
-  
+
   // Create child node if object name is set
   if (object_name) {
     R3SceneNode *child = new R3SceneNode(scene);
@@ -682,10 +682,10 @@ InsertSceneElement(R3Scene *scene, R3SceneNode *node, const char *object_name, R
 
   // Create shape (triangle array)
   R3TriangleArray *shape = new R3TriangleArray(tri_verts, tris);
-        
+
   // Insert shape
   element->InsertShape(shape);
-        
+
   // Insert element
   node->InsertElement(element);
 
@@ -759,7 +759,7 @@ ReadObjMtlFile(R3Scene *scene, const char *dirname, const char *mtlname, RNArray
         return 0;
       }
 
-      // Set ambient reflectance 
+      // Set ambient reflectance
       if (material && brdf) {
         brdf->SetAmbient(RNRgb(r, g, b));
         material->Update();
@@ -773,7 +773,7 @@ ReadObjMtlFile(R3Scene *scene, const char *dirname, const char *mtlname, RNArray
         return 0;
       }
 
-      // Set diffuse reflectance 
+      // Set diffuse reflectance
       if (material && brdf) {
         brdf->SetDiffuse(RNRgb(r, g, b));
         material->Update();
@@ -787,7 +787,7 @@ ReadObjMtlFile(R3Scene *scene, const char *dirname, const char *mtlname, RNArray
         return 0;
       }
 
-      // Set specular reflectance 
+      // Set specular reflectance
       if (material && brdf) {
         brdf->SetSpecular(RNRgb(r, g, b));
         material->Update();
@@ -957,17 +957,17 @@ ReadObj(R3Scene *scene, R3SceneNode *node, const char *dirname, FILE *fp, RNArra
       // Parse vertex indices
       int vi1 = -1, vi2 = -1, vi3 = -1, vi4 = -1;
       int ti1 = -1, ti2 = -1, ti3 = -1, ti4 = -1;
-      char *p1 = strchr(s1, '/'); 
+      char *p1 = strchr(s1, '/');
       if (p1) { *p1 = 0; vi1 = atoi(s1); p1++; if (*p1) ti1 = atoi(p1); }
       else { vi1 = atoi(s1); ti1 = vi1; }
-      char *p2 = strchr(s2, '/'); 
+      char *p2 = strchr(s2, '/');
       if (p2) { *p2 = 0; vi2 = atoi(s2); p2++; if (*p2) ti2 = atoi(p2); }
       else { vi2 = atoi(s2); ti2 = vi2; }
-      char *p3 = strchr(s3, '/'); 
+      char *p3 = strchr(s3, '/');
       if (p3) { *p3 = 0; vi3 = atoi(s3); p3++; if (*p3) ti3 = atoi(p3); }
       else { vi3 = atoi(s3); ti3 = vi3; }
       if (quad) {
-        char *p4 = strchr(s4, '/'); 
+        char *p4 = strchr(s4, '/');
         if (p4) { *p4 = 0; vi4 = atoi(s4); p4++; if (*p4) ti4 = atoi(p4); }
         else { vi4 = atoi(s4); ti4 = vi4; }
       }
@@ -977,7 +977,7 @@ ReadObj(R3Scene *scene, R3SceneNode *node, const char *dirname, FILE *fp, RNArra
       R3TriangleVertex *v2 = verts.Kth(vi2-1);
       R3TriangleVertex *v3 = verts.Kth(vi3-1);
       R3TriangleVertex *v4 = (quad) ? verts.Kth(vi4-1) : NULL;
-      
+
       // Assign texture coordinates
       if ((ti1 > 0) && ((ti1-1) < texture_coords.NEntries())) v1->SetTextureCoords(*(texture_coords.Kth(ti1-1)));
       if ((ti2 > 0) && ((ti2-1) < texture_coords.NEntries())) v2->SetTextureCoords(*(texture_coords.Kth(ti2-1)));
@@ -1104,7 +1104,7 @@ ReadObj(R3Scene *scene, R3SceneNode *node, const char *filename, RNArray<R3Mater
   strncpy(dirname, filename, 1024);
   char *endp = strrchr(dirname, '/');
   if (!endp) endp = strrchr(dirname, '\\');
-  if (!endp) strcpy(dirname, "."); 
+  if (!endp) strcpy(dirname, ".");
   else *endp = '\0';
 
   // Read file
@@ -1155,14 +1155,14 @@ WriteObjMtlFile(const R3Scene *scene, const char *dirname, const char *mtlname)
 
   // Write materials
   for (int i = 0; i < scene->NMaterials(); i++) {
-    R3Material *material = scene->Material(i);  
+    R3Material *material = scene->Material(i);
 
     // ??? CHANGE NAME OF MATERIAL SO THAT IT IS UNIQUE ???
     char matname[1024];
     if (!material->Name()) sprintf(matname, "m%d", i);
     else sprintf(matname, "m%d_%s", i, material->Name());
     material->SetName(matname);
-    
+
     // Write new material command
     fprintf(fp, "newmtl %s\n", material->Name());
 
@@ -1190,7 +1190,7 @@ WriteObjMtlFile(const R3Scene *scene, const char *dirname, const char *mtlname)
       // Write texture file
       const R2Image *texture_image = texture->Image();
       texture_image->Write(texture_filename);
-        
+
       // Write texture command to material file
       fprintf(fp, "map_Ka %s.%s\n", material->Name(), texture_extension);
       fprintf(fp, "map_Kd %s.%s\n", material->Name(), texture_extension);
@@ -1215,7 +1215,7 @@ WriteObj(const R3Scene *scene, R3SceneNode *node, const R3Affine& transformation
   // Write group name
   if (node->Name()) fprintf(fp, "g %s\n", node->Name());
   else fprintf(fp, "g GROUP_%d\n", ++ngroups);
-  
+
   // Write elements
   for (int i = 0; i < node->NElements(); i++) {
     R3SceneElement *element = node->Element(i);
@@ -1224,7 +1224,7 @@ WriteObj(const R3Scene *scene, R3SceneNode *node, const R3Affine& transformation
     R3Material *material = element->Material();
     if (material) fprintf(fp, "usemtl %s\n", material->Name());
     else fprintf(fp, "usemtl _DEFAULT_\n");
-      
+
     // Write shapes
     for (int j = 0; j < element->NShapes(); j++) {
       R3Shape *shape = element->Shape(j);
@@ -1241,7 +1241,7 @@ WriteObj(const R3Scene *scene, R3SceneNode *node, const R3Affine& transformation
           fprintf(fp, "vt %g %g\n", t.X(), t.Y());
           v->SetMark(++nvertices); // Store index of this vertex in whole file (starting at index=1)
         }
-       
+
 
         // Write triangles
         for (int k = 0; k < triangles->NTriangles(); k++) {
@@ -1284,8 +1284,8 @@ WriteObj(const R3Scene *scene, R3SceneNode *node, const R3Affine& transformation
 
 
 
-int 
-WriteObj(const R3Scene *scene, R3SceneNode *node, const char *filename) 
+int
+WriteObj(const R3Scene *scene, R3SceneNode *node, const char *filename)
 {
   // Determine directory name (for texture image files)
   char dirname[1024];
@@ -1324,7 +1324,7 @@ WriteObj(const R3Scene *scene, R3SceneNode *node, const char *filename)
     return 0;
   }
 
-  // Write nodes 
+  // Write nodes
   int ngroups = 0;
   int nvertices = 0;
   int ntexture_coords = 0;
@@ -1364,7 +1364,7 @@ ReadMesh(const char *filename)
     fprintf(stderr, "Unable to read mesh %s\n", filename);
     return NULL;
   }
-  
+
   // Create array of vertices
   RNArray<R3TriangleVertex *> vertices;
   for (int i = 0; i < mesh.NVertices(); i++) {
@@ -1393,7 +1393,7 @@ ReadMesh(const char *filename)
   return new R3TriangleArray(vertices, triangles);
 }
 
- 
+
 
 int R3Scene::
 ReadMeshFile(const char *filename)
@@ -1406,7 +1406,7 @@ ReadMeshFile(const char *filename)
   R3SceneNode *node = new R3SceneNode(this);
   node->InsertElement(element);
   root->InsertChild(node);
-  
+
   // Return success
   return 1;
 }
@@ -1429,7 +1429,7 @@ FindPrincetonMaterialAndElement(R3Scene *scene, R3SceneNode *node,
     else return 0;
   }
   else {
-    // Get material from 
+    // Get material from
     material = default_material;
     if (!material) {
       R3Brdf *brdf = new R3Brdf(R3default_brdf);
@@ -1460,7 +1460,7 @@ FindPrincetonMaterialAndElement(R3Scene *scene, R3SceneNode *node,
 
 
 static int
-ReadPrinceton(R3Scene *scene, R3SceneNode *node, const char *filename)
+ReadPrinceton(R3Scene *scene, R3SceneNode *node, const char *filename, const bool REAL_MATERIAL)
 {
   // Open file
   FILE *fp;
@@ -1493,7 +1493,7 @@ ReadPrinceton(R3Scene *scene, R3SceneNode *node, const char *filename)
       // Read data
       int m;
       R3Point p1, p2, p3;
-      if (fscanf(fp, "%d%lf%lf%lf%lf%lf%lf%lf%lf%lf", &m, 
+      if (fscanf(fp, "%d%lf%lf%lf%lf%lf%lf%lf%lf%lf", &m,
         &p1[0], &p1[1], &p1[2], &p2[0], &p2[1], &p2[2], &p3[0], &p3[1], &p3[2]) != 10) {
         fprintf(stderr, "Unable to read triangle at command %d in file %s\n", command_number, filename);
         return 0;
@@ -1561,6 +1561,30 @@ ReadPrinceton(R3Scene *scene, R3SceneNode *node, const char *filename)
 
       // Insert shape into element
       element->InsertShape(sphere);
+    }
+    else if (!strcmp(cmd, "circle")) {
+      // Read data
+      int m;
+      R3Point c;
+      R3Vector d;
+      double r;
+      if (fscanf(fp, "%d%lf%lf%lf%lf%lf%lf%lf", &m, &c[0], &c[1], &c[2], &d[0], &d[1], &d[2], &r) != 8) {
+        fprintf(stderr, "Unable to read circle at command %d in file %s\n", command_number, filename);
+        return 0;
+      }
+
+      // Normalize and create circle
+      d.Normalize();
+      R3Circle *circle = new R3Circle(c, r, d);
+
+      // Get material and element from m
+      if (!FindPrincetonMaterialAndElement(scene, group_nodes[depth], parsed_materials, m, group_materials[depth], material, element)) {
+        fprintf(stderr, "Invalid material id at command %d in file %s\n", command_number, filename);
+        return 0;
+      }
+
+      // Insert shape into element
+      element->InsertShape(circle);
     }
     else if (!strcmp(cmd, "cylinder")) {
       // Read data
@@ -1667,10 +1691,10 @@ ReadPrinceton(R3Scene *scene, R3SceneNode *node, const char *filename)
       // Read data
       int m;
       double matrix[16];
-      if (fscanf(fp, "%d%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf", &m, 
-        &matrix[0], &matrix[1], &matrix[2], &matrix[3], 
-        &matrix[4], &matrix[5], &matrix[6], &matrix[7], 
-        &matrix[8], &matrix[9], &matrix[10], &matrix[11], 
+      if (fscanf(fp, "%d%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf", &m,
+        &matrix[0], &matrix[1], &matrix[2], &matrix[3],
+        &matrix[4], &matrix[5], &matrix[6], &matrix[7],
+        &matrix[8], &matrix[9], &matrix[10], &matrix[11],
         &matrix[12], &matrix[13], &matrix[14], &matrix[15]) != 17) {
         fprintf(stderr, "Unable to read begin at command %d in file %s\n", command_number, filename);
         return 0;
@@ -1707,11 +1731,27 @@ ReadPrinceton(R3Scene *scene, R3SceneNode *node, const char *filename)
       RNRgb ka, kd, ks, kt, e;
       double n, ir;
       char texture_name[256];
-      if (fscanf(fp, "%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%s", 
-          &ka[0], &ka[1], &ka[2], &kd[0], &kd[1], &kd[2], &ks[0], &ks[1], &ks[2], &kt[0], &kt[1], &kt[2], 
+      if (fscanf(fp, "%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%s",
+          &ka[0], &ka[1], &ka[2], &kd[0], &kd[1], &kd[2], &ks[0], &ks[1], &ks[2], &kt[0], &kt[1], &kt[2],
           &e[0], &e[1], &e[2], &n, &ir, texture_name) != 18) {
         fprintf(stderr, "Unable to read material at command %d in file %s\n", command_number, filename);
         return 0;
+      }
+
+      // Normalize the material if necessary
+      if (REAL_MATERIAL) {
+        RNRgb total = kd + ks + kt;
+        RNScalar max_val = 1.0;
+        for (int i = 0; i < 3; i++) {
+          if (total[i] > max_val)
+            max_val = total[i];
+        }
+
+        if (max_val > 1.0) {
+          kd /= max_val;
+          ks /= max_val;
+          kt /= max_val;
+        }
       }
 
       // Create brdf
@@ -1735,7 +1775,7 @@ ReadPrinceton(R3Scene *scene, R3SceneNode *node, const char *filename)
           fprintf(stderr, "Unable to read texture from %s at command %d in file %s\n", buffer, command_number, filename);
           return 0;
         }
-        
+
         // Create texture
         texture = new R2Texture(image);
         scene->InsertTexture(texture);
@@ -1750,7 +1790,7 @@ ReadPrinceton(R3Scene *scene, R3SceneNode *node, const char *filename)
       // Read data
       RNRgb c;
       R3Vector d;
-      if (fscanf(fp, "%lf%lf%lf%lf%lf%lf", 
+      if (fscanf(fp, "%lf%lf%lf%lf%lf%lf",
         &c[0], &c[1], &c[2], &d[0], &d[1], &d[2]) != 6) {
         fprintf(stderr, "Unable to read directional light at command %d in file %s\n", command_number, filename);
         return 0;
@@ -1783,7 +1823,7 @@ ReadPrinceton(R3Scene *scene, R3SceneNode *node, const char *filename)
       R3Point p;
       R3Vector d;
       double ca, la, qa, sc, sd;
-      if (fscanf(fp, "%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf", 
+      if (fscanf(fp, "%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf",
         &c[0], &c[1], &c[2], &p[0], &p[1], &p[2], &d[0], &d[1], &d[2], &ca, &la, &qa, &sc, &sd) != 14) {
         fprintf(stderr, "Unable to read point light at command %d in file %s\n", command_number, filename);
         return 0;
@@ -1802,7 +1842,7 @@ ReadPrinceton(R3Scene *scene, R3SceneNode *node, const char *filename)
       R3Point p;
       R3Vector d;
       double radius, ca, la, qa;
-      if (fscanf(fp, "%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf", 
+      if (fscanf(fp, "%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf",
         &c[0], &c[1], &c[2], &p[0], &p[1], &p[2], &d[0], &d[1], &d[2], &radius, &ca, &la, &qa) != 13) {
         fprintf(stderr, "Unable to read area light at command %d in file %s\n", command_number, filename);
         return 0;
@@ -1811,8 +1851,31 @@ ReadPrinceton(R3Scene *scene, R3SceneNode *node, const char *filename)
       // Normalize direction
       d.Normalize();
 
-      // Create spot light
+      // Create area light
       R3AreaLight *light = new R3AreaLight(p, radius, d, c, 1, TRUE, ca, la, qa);
+      scene->InsertLight(light);
+    }
+    else if (!strcmp(cmd, "rect_light")) {
+      // Read data
+      RNRgb c;
+      R3Point p;
+      R3Vector a1, a2;
+      double l1, l2;
+      double ca, la, qa;
+      if (fscanf(fp, "%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf",
+        &c[0], &c[1], &c[2], &p[0], &p[1], &p[2],
+        &a1[0], &a1[1], &a1[2], &a2[0], &a2[1], &a2[2], &l1, &l2,
+        &ca, &la, &qa) != 17) {
+        fprintf(stderr, "Unable to read rect light at command %d in file %s\n", command_number, filename);
+        return 0;
+      }
+
+      // Normalize axes
+      a1.Normalize();
+      a2.Normalize();
+
+      // Create rect light
+      R3RectLight *light = new R3RectLight(p, a1, a2, l1, l2, c, 1, TRUE, ca, la, qa);
       scene->InsertLight(light);
     }
     else if (!strcmp(cmd, "camera")) {
@@ -1846,7 +1909,7 @@ ReadPrinceton(R3Scene *scene, R3SceneNode *node, const char *filename)
       strcat(buffer, scenename);
 
       // Read scene from included file
-      if (!ReadPrinceton(scene, group_nodes[depth], buffer)) {
+      if (!ReadPrinceton(scene, group_nodes[depth], buffer, REAL_MATERIAL)) {
         fprintf(stderr, "Unable to read included scene: %s\n", buffer);
         return 0;
       }
@@ -1877,7 +1940,7 @@ ReadPrinceton(R3Scene *scene, R3SceneNode *node, const char *filename)
       fprintf(stderr, "Unrecognized command %d in file %s: %s\n", command_number, filename, cmd);
       return 0;
     }
-	
+
     // Increment command number
     command_number++;
   }
@@ -1892,10 +1955,10 @@ ReadPrinceton(R3Scene *scene, R3SceneNode *node, const char *filename)
 
 
 int R3Scene::
-ReadPrincetonFile(const char *filename)
+ReadPrincetonFile(const char *filename, const bool REAL_MATERIAL)
 {
   // Read princeton file and insert contents into root node
-  return ReadPrinceton(this, root, filename);
+  return ReadPrinceton(this, root, filename, REAL_MATERIAL);
 }
 
 
@@ -1944,7 +2007,7 @@ WritePrincetonLight(const R3Scene *scene, const R3Light *light, FILE *fp)
 {
   // Get light color
   RNRgb color = light->Color();
-  
+
   // Write light in format appropriate for type
   if (light->ClassID() == R3DirectionalLight::CLASS_ID()) {
     R3DirectionalLight *directional_light = (R3DirectionalLight *) light;
@@ -2011,7 +2074,7 @@ WritePrincetonElement(const R3Scene *scene, R3SceneElement *element,
   // Get material index
   R3Material *material = element->Material();
   int material_index = (material) ? material->SceneIndex() : -1;
-  
+
   // Write shapes
   for (int i = 0; i < element->NShapes(); i++) {
     R3Shape *shape = element->Shape(i);
@@ -2070,7 +2133,7 @@ WritePrincetonElement(const R3Scene *scene, R3SceneElement *element,
       // return 0;
     }
   }
-  
+
   // Return success
   return 1;
 }
@@ -2109,7 +2172,7 @@ WritePrincetonNode(const R3Scene *scene, const R3SceneNode *node,
     fprintf(fp, "%s%g %g %g %g\n", child_indent, m[2][0], m[2][1], m[2][2], m[2][3]);
     fprintf(fp, "%s%g %g %g %g\n", child_indent, m[3][0], m[3][1], m[3][2], m[3][3]);
   }
-  
+
   // Write elements
   for (int i = 0; i < node->NElements(); i++) {
     R3SceneElement *element = node->Element(i);
@@ -2178,7 +2241,7 @@ WritePrincetonFile(const char *filename) const
 
   // Write nodes recursively
   int status = WritePrincetonNode(this, root, R3identity_affine, fp, "");
-  
+
   // Close file
   fclose(fp);
 
@@ -2282,15 +2345,15 @@ ReadSupportHierarchyFile(const char *filename)
     else if (!strcmp(keyword, "transform")) {
       // Read fields
       double m[16];
-      if (sscanf(bufferp, "%s%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf", 
-        keyword, &m[0], &m[1], &m[2], &m[3], &m[4], &m[5], &m[6], &m[7], 
+      if (sscanf(bufferp, "%s%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf",
+        keyword, &m[0], &m[1], &m[2], &m[3], &m[4], &m[5], &m[6], &m[7],
         &m[8], &m[9], &m[10], &m[11], &m[12], &m[13], &m[14], &m[15]) != (unsigned int) 17) {
         fprintf(stderr, "Syntax error on line %d in file %s", line_count, filename);
         return 0;
       }
 
       // NOTE: Our transformation is stored relative to parent's coordinate system
-      // So, we must compute transformation from inverse of transform from parent node to world coordinates so that can 
+      // So, we must compute transformation from inverse of transform from parent node to world coordinates so that can
       // convert file's absolute transform (which goes from node's coordinates to world coordinates)
       // to our transform (which goes from node's coordinates to parent node's coordinates)
       R3Affine transformation = R3identity_affine;
@@ -2440,7 +2503,7 @@ ReadGrammarHierarchyFile(const char *filename)
           node->SetName(node_name);
           parsed_nodes.Insert(node);
         }
-      
+
         // Set last node's parent
         R3SceneNode *parent = parsed_nodes.Kth(parent_index);
         parent->InsertChild(current_node);
@@ -2481,8 +2544,8 @@ ReadGrammarHierarchyFile(const char *filename)
             element->InsertShape(shape);
             current_node->InsertElement(element);
           }
-        }    
-      }    
+        }
+      }
     }
   }
 
@@ -2554,10 +2617,10 @@ ReadParseFile(const char *filename)
         // Parse assignment
         double score, m[16];
         int segmentation_index, model_index, dummy;
-        if (sscanf(bufferp, "%s%d%d%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%d%d%d%d", keyword, 
-          &segmentation_index, &model_index, 
-          &m[0], &m[1], &m[2], &m[3], &m[4], &m[5], &m[6], &m[7], 
-          &m[8], &m[9], &m[10], &m[11], &m[12], &m[13], &m[14], &m[15], 
+        if (sscanf(bufferp, "%s%d%d%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%d%d%d%d", keyword,
+          &segmentation_index, &model_index,
+          &m[0], &m[1], &m[2], &m[3], &m[4], &m[5], &m[6], &m[7],
+          &m[8], &m[9], &m[10], &m[11], &m[12], &m[13], &m[14], &m[15],
           &score, &dummy, &dummy, &dummy, &dummy) != (unsigned int) 24) {
           fprintf(stderr, "Error parsing assignment at line %d of %s\n", line_number, filename);
           return 0;
@@ -2584,7 +2647,7 @@ ReadParseFile(const char *filename)
         node->SetName(node_name);
 
         // Set node transformation
-        R4Matrix matrix(m); 
+        R4Matrix matrix(m);
         R3Affine affine(matrix, 0);
         node->SetTransformation(affine);
       }
@@ -2593,7 +2656,7 @@ ReadParseFile(const char *filename)
         int dummy;
         double cx, cy, cz, r, h;
         char model_name[4096], mesh_name[4096];
-        if (sscanf(bufferp, "%s%d%lf%lf%lf%lf%lf%s%s%d%d%d%d%d", keyword, 
+        if (sscanf(bufferp, "%s%d%lf%lf%lf%lf%lf%s%s%d%d%d%d%d", keyword,
           &dummy, &cx, &cy, &cz, &r, &h, model_name, mesh_name, &dummy, &dummy, &dummy, &dummy, &dummy) != (unsigned int) 14) {
           fprintf(stderr, "Error parsing model at line %d of %s\n", line_number, filename);
           return 0;
@@ -2674,7 +2737,7 @@ ReadRectangleFile(const char *filename)
     // Parse line
     char name[4096];
     double x1, y1, x2, y2, x3, y3, x4, y4, zmin, zmax, score;
-    if (sscanf(bufferp, "%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%s", 
+    if (sscanf(bufferp, "%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%lf%s",
        &x1, &y1, &x2, &y2, &x3, &y3, &x4, &y4, &zmin, &zmax, &score, name) != (unsigned int) 12) {
       fprintf(stderr, "Error parsing line %d of %s\n", line_number, filename);
       return 0;
@@ -2706,7 +2769,7 @@ ReadRectangleFile(const char *filename)
     element->InsertShape(base);
     element->InsertShape(marker);
     node->InsertElement(element);
-    
+
     // Set node name
     char node_name[1024];
     sprintf(node_name, "A%d_S%03d", assignment_index++, (int) (1000*score));
@@ -2801,7 +2864,7 @@ ReplaceP5DObjectMaterials(R3Scene *scene, R3SceneNode *node, const char *objname
         else { brdf->SetAmbient(rgb); brdf->SetDiffuse(rgb); }
       }
     }
-    
+
     // Replace texture image
     if (p5d_material->texture_name) {
       // Replace color
@@ -2813,7 +2876,7 @@ ReplaceP5DObjectMaterials(R3Scene *scene, R3SceneNode *node, const char *objname
           else { brdf->SetAmbient(rgb); brdf->SetDiffuse(rgb); }
         }
       }
-    
+
       // Get texture image file
       char texture_filename[1024];
       sprintf(texture_filename, "%s/%s.jpg", dirname, p5d_material->texture_name);
@@ -2823,10 +2886,10 @@ ReplaceP5DObjectMaterials(R3Scene *scene, R3SceneNode *node, const char *objname
 
       // Update texture image
       R2Texture *texture = (R2Texture *) material->Texture();
-      R2Image *image = (texture) ? (R2Image *) texture->Image() : NULL; 
+      R2Image *image = (texture) ? (R2Image *) texture->Image() : NULL;
       if (!texture) { texture = new R2Texture(); scene->InsertTexture(texture); material->SetTexture(texture); }
       if (!image) { image = new R2Image(); texture->SetImage(image); }
-      if (!image->Read(texture_filename)) return 0; 
+      if (!image->Read(texture_filename)) return 0;
       texture->SetImage(image);
     }
 
@@ -2837,7 +2900,7 @@ ReplaceP5DObjectMaterials(R3Scene *scene, R3SceneNode *node, const char *objname
   // Return success
   return 1;
 }
-  
+
 
 
 
@@ -2857,7 +2920,7 @@ ReadPlanner5DFile(const char *filename)
   if (filename[0] == '/') strncpy(full_path_name, filename, 1024);
   else sprintf(full_path_name, "%s/%s", current_working_directory, filename);
 
-  // Get data directory and 
+  // Get data directory and
   char input_data_directory[1024];
   strncpy(input_data_directory, full_path_name, 1024);
   char *endp = strrchr(input_data_directory, '/');
@@ -2876,7 +2939,7 @@ ReadPlanner5DFile(const char *filename)
   if (startp) startp++;
   else startp = tmp;
   strncpy(input_project_name, startp, 1024);
-  
+
   // Allocate project
   P5DProject *project = new P5DProject();
   if (!project) {
@@ -2893,7 +2956,7 @@ ReadPlanner5DFile(const char *filename)
     return 0;
   }
 
-  // Get root node 
+  // Get root node
   char project_name[1024];
   sprintf(project_name, "Project#%s", (project->name) ? project->name : "");
   R3SceneNode *root_node = Root();
@@ -2904,7 +2967,7 @@ ReadPlanner5DFile(const char *filename)
   R4Matrix xmirror_matrix(-1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1);
   R3Affine xmirror_transformation(xmirror_matrix, TRUE);
   root_node->SetTransformation(xmirror_transformation);
-  
+
   // Create nodes for floors
   RNScalar floor_z = 0;
   for (int i = 0; i < project->NFloors(); i++) {
@@ -2942,7 +3005,7 @@ ReadPlanner5DFile(const char *filename)
       if (!strcmp(room->className, "Room")) {
         // Read walls
         char rm_name[4096], node_name[4096];
-        sprintf(rm_name, "%s/roomfiles/%s/fr_%drm_%d.obj", input_data_directory, project->name, i+1, room->idx_index+1); 
+        sprintf(rm_name, "%s/roomfiles/%s/fr_%drm_%d.obj", input_data_directory, project->name, i+1, room->idx_index+1);
         if (RNFileExists(rm_name)) {
           R3SceneNode *wall_node = new R3SceneNode(this);
           sprintf(node_name, "Walls#%d_%d_%d", i+1, j+1, room->idx_index+1);
@@ -2952,7 +3015,7 @@ ReadPlanner5DFile(const char *filename)
         }
 
         // Read floor
-        sprintf(rm_name, "%s/roomfiles/%s/fr_%drm_%df.obj", input_data_directory, project->name, i+1, room->idx_index+1); 
+        sprintf(rm_name, "%s/roomfiles/%s/fr_%drm_%df.obj", input_data_directory, project->name, i+1, room->idx_index+1);
         if (RNFileExists(rm_name)) {
           R3SceneNode *rmfloor_node = new R3SceneNode(this);
           sprintf(node_name, "Floors#%d_%d_%d", i+1, j+1, room->idx_index+1);
@@ -2960,9 +3023,9 @@ ReadPlanner5DFile(const char *filename)
           if (!ReadObj(this, rmfloor_node, rm_name)) return 0;
           room_node->InsertChild(rmfloor_node);
         }
-        
+
         // Read ceiling
-        sprintf(rm_name, "%s/roomfiles/%s/fr_%drm_%dc.obj", input_data_directory, project->name, i+1, room->idx_index+1); 
+        sprintf(rm_name, "%s/roomfiles/%s/fr_%drm_%dc.obj", input_data_directory, project->name, i+1, room->idx_index+1);
         if (RNFileExists(rm_name)) {
           R3SceneNode *rmceil_node = new R3SceneNode(this);
           sprintf(node_name, "Ceilings#%d_%d_%d", i+1, j+1, room->idx_index+1);
@@ -2978,7 +3041,7 @@ ReadPlanner5DFile(const char *filename)
       P5DObject *object = floor->Object(j);
       if (!object->id || !(*(object->id))) continue;
       P5DRoom *room = object->room;
-      
+
       // Create object node
       char object_name[1024];
       int ri = (room) ? room->floor_index+1 : -1;
@@ -3015,11 +3078,7 @@ ReadPlanner5DFile(const char *filename)
       if (!ReplaceP5DObjectMaterials(this, object_node, obj_name, materials, object)) return 0;
     }
   }
-    
+
   // Return success
   return 1;
 }
-
-
-
-

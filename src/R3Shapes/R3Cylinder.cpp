@@ -139,7 +139,7 @@ const RNArea R3Cylinder::
 Area(void) const
 {
     // Return surface area of cylinder
-    return (2.0 * RN_PI * Radius() * (Radius() + Height()));
+    return (RN_TWO_PI * Radius() * (Radius() + Height()));
 }
 
 

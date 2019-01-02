@@ -321,7 +321,7 @@ GridValue(RNScalar x, RNScalar y) const
 
 
 R2Grid& R2Grid::
-operator=(const R2Grid& grid) 
+operator=(const R2Grid& grid)
 {
   // Copy grid resolution
   grid_resolution[0] = grid.grid_resolution[0];
@@ -350,7 +350,7 @@ operator=(const R2Grid& grid)
 
 
 void R2Grid::
-Abs(void) 
+Abs(void)
 {
   // Take absolute value of every grid value
   for (int i = 0; i < grid_size; i++) {
@@ -362,7 +362,7 @@ Abs(void)
 
 
 void R2Grid::
-Sqrt(void) 
+Sqrt(void)
 {
   // Take sqrt of every grid value
   for (int i = 0; i < grid_size; i++) {
@@ -374,7 +374,7 @@ Sqrt(void)
 
 
 void R2Grid::
-Square(void) 
+Square(void)
 {
   // Square every grid value
   for (int i = 0; i < grid_size; i++) {
@@ -386,7 +386,7 @@ Square(void)
 
 
 void R2Grid::
-Negate(void) 
+Negate(void)
 {
   // Square every grid value
   for (int i = 0; i < grid_size; i++) {
@@ -398,7 +398,7 @@ Negate(void)
 
 
 void R2Grid::
-Invert(void) 
+Invert(void)
 {
   // Invert every grid value
   for (int i = 0; i < grid_size; i++) {
@@ -429,7 +429,7 @@ Transpose(void)
 
 
 void R2Grid::
-Normalize(void) 
+Normalize(void)
 {
   // Scale so that length of "vector" is one
   Divide(L2Norm());
@@ -438,7 +438,7 @@ Normalize(void)
 
 
 void R2Grid::
-FillHoles(void) 
+FillHoles(void)
 {
   // Build Gaussian filter
   RNScalar sigma = 1.5;
@@ -450,7 +450,7 @@ FillHoles(void)
     }
   }
 
-  // Seed queue with border unknown values 
+  // Seed queue with border unknown values
   RNQueue<RNScalar *> queue;
   const RNScalar on_queue_value = -46573822;
   for (int x = 0; x < grid_resolution[0]; x++) {
@@ -507,7 +507,7 @@ FillHoles(void)
 
     // Divide by total weight
     if (weight > 0) *valuep = sum / weight;
-    else fprintf(stderr, "Zero weight in fill holes\n"); 
+    else fprintf(stderr, "Zero weight in fill holes\n");
 
     // Push neighbors with unknown values onto queue
     if ((x > 0) && (GridValue(x-1, y) == R2_GRID_UNKNOWN_VALUE)) {
@@ -538,7 +538,7 @@ FillHoles(int max_hole_size)
   for (int ix = 0; ix < XResolution(); ix++) {
     int iy0 = -1;
     for (int iy1 = 0; iy1 < YResolution(); iy1++) {
-      if (GridValue(ix, iy1) != R2_GRID_UNKNOWN_VALUE) { 
+      if (GridValue(ix, iy1) != R2_GRID_UNKNOWN_VALUE) {
         if ((iy0 >= 0) && (iy0 < iy1-1) && (iy1-iy0 < max_hole_size)) {
           RNScalar value0 = GridValue(ix, iy0);
           if (value0 == R2_GRID_UNKNOWN_VALUE) continue;
@@ -559,7 +559,7 @@ FillHoles(int max_hole_size)
   for (int iy = 0; iy < YResolution(); iy++) {
     int ix0 = -1;
     for (int ix1 = 0; ix1 < XResolution(); ix1++) {
-      if (GridValue(ix1, iy) != R2_GRID_UNKNOWN_VALUE) { 
+      if (GridValue(ix1, iy) != R2_GRID_UNKNOWN_VALUE) {
         if ((ix0 >= 0) && (ix0 < ix1-1) && (ix1-ix0 < max_hole_size)) {
           RNScalar value0 = GridValue(ix0, iy);
           if (value0 == R2_GRID_UNKNOWN_VALUE) continue;
@@ -580,7 +580,7 @@ FillHoles(int max_hole_size)
 
 
 void R2Grid::
-Clear(RNScalar value) 
+Clear(RNScalar value)
 {
   // Set all grid values to value
   for (int i = 0; i < grid_size; i++) {
@@ -592,7 +592,7 @@ Clear(RNScalar value)
 
 
 void R2Grid::
-Dilate(RNLength grid_distance) 
+Dilate(RNLength grid_distance)
 {
   // Make copy so that can restore unknown values
   R2Grid copy(*this);
@@ -612,7 +612,7 @@ Dilate(RNLength grid_distance)
 
 
 void R2Grid::
-Erode(RNLength grid_distance) 
+Erode(RNLength grid_distance)
 {
   // Make copy so that can restore unknown values
   R2Grid copy(*this);
@@ -633,7 +633,7 @@ Erode(RNLength grid_distance)
 
 
 void R2Grid::
-Blur(RNDimension dim, RNLength grid_sigma) 
+Blur(RNDimension dim, RNLength grid_sigma)
 {
   // Build filter
   RNScalar sigma = grid_sigma;
@@ -646,7 +646,7 @@ Blur(RNDimension dim, RNLength grid_sigma)
   RNScalar *buffer = new RNScalar [ res ];
   assert(buffer);
 
-  // Fill filter with Gaussian 
+  // Fill filter with Gaussian
   const RNScalar sqrt_two_pi = sqrt(RN_TWO_PI);
   double a = sqrt_two_pi * sigma;
   double fac = 1.0 / (a * a * a);
@@ -655,11 +655,11 @@ Blur(RNDimension dim, RNLength grid_sigma)
     filter[i] = fac * exp(-i * i / denom);
   }
 
-  // Convolve grid with filter 
-  for (int j = 0; j < Resolution(1-dim); j++) { 
-    for (int i = 0; i < Resolution(dim); i++) 
-      buffer[i] = (dim == RN_X) ? GridValue(i, j) : GridValue(j, i); 
-    for (int i = 0; i < Resolution(dim); i++) { 
+  // Convolve grid with filter
+  for (int j = 0; j < Resolution(1-dim); j++) {
+    for (int i = 0; i < Resolution(dim); i++)
+      buffer[i] = (dim == RN_X) ? GridValue(i, j) : GridValue(j, i);
+    for (int i = 0; i < Resolution(dim); i++) {
       if (buffer[i] == R2_GRID_UNKNOWN_VALUE) continue;
       RNScalar sum = 0;
       RNScalar weight = 0;
@@ -702,7 +702,7 @@ Blur(RNDimension dim, RNLength grid_sigma)
 
 
 void R2Grid::
-Blur(RNLength grid_sigma) 
+Blur(RNLength grid_sigma)
 {
   // Build filter
   RNScalar sigma = grid_sigma;
@@ -716,7 +716,7 @@ Blur(RNLength grid_sigma)
   RNScalar *buffer = new RNScalar [ res ];
   assert(buffer);
 
-  // Fill filter with Gaussian 
+  // Fill filter with Gaussian
   const RNScalar sqrt_two_pi = sqrt(RN_TWO_PI);
   double a = sqrt_two_pi * sigma;
   double fac = 1.0 / (a * a * a);
@@ -726,10 +726,10 @@ Blur(RNLength grid_sigma)
   }
 
   // Convolve grid with filter in X direction
-  for (int j = 0; j < YResolution(); j++) { 
-    for (int i = 0; i < XResolution(); i++) 
-      buffer[i] = GridValue(i, j); 
-    for (int i = 0; i < XResolution(); i++) { 
+  for (int j = 0; j < YResolution(); j++) {
+    for (int i = 0; i < XResolution(); i++)
+      buffer[i] = GridValue(i, j);
+    for (int i = 0; i < XResolution(); i++) {
       if (buffer[i] == R2_GRID_UNKNOWN_VALUE) continue;
       RNScalar sum = 0;
       RNScalar weight = 0;
@@ -761,10 +761,10 @@ Blur(RNLength grid_sigma)
   }
 
   // Convolve grid with filter in Y direction
-  for (int j = 0; j < XResolution(); j++) { 
-    for (int i = 0; i < YResolution(); i++) 
-      buffer[i] = GridValue(j, i); 
-    for (int i = 0; i < YResolution(); i++) { 
+  for (int j = 0; j < XResolution(); j++) {
+    for (int i = 0; i < YResolution(); i++)
+      buffer[i] = GridValue(j, i);
+    for (int i = 0; i < YResolution(); i++) {
       if (buffer[i] == R2_GRID_UNKNOWN_VALUE) continue;
       RNScalar sum = 0;
       RNScalar weight = 0;
@@ -809,8 +809,8 @@ AddNoise(RNScalar sigma_fraction)
   if (sigma_fraction == 0) return;
   for (int i = 0; i < grid_size; i++) {
     if (grid_values[i] == R2_GRID_UNKNOWN_VALUE) continue;
-    RNScalar r = RNRandomScalar();
-    RNScalar sign = (RNRandomScalar() < 0.5) ? -1.0 : 1.0;
+    RNScalar r = RNThreadableRandomScalar();
+    RNScalar sign = (RNThreadableRandomScalar() < 0.5) ? -1.0 : 1.0;
     RNScalar sigma = sigma_fraction * grid_values[i];
     RNScalar magnitude = sigma * (1.0 - exp(-0.5 * r * r));
     grid_values[i] += sign * magnitude;
@@ -953,7 +953,7 @@ PercentileFilter(RNLength grid_radius, RNScalar percentile)
 
 
 
-static int 
+static int
 RNCompareScalarPtrs(const void *value1, const void *value2)
 {
   const RNScalar **scalar1pp = (const RNScalar **) value1;
@@ -1109,24 +1109,24 @@ MaskNonMaxima(RNLength grid_radius)
 
 
 void R2Grid::
-Convolve(const RNScalar filter[3][3]) 
+Convolve(const RNScalar filter[3][3])
 {
   // Make temporary copy of grid
   R2Grid copy(*this);
 
   // Mark boundaries unknown
-  for (int i = 0; i < XResolution(); i++) { 
+  for (int i = 0; i < XResolution(); i++) {
     SetGridValue(i, 0, R2_GRID_UNKNOWN_VALUE);
     SetGridValue(i, YResolution()-1, R2_GRID_UNKNOWN_VALUE);
   }
-  for (int j = 0; j < YResolution(); j++) { 
+  for (int j = 0; j < YResolution(); j++) {
     SetGridValue(0, j, R2_GRID_UNKNOWN_VALUE);
     SetGridValue(XResolution()-1, j, R2_GRID_UNKNOWN_VALUE);
   }
 
   // Convolve grid with 3x3 filter
-  for (int j = 1; j < YResolution()-1; j++) { 
-    for (int i = 1; i < XResolution()-1; i++) { 
+  for (int j = 1; j < YResolution()-1; j++) {
+    for (int i = 1; i < XResolution()-1; i++) {
       RNScalar value = copy.GridValue(i, j);
       if (value != R2_GRID_UNKNOWN_VALUE) {
         RNScalar sum = 0;
@@ -1137,7 +1137,7 @@ Convolve(const RNScalar filter[3][3])
             if (value == R2_GRID_UNKNOWN_VALUE) { unknown = TRUE; break; }
             else sum += filter[dj+1][di+1] * value;
           }
-          if (unknown) break; 
+          if (unknown) break;
         }
         if (unknown) SetGridValue(i, j, R2_GRID_UNKNOWN_VALUE);
         else SetGridValue(i, j, sum);
@@ -1152,15 +1152,15 @@ void R2Grid::
 Gradient(RNDimension dim)
 {
   // Set up xfilter
-  const RNScalar xfilter[3][3] = { 
-    { -0.25, 0, 0.25 }, 
-    { -0.5,  0, 0.5}, 
-    { -0.25, 0, 0.25 } 
+  const RNScalar xfilter[3][3] = {
+    { -0.25, 0, 0.25 },
+    { -0.5,  0, 0.5},
+    { -0.25, 0, 0.25 }
   };
-  const RNScalar yfilter[3][3] = { 
-    { -0.25, -0.5, -0.25 }, 
-    {  0,     0,    0 }, 
-    {  0.25,  0.5,  0.25 } 
+  const RNScalar yfilter[3][3] = {
+    { -0.25, -0.5, -0.25 },
+    {  0,     0,    0 },
+    {  0.25,  0.5,  0.25 }
   };
 
   // Convolve with filter
@@ -1241,10 +1241,10 @@ void R2Grid::
 Laplacian(void)
 {
   // Set up Laplacian filter
-  const RNScalar filter[3][3] = { 
-    { -0.125, -0.125, -0.125 }, 
-    { -0.125,  1,     -0.125 }, 
-    { -0.125, -0.125, -0.125 } 
+  const RNScalar filter[3][3] = {
+    { -0.125, -0.125, -0.125 },
+    { -0.125,  1,     -0.125 },
+    { -0.125, -0.125, -0.125 }
   };
 
   // Convolve with filter
@@ -1263,18 +1263,18 @@ Laplacian(RNDimension dim)
   R2Grid copy(*this);
 
   // Mark boundaries unknown
-  for (int i = 0; i < XResolution(); i++) { 
+  for (int i = 0; i < XResolution(); i++) {
     SetGridValue(i, 0, R2_GRID_UNKNOWN_VALUE);
     SetGridValue(i, YResolution()-1, R2_GRID_UNKNOWN_VALUE);
   }
-  for (int j = 0; j < YResolution(); j++) { 
+  for (int j = 0; j < YResolution(); j++) {
     SetGridValue(0, j, R2_GRID_UNKNOWN_VALUE);
     SetGridValue(XResolution()-1, j, R2_GRID_UNKNOWN_VALUE);
   }
 
   // Convolve grid with 3x1 filter
-  for (int j = 1; j < YResolution()-1; j++) { 
-    for (int i = 1; i < XResolution()-1; i++) { 
+  for (int j = 1; j < YResolution()-1; j++) {
+    for (int i = 1; i < XResolution()-1; i++) {
       RNScalar value = copy.GridValue(i, j);
       if (value != R2_GRID_UNKNOWN_VALUE) {
         RNScalar sum = 0;
@@ -1298,8 +1298,8 @@ void R2Grid::
 HarrisCornerFilter(int radius, RNScalar kappa)
 {
   // Compute gradients
-  R2Grid xgradient(*this);  
-  R2Grid ygradient(*this);  
+  R2Grid xgradient(*this);
+  R2Grid ygradient(*this);
   xgradient.Gradient(RN_X);
   ygradient.Gradient(RN_Y);
 
@@ -1317,9 +1317,9 @@ HarrisCornerFilter(int radius, RNScalar kappa)
       if (ygradient.GridValue(cx, cy) == R2_GRID_UNKNOWN_VALUE) continue;
 
       // Compute covariance matrix of window centered at pixel
-      RNScalar dx2 = 0; 
-      RNScalar dy2 = 0; 
-      RNScalar dxdy = 0; 
+      RNScalar dx2 = 0;
+      RNScalar dy2 = 0;
+      RNScalar dxdy = 0;
       for (int s = -radius; s <= radius; s++) {
         int s2 = s*s;
         int ix = cx + s;
@@ -1346,7 +1346,7 @@ HarrisCornerFilter(int radius, RNScalar kappa)
       // if (gap_squared < 0) continue;
       // RNScalar lambda1 = 0.5*(trace + sqrt(gap_squared));
       // RNScalar lambda2 = 0.5*(trace - sqrt(gap_squared));
-      
+
       // Compute harris response from covariance matrix
       RNScalar det = dx2*dy2 - dxdy*dxdy;
       RNScalar trace = dx2 + dy2;
@@ -1361,7 +1361,7 @@ HarrisCornerFilter(int radius, RNScalar kappa)
 
 
 void R2Grid::
-Substitute(RNScalar old_value, RNScalar new_value) 
+Substitute(RNScalar old_value, RNScalar new_value)
 {
   // Replace all instances of old_value with new_value
   for (int i = 0; i < grid_size; i++) {
@@ -1374,9 +1374,9 @@ Substitute(RNScalar old_value, RNScalar new_value)
 
 
 void R2Grid::
-Add(RNScalar value) 
+Add(RNScalar value)
 {
-  // Add value to all grid values 
+  // Add value to all grid values
   for (int i = 0; i < grid_size; i++) {
     if (grid_values[i] != R2_GRID_UNKNOWN_VALUE) {
       grid_values[i] += value;
@@ -1387,7 +1387,7 @@ Add(RNScalar value)
 
 
 void R2Grid::
-Add(const R2Grid& grid) 
+Add(const R2Grid& grid)
 {
   // Resolutions must be the same (for now)
   assert(grid_resolution[0] == grid.grid_resolution[0]);
@@ -1405,7 +1405,7 @@ Add(const R2Grid& grid)
 
 
 void R2Grid::
-Subtract(RNScalar value) 
+Subtract(RNScalar value)
 {
   // Add the opposite
   Add(-value);
@@ -1414,7 +1414,7 @@ Subtract(RNScalar value)
 
 
 void R2Grid::
-Subtract(const R2Grid& grid) 
+Subtract(const R2Grid& grid)
 {
   // Resolutions must be the same (for now)
   assert(grid_resolution[0] == grid.grid_resolution[0]);
@@ -1432,7 +1432,7 @@ Subtract(const R2Grid& grid)
 
 
 void R2Grid::
-Multiply(RNScalar value) 
+Multiply(RNScalar value)
 {
   // Multiply grid values by value
   for (int i = 0; i < grid_size; i++) {
@@ -1445,7 +1445,7 @@ Multiply(RNScalar value)
 
 
 void R2Grid::
-Multiply(const R2Grid& grid) 
+Multiply(const R2Grid& grid)
 {
   // Resolutions must be the same (for now)
   assert(grid_resolution[0] == grid.grid_resolution[0]);
@@ -1463,7 +1463,7 @@ Multiply(const R2Grid& grid)
 
 
 void R2Grid::
-Divide(RNScalar value) 
+Divide(RNScalar value)
 {
   // Just checking
   if (RNIsZero(value)) return;
@@ -1475,13 +1475,13 @@ Divide(RNScalar value)
 
 
 void R2Grid::
-Divide(const R2Grid& grid) 
+Divide(const R2Grid& grid)
 {
   // Resolutions must be the same (for now)
   assert(grid_resolution[0] == grid.grid_resolution[0]);
   assert(grid_resolution[1] == grid.grid_resolution[1]);
 
-  // Divide entries of this grid by by corresponding entries of passed grid 
+  // Divide entries of this grid by by corresponding entries of passed grid
   for (int i = 0; i < grid_size; i++) {
     if (grid_values[i] != R2_GRID_UNKNOWN_VALUE) {
       if (grid.grid_values[i] == R2_GRID_UNKNOWN_VALUE) {
@@ -1501,9 +1501,9 @@ Divide(const R2Grid& grid)
 
 
 void R2Grid::
-Pow(RNScalar exponent) 
+Pow(RNScalar exponent)
 {
-  // Apply exponent to all grid values 
+  // Apply exponent to all grid values
   for (int i = 0; i < grid_size; i++) {
     RNScalar value = grid_values[i];
     if (value != R2_GRID_UNKNOWN_VALUE) {
@@ -1515,7 +1515,7 @@ Pow(RNScalar exponent)
 
 
 void R2Grid::
-Mask(const R2Grid& grid) 
+Mask(const R2Grid& grid)
 {
   // Resolutions must be the same (for now)
   assert(grid_resolution[0] == grid.grid_resolution[0]);
@@ -1531,13 +1531,13 @@ Mask(const R2Grid& grid)
 
 
 void R2Grid::
-Overlay(const R2Grid& grid) 
+Overlay(const R2Grid& grid)
 {
   // Resolutions must be the same (for now)
   assert(grid_resolution[0] == grid.grid_resolution[0]);
   assert(grid_resolution[1] == grid.grid_resolution[1]);
 
-  // Assign non-zero entries of grid 
+  // Assign non-zero entries of grid
   for (int i = 0; i < grid_size; i++) {
     if (grid.grid_values[i] == 0) continue;
     if (grid.grid_values[i] == R2_GRID_UNKNOWN_VALUE) continue;
@@ -1548,7 +1548,7 @@ Overlay(const R2Grid& grid)
 
 
 void R2Grid::
-Threshold(RNScalar threshold, RNScalar low, RNScalar high) 
+Threshold(RNScalar threshold, RNScalar low, RNScalar high)
 {
   // Set grid value to low (high) if less/equal (greater) than threshold
   for (int i = 0; i < grid_size; i++) {
@@ -1566,7 +1566,7 @@ Threshold(RNScalar threshold, RNScalar low, RNScalar high)
 
 
 void R2Grid::
-Threshold(const R2Grid& threshold, RNScalar low, RNScalar high) 
+Threshold(const R2Grid& threshold, RNScalar low, RNScalar high)
 {
   // Set grid value to low (high) if less/equal (greater) than threshold
   for (int i = 0; i < grid_size; i++) {
@@ -1645,7 +1645,7 @@ SquaredDistanceTransform(void)
         SetGridValue(x, y, square);
       }
     }
-      		
+
     // backward scan
     dist = 0;
     first = 1;
@@ -1668,9 +1668,9 @@ SquaredDistanceTransform(void)
   // Scan along y axis
   for (x = 0; x < XResolution(); x++) {
     // Copy grid values
-    for (y = 0; y < YResolution(); y++) 
+    for (y = 0; y < YResolution(); y++)
       oldBuffer[y] = (int) (GridValue(x, y) + 0.5);
-      		
+
     // forward scan
     s = 0;
     for (y = 0; y < YResolution(); y++) {
@@ -1684,12 +1684,12 @@ SquaredDistanceTransform(void)
           }
         }
       }
-      else { 
+      else {
         s = y;
       }
       newBuffer[y] = dist;
     }
-  
+
     // backward scan
     s = YResolution() - 1;
     for(y = YResolution()-1; y >=0 ; y--) {
@@ -1704,12 +1704,12 @@ SquaredDistanceTransform(void)
         }
         SetGridValue(x, y, dist);
       }
-      else { 
-        s = y; 
+      else {
+        s = y;
       }
     }
   }
-	
+
   // Delete temporary buffers
   delete[] oldBuffer;
   delete[] newBuffer;
@@ -1772,7 +1772,7 @@ Voronoi(R2Grid *squared_distance_grid)
         assert(value != 0);
       }
     }
-			
+
     // backward scan
     dist = 0;
     first = 1;
@@ -1802,7 +1802,7 @@ Voronoi(R2Grid *squared_distance_grid)
       old_dist[y] = (int) (dgrid->GridValue(x, y));
       old_value[y] = GridValue(x, y);
     }
-			
+
     // forward scan
     s = 0;
     for (y = 0; y < YResolution(); y++) {
@@ -1818,7 +1818,7 @@ Voronoi(R2Grid *squared_distance_grid)
           }
         }
       }
-      else { 
+      else {
         s = y;
       }
       new_dist[y] = dist;
@@ -1842,12 +1842,12 @@ Voronoi(R2Grid *squared_distance_grid)
         dgrid->SetGridValue(x, y, dist);
         SetGridValue(x, y, value);
       }
-      else { 
-        s = y; 
+      else {
+        s = y;
       }
     }
   }
-	
+
   // Delete temporary buffers
   if (!squared_distance_grid) delete dgrid;
   delete[] old_dist;
@@ -1879,8 +1879,8 @@ PointSymmetryTransform(int radius)
           RNScalar value1 = GridValue(i-s, j-t);
           RNScalar value2 = GridValue(i+s, j+t);
           dot += 2 * value1 * value2;
-          norm += value1 * value1; 
-          norm += value2 * value2; 
+          norm += value1 * value1;
+          norm += value2 * value2;
         }
       }
       if (norm > 0) dot /= norm;
@@ -1895,7 +1895,7 @@ void R2Grid::
 Gauss(RNLength sigma, RNBoolean square)
 {
   // Check sigma
-  if (sigma == 0.0) return;    
+  if (sigma == 0.0) return;
 
   // Replace each grid value with Gaussian of what was there before
   RNScalar fac = 1.0 / (2.0 * sigma * sigma);
@@ -2118,20 +2118,20 @@ RasterizeGridTriangle(const int p1[2], const int p2[2], const int p3[2], RNScala
   // Sort vertex indices by Y coordinate
   int iv0, iv1, iv2;
   if (points[0].Y() < points[1].Y()) {
-    if (points[0].Y() < points[2].Y()) { 
+    if (points[0].Y() < points[2].Y()) {
       if (points[1].Y() < points[2].Y()) { iv0 = 0; iv1 = 1; iv2 = 2; }
       else { iv0 = 0; iv1 = 2; iv2 = 1; }
     }
     else { iv0 = 2; iv1 = 0; iv2 = 1; }
   }
   else {
-    if (points[1].Y() < points[2].Y()) { 
+    if (points[1].Y() < points[2].Y()) {
       if (points[0].Y() < points[2].Y()) { iv0 = 1; iv1 = 0; iv2 = 2; }
       else { iv0 = 1; iv1 = 2; iv2 = 0; }
     }
     else { iv0 = 2; iv1 = 1; iv2 = 0; }
   }
-  
+
   // Sort vertex coordinates
   double dy = points[iv2].Y() - points[iv0].Y();
   double t1 = (dy > 0) ? (points[iv1].Y() - points[iv0].Y()) / dy : 0;
@@ -2146,10 +2146,10 @@ RasterizeGridTriangle(const int p1[2], const int p2[2], const int p3[2], RNScala
   double value2 = values[iv2];
   double value1a = values[iv1];
   double value1b = (1-t1)*value0 + t1*value2;
-  if (x1a > x1b) { 
+  if (x1a > x1b) {
     double swap;
-    swap = x1a; x1a = x1b; x1b = swap; 
-    swap = value1a; value1a = value1b; value1b = swap; 
+    swap = x1a; x1a = x1b; x1b = swap;
+    swap = value1a; value1a = value1b; value1b = swap;
   }
 
   // Rasterize lower half of triangle
@@ -2179,7 +2179,7 @@ RasterizeGridTriangle(const int p1[2], const int p2[2], const int p3[2], RNScala
     xa += xa_step;
     xb += xb_step;
   }
-  
+
   // Rasterize upper half of triangle
   int iy2 = (int) (y2 + 0.5);
   nysteps = (iy2 - iy1) + 1;
@@ -2266,23 +2266,23 @@ static int CompareScanLineCrossings(const void *data1, const void *data2)
 
 
 void R2Grid::
-RasterizeGridPolygon(const R2Polygon& polygon, RNScalar value) 
+RasterizeGridPolygon(const R2Polygon& polygon, RNScalar value)
 {
   // Clip polygon to grid bounding box
   R2Polygon clipped_polygon(polygon);
   clipped_polygon.Clip(GridBox());
-  if (clipped_polygon.NPoints() == 0) return; 
+  if (clipped_polygon.NPoints() == 0) return;
 
   // Check if only one point
-  if (clipped_polygon.NPoints() == 1) { 
-    RasterizeGridPoint(clipped_polygon.Point(0), value); 
-    return; 
+  if (clipped_polygon.NPoints() == 1) {
+    RasterizeGridPoint(clipped_polygon.Point(0), value);
+    return;
   }
 
   // Check if only two points
-  if (clipped_polygon.NPoints() == 2) { 
-    RasterizeGridSpan(clipped_polygon.Point(0), clipped_polygon.Point(1), value); 
-    return; 
+  if (clipped_polygon.NPoints() == 2) {
+    RasterizeGridSpan(clipped_polygon.Point(0), clipped_polygon.Point(1), value);
+    return;
   }
 
   // Allocate list of scan line crossings
@@ -2293,7 +2293,7 @@ RasterizeGridPolygon(const R2Polygon& polygon, RNScalar value)
   // Scan convert polygon
   for (int iy = 0; iy < YResolution(); iy++) {
     // Build list of scan line crossings
-    ncrossings = 0;    
+    ncrossings = 0;
     const R2Point *p1 = &clipped_polygon.Point(clipped_polygon.NPoints()-1);
     RNScalar d1 = p1->Y() - iy;
     for (int i = 0; i < clipped_polygon.NPoints(); i++) {
@@ -2347,7 +2347,7 @@ RasterizeGridPolygon(const R2Polygon& polygon, RNScalar value)
 
 
 void R2Grid::
-RasterizeWorldPolygon(const R2Polygon& polygon, RNScalar value) 
+RasterizeWorldPolygon(const R2Polygon& polygon, RNScalar value)
 {
   // Rasterize polygon into grid coordinates
   R2Polygon transformed_polygon(polygon);
@@ -2524,8 +2524,8 @@ Capture(void)
   // Allocate pixels
   float *pixels = new float [ grid_size ];
 
-  // Read pixels from frame buffer 
-  glReadPixels(0, 0, grid_resolution[0], grid_resolution[1], GL_LUMINANCE, GL_FLOAT, pixels); 
+  // Read pixels from frame buffer
+  glReadPixels(0, 0, grid_resolution[0], grid_resolution[1], GL_LUMINANCE, GL_FLOAT, pixels);
 
   // Copy pixels
   for (int i = 0; i < grid_size; i++) grid_values[i] = pixels[i];
@@ -2562,7 +2562,7 @@ void R2Grid::
 DrawImage(int x, int y) const
 {
   // Set projection matrix
-  glMatrixMode(GL_PROJECTION);  
+  glMatrixMode(GL_PROJECTION);
   glPushMatrix();
   glLoadIdentity();
   gluOrtho2D(0, grid_resolution[0], 0, grid_resolution[1]);
@@ -2582,7 +2582,7 @@ DrawImage(int x, int y) const
   for (int i = 0; i < grid_size; i++) pixels[i] = (float) grid_values[i];
 
   // Draw pixels
-  glDrawPixels(grid_resolution[0], grid_resolution[1], GL_LUMINANCE, GL_FLOAT, pixels); 
+  glDrawPixels(grid_resolution[0], grid_resolution[1], GL_LUMINANCE, GL_FLOAT, pixels);
 
   // Delete pixels
   delete [] pixels;
@@ -2623,7 +2623,7 @@ GridValue(RNScalar x, RNScalar y, RNLength sigma) const
   for (int j = ymin; j <= ymax; j++) {
     for (int i = xmin; i <= xmax; i++) {
       RNScalar value = GridValue(i, j);
-      if (value != R2_GRID_UNKNOWN_VALUE) { 
+      if (value != R2_GRID_UNKNOWN_VALUE) {
         RNScalar dx = x - i;
         RNScalar dy = y - j;
         RNScalar d = dx*dx + dy*dy;
@@ -2759,7 +2759,7 @@ ConnectedComponentCentroidFilter(RNScalar isolevel)
 
 
 void R2Grid::
-ConnectedComponentFilter(RNScalar isolevel, RNArea min_grid_area, RNArea max_grid_area, 
+ConnectedComponentFilter(RNScalar isolevel, RNArea min_grid_area, RNArea max_grid_area,
   RNScalar under_isolevel_value, RNScalar too_small_value, RNScalar too_large_value)
 {
   // Compute connected components
@@ -2775,7 +2775,7 @@ ConnectedComponentFilter(RNScalar isolevel, RNArea min_grid_area, RNArea max_gri
     }
   }
 
-  // Mask components with areas too small 
+  // Mask components with areas too small
   if (too_small_value != R2_GRID_KEEP_VALUE) {
     for (int component = 0; component < ncomponents; component++) {
       int area = sizes[component];
@@ -2787,7 +2787,7 @@ ConnectedComponentFilter(RNScalar isolevel, RNArea min_grid_area, RNArea max_gri
     }
   }
 
-  // Mask components with areas too large 
+  // Mask components with areas too large
   if (too_large_value != R2_GRID_KEEP_VALUE) {
     for (int component = 0; component < ncomponents; component++) {
       int area = sizes[component];
@@ -2817,7 +2817,7 @@ ConnectedComponents(RNScalar isolevel, int max_components, int *seeds, int *size
   }
 
   // Initialize array of components
-  for (int i = 0; i < grid_size; i++) 
+  for (int i = 0; i < grid_size; i++)
     components[i] = -1;
 
   // Find connected components
@@ -2826,7 +2826,7 @@ ConnectedComponents(RNScalar isolevel, int max_components, int *seeds, int *size
   while (TRUE){
     // Find unmarked seed
     int seed = next_seed;
-    while (seed < grid_size) { 
+    while (seed < grid_size) {
       if ((components[seed] < 0) && (grid_values[seed] != R2_GRID_UNKNOWN_VALUE)&& (grid_values[seed] > isolevel)) break;
       seed++;
     }
@@ -2877,7 +2877,7 @@ ConnectedComponents(RNScalar isolevel, int max_components, int *seeds, int *size
       }
       if (y < YResolution()-1) {
         IndicesToIndex(x, y+1, neighbor);
-        if ((components[neighbor] < 0) && (grid_values[neighbor] != R2_GRID_UNKNOWN_VALUE)&& (grid_values[neighbor] > isolevel)) { 
+        if ((components[neighbor] < 0) && (grid_values[neighbor] != R2_GRID_UNKNOWN_VALUE)&& (grid_values[neighbor] > isolevel)) {
           components[neighbor] = ncomponents;
           stack.Insert(&grid_values[neighbor]);
         }
@@ -2947,11 +2947,11 @@ NextIndexCCW(const R2Grid *grid, int cur, int prev)
   IndexToIndices(prev, prev_x, prev_y);
   int dx = cur_x - prev_x;
   int dy = cur_y - prev_y;
-  if (dx == 1) { next_x = cur_x; next_y = cur_y + 1; } 
-  else if (dx == -1) { next_x = cur_x; next_y = cur_y - 1; } 
-  else if (dy == 1) { next_x = cur_x - 1; next_y = cur_y; } 
-  else if (dy == -1) { next_x = cur_x + 1; next_y = cur_y; } 
-  else { next_x = cur_x + 1; next_y = cur_y; } 
+  if (dx == 1) { next_x = cur_x; next_y = cur_y + 1; }
+  else if (dx == -1) { next_x = cur_x; next_y = cur_y - 1; }
+  else if (dy == 1) { next_x = cur_x - 1; next_y = cur_y; }
+  else if (dy == -1) { next_x = cur_x + 1; next_y = cur_y; }
+  else { next_x = cur_x + 1; next_y = cur_y; }
   if ((next_x < 0) || (next_x >= grid->XResolution())) return -1;
   if ((next_y < 0) || (next_y >= grid->YResolution())) return -1;
   IndicesToIndex(next_x, next_y, next);
@@ -2964,7 +2964,7 @@ struct ContourVertex {
   ContourVertex(int x, int y, int dim, int dir, RNScalar t) : x(x), y(y), dim(dim), dir(dir), t(t), mark(0) {};
   int x, y;
   int dim;
-  int dir; 
+  int dir;
   RNScalar t;
   int mark;
 };
@@ -3032,7 +3032,7 @@ GenerateIsoContour(RNScalar isolevel, R2Point *points, int max_points) const
     if (vertices[start] == NULL) continue;
     if (vertices[start]->mark) continue;
 
-    // Insert start vertex 
+    // Insert start vertex
     RNArray<ContourVertex *> contour;
     ContourVertex *start_vertex = vertices[start];
     contour.Insert(start_vertex);
@@ -3063,12 +3063,12 @@ GenerateIsoContour(RNScalar isolevel, R2Point *points, int max_points) const
 
 
     } while(vertex != vertices[start]);
-          
+
     int prev = marks[start];
     for (int i = 0; i < 4; i++) {
       int index = NextIndexCCW(this, start, prev);
       if (index < 0) break;
-      if (components[index] != c) break; 
+      if (components[index] != c) break;
       prev = index;
     }
 
@@ -3111,14 +3111,14 @@ ReadFile(const char *filename)
     fprintf(stderr, "Input file has no extension (e.g., .pfm).\n");
     return 0;
   }
-  
+
   // Read file of appropriate type
   if (!strncmp(input_extension, ".raw", 4)) return ReadRAWFile(filename);
   else if (!strncmp(input_extension, ".pfm", 4)) return ReadPFMFile(filename);
   else if (!strncmp(input_extension, ".png", 4)) return ReadPNGFile(filename);
   else if (!strncmp(input_extension, ".grd", 4)) return ReadGridFile(filename);
   else  return ReadImage(filename);
-  
+
   // Should never get here
   fprintf(stderr, "Unrecognized image file extension");
   return 0;
@@ -3135,7 +3135,7 @@ WriteFile(const char *filename) const
     fprintf(stderr, "Output file has no extension (e.g., .pfm).\n");
     return 0;
   }
-  
+
   // Write file of appropriate type
   if (!strncmp(input_extension, ".raw", 4)) return WriteRAWFile(filename);
   else if (!strncmp(input_extension, ".pfm", 4)) return WritePFMFile(filename);
@@ -3299,8 +3299,8 @@ ReadPFMFile(const char *filename)
   // Read width
   int width_count = 0;
   char width_string[256];
-  for (int i = 0; i < 256; i++) { 
-    c = fgetc(fp); 
+  for (int i = 0; i < 256; i++) {
+    c = fgetc(fp);
     if ((c == ' ') && (width_count == 0)) { continue; }
     else if ((c == ' ') || (c == '\n')) { width_string[width_count] = '\0'; break; }
     else if (!isdigit(c)) { fprintf(stderr, "Bad width character %c in %s\n", c, filename); return 0; }
@@ -3309,15 +3309,15 @@ ReadPFMFile(const char *filename)
 
   // Check width
   if ((width_count == 0) || (width_count > 128)) {
-    fprintf(stderr, "Error reading width in %s\n", filename); 
-    return 0; 
+    fprintf(stderr, "Error reading width in %s\n", filename);
+    return 0;
   }
 
   // Read height
   int height_count = 0;
   char height_string[256];
-  for (int i = 0; i < 256; i++) { 
-    c = fgetc(fp); 
+  for (int i = 0; i < 256; i++) {
+    c = fgetc(fp);
     if ((c == ' ') && (height_count == 0)) { continue; }
     else if ((c == ' ') || (c == '\n')) { height_string[height_count] = '\0'; break; }
     else if (!isdigit(c)) { fprintf(stderr, "Bad height character %c in %s\n", c, filename); return 0; }
@@ -3326,15 +3326,15 @@ ReadPFMFile(const char *filename)
 
   // Check height
   if ((height_count == 0) || (height_count > 128)) {
-    fprintf(stderr, "Error reading height in %s\n", filename); 
-    return 0; 
+    fprintf(stderr, "Error reading height in %s\n", filename);
+    return 0;
   }
 
   // Read endian
   int endian_count = 0;
   char endian_string[256];
-  for (int i = 0; i < 256; i++) { 
-    c = fgetc(fp); 
+  for (int i = 0; i < 256; i++) {
+    c = fgetc(fp);
     if ((c == ' ') && (endian_count == 0)) { continue; }
     else if ((c == ' ') || (c == '\n')) { endian_string[endian_count] = '\0'; break; }
     if (!isdigit(c) && (c != '.') && (c != '-')) { fprintf(stderr, "Bad endian character %c in %s\n", c, filename); return 0; }
@@ -3343,8 +3343,8 @@ ReadPFMFile(const char *filename)
 
   // Check endian
   if ((endian_count == 0) || (endian_count > 128)) {
-    fprintf(stderr, "Error reading endian in %s\n", filename); 
-    return 0; 
+    fprintf(stderr, "Error reading endian in %s\n", filename);
+    return 0;
   }
 
   // Parse values
@@ -3604,14 +3604,14 @@ ReadPNGFile(const char *filename)
     return 0;
    }
 
-  // Create and initialize the png_struct 
+  // Create and initialize the png_struct
   png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
   if (png_ptr == NULL) {
     fclose(fp);
     return 0;
   }
 
-  // Allocate/initialize the memory for image information. 
+  // Allocate/initialize the memory for image information.
   png_infop info_ptr = png_create_info_struct(png_ptr);
   if (info_ptr == NULL) {
     fclose(fp);
@@ -3619,13 +3619,13 @@ ReadPNGFile(const char *filename)
     return 0;
   }
 
-  // Set up the input control if you are using standard C streams 
+  // Set up the input control if you are using standard C streams
   png_init_io(png_ptr, fp);
 
-  // Read the png info 
+  // Read the png info
   png_read_info(png_ptr, info_ptr);
 
-  // Extract image info 
+  // Extract image info
   png_byte color_type = png_get_color_type(png_ptr, info_ptr);
   int width = png_get_image_width(png_ptr, info_ptr);
   int height = png_get_image_height(png_ptr, info_ptr);
@@ -3641,21 +3641,21 @@ ReadPNGFile(const char *filename)
   else if (color_type == PNG_COLOR_TYPE_GRAY_ALPHA) ncomponents = 2;
   else if (color_type == PNG_COLOR_TYPE_RGB) ncomponents = 3;
   else if (color_type == PNG_COLOR_TYPE_RGB_ALPHA) ncomponents = 4;
-  else { 
+  else {
     fclose(fp);
     png_destroy_read_struct(&png_ptr, NULL, NULL);
     return 0;
   }
 
-  // Allocate the pixels and row pointers 
-  unsigned char *pixels = new unsigned char [ height * rowsize ]; 
+  // Allocate the pixels and row pointers
+  unsigned char *pixels = new unsigned char [ height * rowsize ];
   png_bytep *row_pointers = (png_bytep *) png_malloc(png_ptr, height * png_sizeof(png_bytep));
   for (int i = 0; i < height; i++) row_pointers[i] = &pixels[ (height - i - 1) * rowsize ];
 
-  // Read the pixels 
+  // Read the pixels
   png_read_image(png_ptr, row_pointers);
 
-  // Finish reading 
+  // Finish reading
   png_read_end(png_ptr, info_ptr);
 
   // Fill in grid info
@@ -3689,19 +3689,19 @@ ReadPNGFile(const char *filename)
     }
   }
 
-  // Free the row pointers 
+  // Free the row pointers
   png_free(png_ptr, row_pointers);
 
   // Free the pixels
   delete [] pixels;
 
-  // Clean up after the read, and free any memory allocated  
+  // Clean up after the read, and free any memory allocated
   png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
 
-  // Close the file 
+  // Close the file
   fclose(fp);
 
-  // Return success 
+  // Return success
   return 1;
 #else
   RNFail("PNG not supported");
@@ -3715,28 +3715,28 @@ int R2Grid::
 WritePNGFile(const char *filename) const
 {
 #ifdef RN_USE_PNG
-  // Open the file 
+  // Open the file
   FILE *fp = fopen(filename, "wb");
   if (fp == NULL) {
     fprintf(stderr, "Unable to open PNG file %s\n", filename);
     return 0;
   }
-  
-  // Create and initialize the png_struct 
+
+  // Create and initialize the png_struct
   png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
   if (png_ptr == NULL) {
     fclose(fp);
     return 0;
   }
-  
-  // Allocate/initialize the image information data. 
+
+  // Allocate/initialize the image information data.
   png_infop info_ptr = png_create_info_struct(png_ptr);
   if (info_ptr == NULL) {
     fclose(fp);
     png_destroy_write_struct(&png_ptr,  NULL);
     return 0;
   }
-  
+
   // Fill in the image data
   int width = grid_resolution[0];
   int height = grid_resolution[1];
@@ -3767,29 +3767,29 @@ WritePNGFile(const char *filename) const
   // Allocate the row pointers
   png_bytep *row_pointers = (png_bytep *) png_malloc(png_ptr, height * png_sizeof(png_bytep));
   for (int i = 0; i < height; i++) row_pointers[i] = (png_bytep) &data[(height - i - 1) * 2*width];
-  
-  // Set up the output control 
+
+  // Set up the output control
   png_init_io(png_ptr, fp);
-  
-  // Write the png info 
+
+  // Write the png info
   png_write_info(png_ptr, info_ptr);
-  
-  // Write the pixels 
+
+  // Write the pixels
   png_write_image(png_ptr, row_pointers);
-  
-  // Finish writing 
+
+  // Finish writing
   png_write_end(png_ptr, info_ptr);
-  
-  // Free the row pointers 
+
+  // Free the row pointers
   png_free(png_ptr, row_pointers);
 
-  // Clean up after the write, and free any memory allocated 
+  // Clean up after the write, and free any memory allocated
   png_destroy_write_struct(&png_ptr, &info_ptr);
 
   // Delete copy of data
   delete [] data;
 
-  // Close the file 
+  // Close the file
   fclose(fp);
 
   // Return success
@@ -3817,10 +3817,10 @@ ReadImage(const char *filename)
   }
 
   // Read image
-  if (!image->Read(filename)) { 
+  if (!image->Read(filename)) {
     // fprintf(stderr, "Unable to read image from %s\n", filename);
-    delete image; 
-    return 0; 
+    delete image;
+    return 0;
   }
 
   // Fill in grid info
@@ -3879,10 +3879,10 @@ WriteImage(const char *filename) const
   }
 
   // Write image
-  if (!image->Write(filename)) { 
+  if (!image->Write(filename)) {
     // fprintf(stderr, "Unable to write image to %s\n", filename);
-    delete image; 
-    return 0; 
+    delete image;
+    return 0;
   }
 
   // Delete image
@@ -3915,7 +3915,3 @@ Print(FILE *fp) const
   // Return number of grid values written
   return grid_size;
 }
-
-
-
-

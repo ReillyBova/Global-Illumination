@@ -3,7 +3,7 @@
 
 
 ////////////////////////////////////////////////////////////////////////
-// Include files 
+// Include files
 ////////////////////////////////////////////////////////////////////////
 
 #include "R3Graphics/R3Graphics.h"
@@ -37,7 +37,7 @@ static int print_verbose = 0;
 
 
 
-// GLUT variables 
+// GLUT variables
 
 static int GLUTwindow = 0;
 static int GLUTwindow_height = 1024;
@@ -73,7 +73,7 @@ static int show_constraints = 1;
 
 void GLUTStop(void)
 {
-  // Destroy window 
+  // Destroy window
   glutDestroyWindow(GLUTwindow);
 
   // Exit
@@ -95,7 +95,7 @@ void GLUTRedraw(void)
   // Set viewing transformation
   viewer->Camera().Load();
 
-  // Clear window 
+  // Clear window
   glClearColor(200.0/255.0, 200.0/255.0, 200.0/255.0, 1.0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -109,18 +109,18 @@ void GLUTRedraw(void)
   if (show_points) {
     glEnable(GL_LIGHTING);
     static GLfloat material[4] = { 0, 0, 1, 1 };
-    glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, material); 
+    glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, material);
     for (int i = 0; i < all_points.NEntries(); i++) {
       TestPoint *point = all_points[i];
       R3Sphere(point->position, 0.01).Draw();
     }
   }
-    
+
   // Show nearby points
   if (selected_point && !nearby_points.IsEmpty()) {
     glEnable(GL_LIGHTING);
     static GLfloat material[4] = { 1, 0, 0, 1 };
-    glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, material); 
+    glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, material);
     for (int i = 0; i < nearby_points.NEntries(); i++) {
       TestPoint *point = nearby_points.Kth(i);
       R3Sphere(point->position, 0.02).Draw();
@@ -131,18 +131,18 @@ void GLUTRedraw(void)
   if (selected_point && closest_point) {
     glEnable(GL_LIGHTING);
     static GLfloat material[4] = { 0, 1, 0, 1 };
-    glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, material); 
+    glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, material);
     R3Sphere(closest_point->position, 0.03).Draw();
   }
-    
+
   // Show selected point
   if (selected_point) {
     glEnable(GL_LIGHTING);
     static GLfloat material[4] = { 1, 1, 1, 1 };
-    glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, material); 
+    glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, material);
     R3Sphere(selected_point->position, 0.05).Draw();
   }
-    
+
   // Show constraints
   if (0 && show_constraints) {
     glDisable(GL_LIGHTING);
@@ -150,17 +150,17 @@ void GLUTRedraw(void)
     R3Sphere(selected_point->position, min_nearby_distance).Outline();
     R3Sphere(selected_point->position, max_nearby_distance).Outline();
   }
-    
+
   // Show KD tree
   if (show_kdtree) {
     glDisable(GL_LIGHTING);
     glColor3f(0, 0, 0);
     kdtree->Outline();
   }
-    
-  // Swap buffers 
+
+  // Swap buffers
   glutSwapBuffers();
-}    
+}
 
 
 
@@ -172,7 +172,7 @@ void GLUTResize(int w, int h)
   // Resize viewer viewport
   viewer->ResizeViewport(0, 0, w, h);
 
-  // Remember window size 
+  // Remember window size
   GLUTwindow_width = w;
   GLUTwindow_height = h;
 
@@ -190,15 +190,15 @@ void GLUTMotion(int x, int y)
   // Compute mouse movement
   int dx = x - GLUTmouse[0];
   int dy = y - GLUTmouse[1];
-  
-  // World in hand navigation 
+
+  // World in hand navigation
   R3Point origin(0, 0, 0);
   if (GLUTbutton[0]) viewer->RotateWorld(1.0, origin, x, y, dx, dy);
   else if (GLUTbutton[1]) viewer->ScaleWorld(1.0, origin, x, y, dx, dy);
   else if (GLUTbutton[2]) viewer->TranslateWorld(1.0, origin, x, y, dx, dy);
   if (GLUTbutton[0] || GLUTbutton[1] || GLUTbutton[2]) glutPostRedisplay();
 
-  // Remember mouse position 
+  // Remember mouse position
   GLUTmouse[0] = x;
   GLUTmouse[1] = y;
 }
@@ -209,7 +209,7 @@ void GLUTMouse(int button, int state, int x, int y)
 {
   // Invert y coordinate
   y = GLUTwindow_height - y;
-  
+
   // Process mouse button event
   if ((button == GLUT_LEFT_BUTTON) && (state == GLUT_DOWN)) {
     // Check for double click
@@ -252,14 +252,14 @@ void GLUTMouse(int button, int state, int x, int y)
     }
   }
 
-  // Remember button state 
+  // Remember button state
   int b = (button == GLUT_LEFT_BUTTON) ? 0 : ((button == GLUT_MIDDLE_BUTTON) ? 1 : 2);
   GLUTbutton[b] = (state == GLUT_DOWN) ? 1 : 0;
 
-  // Remember modifiers 
+  // Remember modifiers
   GLUTmodifiers = glutGetModifiers();
 
-  // Remember mouse position 
+  // Remember mouse position
   GLUTmouse[0] = x;
   GLUTmouse[1] = y;
 
@@ -274,13 +274,13 @@ void GLUTSpecial(int key, int x, int y)
   // Invert y coordinate
   y = GLUTwindow_height - y;
 
-  // Process keyboard button event 
+  // Process keyboard button event
 
-  // Remember mouse position 
+  // Remember mouse position
   GLUTmouse[0] = x;
   GLUTmouse[1] = y;
 
-  // Remember modifiers 
+  // Remember modifiers
   GLUTmodifiers = glutGetModifiers();
 
   // Redraw
@@ -291,7 +291,7 @@ void GLUTSpecial(int key, int x, int y)
 
 void GLUTKeyboard(unsigned char key, int x, int y)
 {
-  // Process keyboard button event 
+  // Process keyboard button event
   switch (key) {
   case 'P':
   case 'p':
@@ -308,29 +308,29 @@ void GLUTKeyboard(unsigned char key, int x, int y)
     break;
   }
 
-  // Remember mouse position 
+  // Remember mouse position
   GLUTmouse[0] = x;
   GLUTmouse[1] = GLUTwindow_height - y;
 
-  // Remember modifiers 
+  // Remember modifiers
   GLUTmodifiers = glutGetModifiers();
 
   // Redraw
-  glutPostRedisplay();  
+  glutPostRedisplay();
 }
 
 
 
 void GLUTInit(int *argc, char **argv)
 {
-  // Open window 
+  // Open window
   glutInit(argc, argv);
   glutInitWindowPosition(100, 100);
   glutInitWindowSize(GLUTwindow_width, GLUTwindow_height);
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH); // | GLUT_STENCIL
   GLUTwindow = glutCreateWindow("KD tree test program");
 
-  // Initialize background color 
+  // Initialize background color
   glClearColor(200.0/255.0, 200.0/255.0, 200.0/255.0, 1.0);
 
   // Initialize lights
@@ -346,11 +346,11 @@ void GLUTInit(int *argc, char **argv)
   glEnable(GL_NORMALIZE);
   glEnable(GL_LIGHTING);
 
-  // Initialize graphics modes 
+  // Initialize graphics modes
   glEnable(GL_DEPTH_TEST);
-  glPointSize(3); 
+  glPointSize(3);
 
-  // Initialize GLUT callback functions 
+  // Initialize GLUT callback functions
   glutDisplayFunc(GLUTRedraw);
   glutReshapeFunc(GLUTResize);
   glutKeyboardFunc(GLUTKeyboard);
@@ -361,7 +361,7 @@ void GLUTInit(int *argc, char **argv)
   // Initialize font
 #if (RN_OS == RN_WINDOWSNT)
   int font = glGenLists(256);
-  wglUseFontBitmaps(wglGetCurrentDC(), 0, 256, font); 
+  wglUseFontBitmaps(wglGetCurrentDC(), 0, 256, font);
   glListBase(font);
 #endif
 }
@@ -370,17 +370,17 @@ void GLUTInit(int *argc, char **argv)
 
 void GLUTMainLoop(void)
 {
-  // Run main loop -- never returns 
+  // Run main loop -- never returns
   glutMainLoop();
 }
 
- 
+
 
 ////////////////////////////////////////////////////////////////////////
 // Data creation
 ////////////////////////////////////////////////////////////////////////
 
-static R3Point 
+static R3Point
 GetTestPointPosition(TestPoint *point, void *dummy)
 {
   // Return point position (used for Kdtree)
@@ -439,9 +439,9 @@ CreatePoints(void)
   RNSeedRandomScalar();
   for (int i = 0; i < max_total_points; i++) {
     TestPoint *point = new TestPoint();
-    double x = 2.0 * RNRandomScalar() - 1.0;
-    double y = 2.0 * RNRandomScalar() - 1.0;
-    double z = 2.0 * RNRandomScalar() - 1.0;
+    double x = 2.0 * RNThreadableRandomScalar() - 1.0;
+    double y = 2.0 * RNThreadableRandomScalar() - 1.0;
+    double z = 2.0 * RNThreadableRandomScalar() - 1.0;
     point->position = R3Point(x, y, z);
     point->id = i;
     all_points.Insert(point);
@@ -480,14 +480,14 @@ CreateViewer(void)
 // Program argument parsing
 ////////////////////////////////////////////////////////////////////////
 
-static int 
+static int
 ParseArgs(int argc, char **argv)
 {
   // Parse arguments
   argc--; argv++;
   while (argc > 0) {
-    if (!strcmp(*argv, "-v")) print_verbose = 1; 
-    else if (!strcmp(*argv, "-debug")) print_debug = 1; 
+    if (!strcmp(*argv, "-v")) print_verbose = 1;
+    else if (!strcmp(*argv, "-debug")) print_debug = 1;
     else if (!strcmp(*argv, "-max_total_points")) { argv++; argc--; max_total_points = atoi(*argv); }
     else if (!strcmp(*argv, "-min_nearby_distance")) { argv++; argc--; min_nearby_distance = atof(*argv); }
     else if (!strcmp(*argv, "-max_nearby_distance")) { argv++; argc--; max_nearby_distance = atof(*argv); }
@@ -496,7 +496,7 @@ ParseArgs(int argc, char **argv)
     argv++; argc--;
   }
 
-  // Return OK status 
+  // Return OK status
   return 1;
 }
 
@@ -522,9 +522,6 @@ int main(int argc, char **argv)
   // Run GLUT interface
   GLUTMainLoop();
 
-  // Return success 
+  // Return success
   return 0;
 }
-
-
-

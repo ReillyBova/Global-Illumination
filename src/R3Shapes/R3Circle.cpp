@@ -144,7 +144,7 @@ const RNLength R3Circle::
 Length(void) const
 {
     // Return circumference of circle
-    return (2.0 * RN_PI * radius);
+    return (RN_TWO_PI * radius);
 }
 
 

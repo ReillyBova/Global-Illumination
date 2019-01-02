@@ -11,19 +11,16 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "R3Shapes/R3Shapes.h"
+#include <vector>
+#include <algorithm>
 
-
-
-
+using namespace std;
 
 ////////////////////////////////////////////////////////////////////////
 // Constant definitions
 ////////////////////////////////////////////////////////////////////////
 
 static const int R3kdtree_max_points_per_node = 32;
-
-
-
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -117,7 +114,7 @@ R3Kdtree(const RNArray<PtrType>& points, int position_offset)
   root = new R3KdtreeNode<PtrType>(NULL);
   assert(root);
 
-  // Determine bounding box 
+  // Determine bounding box
   bbox = R3null_box;
   for (int i = 0; i < points.NEntries(); i++) {
     bbox.Union(Position(points[i]));
@@ -128,7 +125,7 @@ R3Kdtree(const RNArray<PtrType>& points, int position_offset)
   assert(copy);
 
   // Copy points
-  for (int i = 0; i < points.NEntries(); i++) 
+  for (int i = 0; i < points.NEntries(); i++)
     copy[i] = points[i];
 
   // Insert points into root
@@ -153,7 +150,7 @@ R3Kdtree(const RNArray<PtrType>& points, R3Point (*position_callback)(PtrType, v
   root = new R3KdtreeNode<PtrType>(NULL);
   assert(root);
 
-  // Determine bounding box 
+  // Determine bounding box
   bbox = R3null_box;
   for (int i = 0; i < points.NEntries(); i++) {
     bbox.Union(Position(points[i]));
@@ -164,7 +161,7 @@ R3Kdtree(const RNArray<PtrType>& points, R3Point (*position_callback)(PtrType, v
   assert(copy);
 
   // Copy points
-  for (int i = 0; i < points.NEntries(); i++) 
+  for (int i = 0; i < points.NEntries(); i++)
     copy[i] = points[i];
 
   // Insert points into root
@@ -197,7 +194,7 @@ R3Kdtree(const R3Kdtree<PtrType>& kdtree)
   that_stack.Insert(kdtree.root);
   while (!this_stack.IsEmpty()) {
     assert(!that_stack.IsEmpty());
-    
+
     // Get nodes from stack
     R3KdtreeNode<PtrType> *this_node = this_stack.Tail(); this_stack.RemoveTail();
     R3KdtreeNode<PtrType> *that_node = that_stack.Tail(); that_stack.RemoveTail();
@@ -319,10 +316,10 @@ NEntries(void) const
 
 template <class PtrType>
 void R3Kdtree<PtrType>::
-FindClosest(R3KdtreeNode<PtrType> *node, const R3Box& node_box, 
-  PtrType query_point, const R3Point& query_position, 
+FindClosest(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
+  PtrType query_point, const R3Point& query_position,
   RNScalar min_distance_squared, RNScalar max_distance_squared,
-  int (*IsCompatible)(PtrType, PtrType, void *), void *compatible_data, 
+  int (*IsCompatible)(PtrType, PtrType, void *), void *compatible_data,
   PtrType& closest_point, RNScalar& closest_distance_squared) const
 {
   // Check if node is interior
@@ -346,7 +343,7 @@ FindClosest(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
     else dz = 0.0;
     RNLength dz_squared = dz * dz;
     if (dz_squared >= closest_distance_squared) return;
-    
+
     // Find and check actual distance from point to node box
     RNLength distance_squared = 0;
     if ((dy == 0.0) && (dz == 0.0)) distance_squared = dx_squared;
@@ -363,17 +360,17 @@ FindClosest(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
       // Search negative side first
       R3Box child_box(node_box);
       child_box[RN_HI][node->split_dimension] = node->split_coordinate;
-      FindClosest(node->children[0], child_box, 
-        query_point, query_position, 
-        min_distance_squared, max_distance_squared, 
+      FindClosest(node->children[0], child_box,
+        query_point, query_position,
+        min_distance_squared, max_distance_squared,
         IsCompatible, compatible_data,
         closest_point, closest_distance_squared);
       if (side*side < closest_distance_squared) {
         R3Box child_box(node_box);
         child_box[RN_LO][node->split_dimension] = node->split_coordinate;
-        FindClosest(node->children[1], child_box, 
-          query_point, query_position, 
-          min_distance_squared, max_distance_squared, 
+        FindClosest(node->children[1], child_box,
+          query_point, query_position,
+          min_distance_squared, max_distance_squared,
           IsCompatible, compatible_data,
           closest_point, closest_distance_squared);
       }
@@ -382,17 +379,17 @@ FindClosest(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
       // Search positive side first
       R3Box child_box(node_box);
       child_box[RN_LO][node->split_dimension] = node->split_coordinate;
-      FindClosest(node->children[1], child_box, 
-        query_point, query_position, 
-        min_distance_squared, max_distance_squared, 
+      FindClosest(node->children[1], child_box,
+        query_point, query_position,
+        min_distance_squared, max_distance_squared,
         IsCompatible, compatible_data,
         closest_point, closest_distance_squared);
       if (side*side < closest_distance_squared) {
         R3Box child_box(node_box);
         child_box[RN_HI][node->split_dimension] = node->split_coordinate;
-        FindClosest(node->children[0], child_box, 
-          query_point, query_position, 
-          min_distance_squared, max_distance_squared, 
+        FindClosest(node->children[0], child_box,
+          query_point, query_position,
+          min_distance_squared, max_distance_squared,
           IsCompatible, compatible_data,
           closest_point, closest_distance_squared);
       }
@@ -402,7 +399,7 @@ FindClosest(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
     for (int i = 0; i < node->npoints; i++) {
       PtrType point = node->points[i];
       RNLength distance_squared = R3SquaredDistance(query_position, Position(point));
-      if ((distance_squared >= min_distance_squared) && 
+      if ((distance_squared >= min_distance_squared) &&
          (distance_squared <= closest_distance_squared)) {
         if (!IsCompatible || !query_point || IsCompatible(query_point, point, compatible_data)) {
           closest_distance_squared = distance_squared;
@@ -417,9 +414,9 @@ FindClosest(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
 
 template <class PtrType>
 PtrType R3Kdtree<PtrType>::
-FindClosest(PtrType query_point, 
-  RNScalar min_distance, RNScalar max_distance, 
-  int (*IsCompatible)(PtrType, PtrType, void *), void *compatible_data, 
+FindClosest(PtrType query_point,
+  RNScalar min_distance, RNScalar max_distance,
+  int (*IsCompatible)(PtrType, PtrType, void *), void *compatible_data,
   RNScalar *closest_distance) const
 {
   // Check root
@@ -429,15 +426,15 @@ FindClosest(PtrType query_point,
   RNLength min_distance_squared = min_distance * min_distance;
   RNLength max_distance_squared = max_distance * max_distance;
 
-  // Initialize nearest point 
+  // Initialize nearest point
   PtrType nearest_point = NULL;
   RNLength nearest_distance_squared = max_distance_squared;
 
   // Search nodes recursively
-  FindClosest(root, bbox, 
+  FindClosest(root, bbox,
     query_point, Position(query_point),
-    min_distance_squared, max_distance_squared, 
-    IsCompatible, compatible_data, 
+    min_distance_squared, max_distance_squared,
+    IsCompatible, compatible_data,
     nearest_point, nearest_distance_squared);
 
   // Return closest distance
@@ -451,8 +448,8 @@ FindClosest(PtrType query_point,
 
 template <class PtrType>
 PtrType R3Kdtree<PtrType>::
-FindClosest(PtrType query_point, 
-  RNScalar min_distance, RNScalar max_distance, 
+FindClosest(PtrType query_point,
+  RNScalar min_distance, RNScalar max_distance,
   RNScalar *closest_distance) const
 {
   // Find the closest point
@@ -463,8 +460,8 @@ FindClosest(PtrType query_point,
 
 template <class PtrType>
 PtrType R3Kdtree<PtrType>::
-FindClosest(const R3Point& query_position, 
-  RNScalar min_distance, RNScalar max_distance, 
+FindClosest(const R3Point& query_position,
+  RNScalar min_distance, RNScalar max_distance,
   RNScalar *closest_distance) const
 {
   // Check root
@@ -474,15 +471,15 @@ FindClosest(const R3Point& query_position,
   RNLength min_distance_squared = min_distance * min_distance;
   RNLength max_distance_squared = max_distance * max_distance;
 
-  // Initialize nearest point 
+  // Initialize nearest point
   PtrType nearest_point = NULL;
   RNLength nearest_distance_squared = max_distance_squared;
 
   // Search nodes recursively
-  FindClosest(root, bbox, 
-    NULL, query_position, 
-    min_distance_squared, max_distance_squared, 
-    NULL, NULL, 
+  FindClosest(root, bbox,
+    NULL, query_position,
+    min_distance_squared, max_distance_squared,
+    NULL, NULL,
     nearest_point, nearest_distance_squared);
 
   // Return closest distance
@@ -500,10 +497,10 @@ FindClosest(const R3Point& query_position,
 
 template <class PtrType>
 void R3Kdtree<PtrType>::
-FindClosest(R3KdtreeNode<PtrType> *node, const R3Box& node_box, 
-  PtrType query_point, const R3Point& query_position, 
+FindClosest(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
+  PtrType query_point, const R3Point& query_position,
   RNScalar min_distance_squared, RNScalar max_distance_squared, int max_points,
-  int (*IsCompatible)(PtrType, PtrType, void *), void *compatible_data, 
+  int (*IsCompatible)(PtrType, PtrType, void *), void *compatible_data,
   RNArray<PtrType>& points, RNLength *distances_squared) const
 {
   // Update max distance squared
@@ -532,7 +529,7 @@ FindClosest(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
     else dz = 0.0;
     RNLength dz_squared = dz * dz;
     if (dz_squared > max_distance_squared) return;
-    
+
     // Find and check actual distance from point to node box
     RNLength distance_squared = 0;
     if ((dy == 0.0) && (dz == 0.0)) distance_squared = dx_squared;
@@ -546,17 +543,17 @@ FindClosest(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
 
     // Search children nodes
     if ((side <= 0) || (side*side <= max_distance_squared)) {
-      // Search negative side 
+      // Search negative side
       R3Box child_box(node_box);
       child_box[RN_HI][node->split_dimension] = node->split_coordinate;
-      FindClosest(node->children[0], child_box, query_point, query_position, 
+      FindClosest(node->children[0], child_box, query_point, query_position,
         min_distance_squared, max_distance_squared, max_points, IsCompatible, compatible_data,
         points, distances_squared);
     }
     if ((side >= 0) || (side*side <= max_distance_squared)) {
       R3Box child_box(node_box);
       child_box[RN_LO][node->split_dimension] = node->split_coordinate;
-      FindClosest(node->children[1], child_box, query_point, query_position, 
+      FindClosest(node->children[1], child_box, query_point, query_position,
         min_distance_squared, max_distance_squared, max_points, IsCompatible, compatible_data,
         points, distances_squared);
     }
@@ -566,7 +563,7 @@ FindClosest(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
     for (int i = 0; i < node->npoints; i++) {
       PtrType point = node->points[i];
       RNLength distance_squared = R3SquaredDistance(query_position, Position(point));
-      if ((distance_squared >= min_distance_squared) && 
+      if ((distance_squared >= min_distance_squared) &&
           (distance_squared <= max_distance_squared)) {
 
         // Check if point is compatible
@@ -578,7 +575,7 @@ FindClosest(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
             if (distance_squared < distances_squared[slot]) break;
             slot++;
           }
-          
+
           // Insert point and distance into sorted arrays
           if (slot < max_points) {
             int first = points.NEntries();
@@ -598,7 +595,7 @@ FindClosest(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
 
 template <class PtrType>
 int R3Kdtree<PtrType>::
-FindClosest(PtrType query_point, RNScalar min_distance, RNScalar max_distance, int max_points, 
+FindClosest(PtrType query_point, RNScalar min_distance, RNScalar max_distance, int max_points,
   RNArray<PtrType>& points, RNLength *distances) const
 {
   // Find closest within some distance
@@ -610,9 +607,9 @@ FindClosest(PtrType query_point, RNScalar min_distance, RNScalar max_distance, i
 
 template <class PtrType>
 int R3Kdtree<PtrType>::
-FindClosest(PtrType query_point, 
-  RNScalar min_distance, RNScalar max_distance, int max_points, 
-  int (*IsCompatible)(PtrType, PtrType, void *), void *compatible_data, 
+FindClosest(PtrType query_point,
+  RNScalar min_distance, RNScalar max_distance, int max_points,
+  int (*IsCompatible)(PtrType, PtrType, void *), void *compatible_data,
   RNArray<PtrType>& points, RNLength *distances) const
 {
   // Check root
@@ -626,9 +623,9 @@ FindClosest(PtrType query_point,
   RNLength *distances_squared = new RNLength [ max_points ];
 
   // Search nodes recursively
-  FindClosest(root, bbox, 
+  FindClosest(root, bbox,
     query_point, Position(query_point),
-    min_distance_squared, max_distance_squared, max_points, 
+    min_distance_squared, max_distance_squared, max_points,
     IsCompatible, compatible_data,
     points, distances_squared);
 
@@ -650,7 +647,7 @@ FindClosest(PtrType query_point,
 
 template <class PtrType>
 int R3Kdtree<PtrType>::
-FindClosest(const R3Point& query_position, RNScalar min_distance, RNScalar max_distance, int max_points, 
+FindClosest(const R3Point& query_position, RNScalar min_distance, RNScalar max_distance, int max_points,
   RNArray<PtrType>& points, RNLength *distances) const
 {
   // Check root
@@ -664,10 +661,10 @@ FindClosest(const R3Point& query_position, RNScalar min_distance, RNScalar max_d
   RNLength *distances_squared = new RNLength [ max_points ];
 
   // Search nodes recursively
-  FindClosest(root, bbox, 
-    NULL, query_position, 
-    min_distance_squared, max_distance_squared, max_points, 
-    NULL, NULL, 
+  FindClosest(root, bbox,
+    NULL, query_position,
+    min_distance_squared, max_distance_squared, max_points,
+    NULL, NULL,
     points, distances_squared);
 
   // Update return distances
@@ -684,7 +681,166 @@ FindClosest(const R3Point& query_position, RNScalar min_distance, RNScalar max_d
   return points.NEntries();
 }
 
+////////////////////////////////////////////////////////////////////////
+// Optimized approach for finding the closest K points to a query point
+////////////////////////////////////////////////////////////////////////
 
+template <class PtrType>
+void R3Kdtree<PtrType>::
+FindClosestQuick(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
+  PtrType query_point, const R3Point& query_position,
+  RNScalar min_distance_squared, RNScalar max_distance_squared, int max_points,
+  int (*IsCompatible)(PtrType, PtrType, void *), void *compatible_data,
+  vector<PointAndDistanceSqd<PtrType> >& nearby_points) const
+{
+  // Update max distance squared
+  int size = nearby_points.size();
+  if (size == max_points) {
+    max_distance_squared = nearby_points[0].distance_squared;
+  }
+
+  // Check if node is interior
+  if (node->children[0]) {
+
+    // Find and check axial distances from point to node box
+    RNLength dx, dy, dz;
+    if (RNIsGreater(query_position.X(), node_box.XMax())) dx = query_position.X() - node_box.XMax();
+    else if (RNIsLess(query_position.X(), node_box.XMin())) dx = node_box.XMin()- query_position.X();
+    else dx = 0.0;
+    RNLength dx_squared = dx * dx;
+    if (dx_squared > max_distance_squared) return;
+    if (RNIsGreater(query_position.Y(), node_box.YMax())) dy = query_position.Y() - node_box.YMax();
+    else if (RNIsLess(query_position.Y(), node_box.YMin())) dy = node_box.YMin()- query_position.Y();
+    else dy = 0.0;
+    RNLength dy_squared = dy * dy;
+    if (dy_squared > max_distance_squared) return;
+    if (RNIsGreater(query_position.Z(), node_box.ZMax())) dz = query_position.Z() - node_box.ZMax();
+    else if (RNIsLess(query_position.Z(), node_box.ZMin())) dz = node_box.ZMin()- query_position.Z();
+    else dz = 0.0;
+    RNLength dz_squared = dz * dz;
+    if (dz_squared > max_distance_squared) return;
+
+    // Find and check actual distance from point to node box
+    RNLength distance_squared = 0;
+    if ((dy == 0.0) && (dz == 0.0)) distance_squared = dx_squared;
+    else if ((dx == 0.0) && (dz == 0.0)) distance_squared = dy_squared;
+    else if ((dx == 0.0) && (dy == 0.0)) distance_squared = dz_squared;
+    else distance_squared = dx_squared + dy_squared + dz_squared;
+    if (distance_squared > max_distance_squared) return;
+
+    // Compute distance from point to split plane
+    RNLength side = query_position[node->split_dimension] - node->split_coordinate;
+
+    // Search children nodes
+    if ((side <= 0) || (side*side <= max_distance_squared)) {
+      // Search negative side
+      R3Box child_box(node_box);
+      child_box[RN_HI][node->split_dimension] = node->split_coordinate;
+      FindClosestQuick(node->children[0], child_box, query_point, query_position,
+        min_distance_squared, max_distance_squared, max_points, IsCompatible, compatible_data,
+        nearby_points);
+    }
+    if ((side >= 0) || (side*side <= max_distance_squared)) {
+      R3Box child_box(node_box);
+      child_box[RN_LO][node->split_dimension] = node->split_coordinate;
+      FindClosestQuick(node->children[1], child_box, query_point, query_position,
+        min_distance_squared, max_distance_squared, max_points, IsCompatible, compatible_data,
+        nearby_points);
+    }
+  }
+  else {
+    // Search points
+    for (int i = 0; i < node->npoints; i++) {
+      PtrType point = node->points[i];
+      RNLength distance_squared = R3SquaredDistance(query_position, *((R3Point *)point));
+      if ((distance_squared >= min_distance_squared) &&
+          (distance_squared <= max_distance_squared)) {
+
+        // Check if point is compatible
+        if (!IsCompatible || !query_point || IsCompatible(query_point, point, compatible_data)) {
+          // Modify heap based on PREINSERTION size
+          PointAndDistanceSqd<PtrType> node = {point, distance_squared};
+          if (size < max_points) {
+            // Heap is full post insertion; make heap
+            nearby_points.push_back(node);
+            push_heap(nearby_points.begin(), nearby_points.end());
+          } else {
+            // Replace largest element
+            pop_heap(nearby_points.begin(), nearby_points.end());
+            nearby_points[max_points - 1] = node;
+            push_heap(nearby_points.begin(), nearby_points.end());
+            max_distance_squared = nearby_points[0].distance_squared;
+          }
+          size++;
+        }
+      }
+    }
+  }
+}
+
+
+
+template <class PtrType>
+int R3Kdtree<PtrType>::
+FindClosestQuick(PtrType query_point, RNScalar min_distance, RNScalar max_distance, int max_points,
+  vector<PointAndDistanceSqd<PtrType> >& nearby_points) const
+{
+  // Find closest within some distance
+  return FindClosestQuick(query_point, min_distance, max_distance, max_points, NULL, NULL, nearby_points);
+}
+
+
+
+
+template <class PtrType>
+int R3Kdtree<PtrType>::
+FindClosestQuick(PtrType query_point,
+  RNScalar min_distance, RNScalar max_distance, int max_points,
+  int (*IsCompatible)(PtrType, PtrType, void *), void *compatible_data,
+  vector<PointAndDistanceSqd<PtrType> >& nearby_points) const
+{
+  // Check root
+  if (!root) return 0;
+
+  // Use squared distances for efficiency
+  RNLength min_distance_squared = min_distance * min_distance;
+  RNLength max_distance_squared = max_distance * max_distance;
+
+  // Search nodes recursively
+  FindClosestQuick(root, bbox,
+    query_point, *((R3Point *)query_point),
+    min_distance_squared, max_distance_squared, max_points,
+    IsCompatible, compatible_data,
+    nearby_points);
+
+  // Return number of points
+  return nearby_points.size();
+}
+
+
+
+template <class PtrType>
+int R3Kdtree<PtrType>::
+FindClosestQuick(const R3Point& query_position, RNScalar min_distance, RNScalar max_distance, int max_points,
+  vector<PointAndDistanceSqd<PtrType> >& nearby_points) const
+{
+  // Check root
+  if (!root) return 0;
+
+  // Use squared distances for efficiency
+  RNLength min_distance_squared = min_distance * min_distance;
+  RNLength max_distance_squared = max_distance * max_distance;
+
+  // Search nodes recursively
+  FindClosestQuick(root, bbox,
+    NULL, query_position,
+    min_distance_squared, max_distance_squared, max_points,
+    NULL, NULL,
+    nearby_points);
+
+  // Return number of points
+  return nearby_points.size();
+}
 
 ////////////////////////////////////////////////////////////////////////
 // Finding all points within some distance to a query point
@@ -692,10 +848,10 @@ FindClosest(const R3Point& query_position, RNScalar min_distance, RNScalar max_d
 
 template <class PtrType>
 void R3Kdtree<PtrType>::
-FindAll(R3KdtreeNode<PtrType> *node, const R3Box& node_box, 
-  PtrType query_point, const R3Point& query_position, 
-  RNScalar min_distance_squared, RNScalar max_distance_squared, 
-  int (*IsCompatible)(PtrType, PtrType, void *), void *compatible_data, 
+FindAll(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
+  PtrType query_point, const R3Point& query_position,
+  RNScalar min_distance_squared, RNScalar max_distance_squared,
+  int (*IsCompatible)(PtrType, PtrType, void *), void *compatible_data,
   RNArray<PtrType>& points) const
 {
   // Check if node is interior
@@ -719,7 +875,7 @@ FindAll(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
     else dz = 0.0;
     RNLength dz_squared = dz * dz;
     if (dz_squared > max_distance_squared) return;
-    
+
     // Find and check actual distance from point to node box
     RNLength distance_squared = 0;
     if ((dy == 0.0) && (dz == 0.0)) distance_squared = dx_squared;
@@ -733,18 +889,18 @@ FindAll(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
 
     // Search children nodes
     if ((side <= 0) || (side*side <= max_distance_squared)) {
-      // Search negative side 
+      // Search negative side
       R3Box child_box(node_box);
       child_box[RN_HI][node->split_dimension] = node->split_coordinate;
-      FindAll(node->children[0], child_box, query_point, query_position, 
-        min_distance_squared, max_distance_squared, 
+      FindAll(node->children[0], child_box, query_point, query_position,
+        min_distance_squared, max_distance_squared,
         IsCompatible, compatible_data, points);
     }
     if ((side >= 0) || (side*side <= max_distance_squared)) {
       R3Box child_box(node_box);
       child_box[RN_LO][node->split_dimension] = node->split_coordinate;
-      FindAll(node->children[1], child_box, query_point, query_position, 
-        min_distance_squared, max_distance_squared, 
+      FindAll(node->children[1], child_box, query_point, query_position,
+        min_distance_squared, max_distance_squared,
         IsCompatible, compatible_data, points);
     }
   }
@@ -753,7 +909,7 @@ FindAll(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
     for (int i = 0; i < node->npoints; i++) {
       PtrType point = node->points[i];
       RNLength distance_squared = R3SquaredDistance(query_position, Position(point));
-      if ((distance_squared >= min_distance_squared) && 
+      if ((distance_squared >= min_distance_squared) &&
           (distance_squared <= max_distance_squared)) {
         if (!IsCompatible || !query_point || IsCompatible(query_point, point, compatible_data)) {
           points.Insert(point);
@@ -768,8 +924,8 @@ FindAll(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
 template <class PtrType>
 int R3Kdtree<PtrType>::
 FindAll(PtrType query_point,
-  RNScalar min_distance, RNScalar max_distance, 
-  int (*IsCompatible)(PtrType, PtrType, void *), void *compatible_data, 
+  RNScalar min_distance, RNScalar max_distance,
+  int (*IsCompatible)(PtrType, PtrType, void *), void *compatible_data,
   RNArray<PtrType>& points) const
 {
   // Check root
@@ -780,10 +936,10 @@ FindAll(PtrType query_point,
   RNLength max_distance_squared = max_distance * max_distance;
 
   // Search nodes recursively
-  FindAll(root, bbox, 
-    query_point, Position(query_point), 
-    min_distance_squared, max_distance_squared, 
-    IsCompatible, compatible_data, 
+  FindAll(root, bbox,
+    query_point, Position(query_point),
+    min_distance_squared, max_distance_squared,
+    IsCompatible, compatible_data,
     points);
 
   // Return number of points
@@ -815,10 +971,10 @@ FindAll(const R3Point& query_position, RNScalar min_distance, RNScalar max_dista
   RNLength max_distance_squared = max_distance * max_distance;
 
   // Search nodes recursively
-  FindAll(root, bbox, 
-    NULL, query_position, 
-    min_distance_squared, max_distance_squared, 
-    NULL, NULL, 
+  FindAll(root, bbox,
+    NULL, query_position,
+    min_distance_squared, max_distance_squared,
+    NULL, NULL,
     points);
 
   // Return number of points
@@ -833,8 +989,8 @@ FindAll(const R3Point& query_position, RNScalar min_distance, RNScalar max_dista
 
 template <class PtrType>
 PtrType R3Kdtree<PtrType>::
-FindAny(R3KdtreeNode<PtrType> *node, const R3Box& node_box, 
-  PtrType query_point, const R3Point& query_position, 
+FindAny(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
+  PtrType query_point, const R3Point& query_position,
   RNScalar min_distance_squared, RNScalar max_distance_squared,
   int (*IsCompatible)(PtrType, PtrType, void *), void *compatible_data) const
 {
@@ -859,7 +1015,7 @@ FindAny(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
     else dz = 0.0;
     RNLength dz_squared = dz * dz;
     if (dz_squared >= max_distance_squared) return NULL;
-    
+
     // Find and check actual distance from point to node box
     RNLength distance_squared = 0;
     if ((dy == 0.0) && (dz == 0.0)) distance_squared = dx_squared;
@@ -876,17 +1032,17 @@ FindAny(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
       // Search negative side first
       R3Box child_box(node_box);
       child_box[RN_HI][node->split_dimension] = node->split_coordinate;
-      PtrType any_point = FindAny(node->children[0], child_box, 
-        query_point, query_position, 
-        min_distance_squared, max_distance_squared, 
+      PtrType any_point = FindAny(node->children[0], child_box,
+        query_point, query_position,
+        min_distance_squared, max_distance_squared,
         IsCompatible, compatible_data);
       if (any_point) return any_point;
       if (side*side < max_distance_squared) {
         R3Box child_box(node_box);
         child_box[RN_LO][node->split_dimension] = node->split_coordinate;
-        return FindAny(node->children[1], child_box, 
-          query_point, query_position, 
-          min_distance_squared, max_distance_squared, 
+        return FindAny(node->children[1], child_box,
+          query_point, query_position,
+          min_distance_squared, max_distance_squared,
           IsCompatible, compatible_data);
       }
     }
@@ -894,17 +1050,17 @@ FindAny(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
       // Search positive side first
       R3Box child_box(node_box);
       child_box[RN_LO][node->split_dimension] = node->split_coordinate;
-      PtrType any_point = FindAny(node->children[1], child_box, 
-        query_point, query_position, 
-        min_distance_squared, max_distance_squared, 
+      PtrType any_point = FindAny(node->children[1], child_box,
+        query_point, query_position,
+        min_distance_squared, max_distance_squared,
         IsCompatible, compatible_data);
       if (any_point) return any_point;
       if (side*side < max_distance_squared) {
         R3Box child_box(node_box);
         child_box[RN_HI][node->split_dimension] = node->split_coordinate;
-        return FindAny(node->children[0], child_box, 
-          query_point, query_position, 
-          min_distance_squared, max_distance_squared, 
+        return FindAny(node->children[0], child_box,
+          query_point, query_position,
+          min_distance_squared, max_distance_squared,
           IsCompatible, compatible_data);
 
       }
@@ -914,7 +1070,7 @@ FindAny(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
     for (int i = 0; i < node->npoints; i++) {
       PtrType point = node->points[i];
       RNLength distance_squared = R3SquaredDistance(query_position, Position(point));
-      if ((distance_squared >= min_distance_squared) && 
+      if ((distance_squared >= min_distance_squared) &&
          (distance_squared <= max_distance_squared)) {
         if (!IsCompatible || !query_point || IsCompatible(query_point, point, compatible_data)) {
           return point;
@@ -931,8 +1087,8 @@ FindAny(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
 
 template <class PtrType>
 PtrType R3Kdtree<PtrType>::
-FindAny(PtrType query_point, 
-  RNScalar min_distance, RNScalar max_distance, 
+FindAny(PtrType query_point,
+  RNScalar min_distance, RNScalar max_distance,
   int (*IsCompatible)(PtrType, PtrType, void *), void *compatible_data) const
 {
   // Check root
@@ -943,9 +1099,9 @@ FindAny(PtrType query_point,
   RNLength max_distance_squared = max_distance * max_distance;
 
   // Search nodes recursively
-  return FindAny(root, bbox, 
+  return FindAny(root, bbox,
     query_point, Position(query_point),
-    min_distance_squared, max_distance_squared, 
+    min_distance_squared, max_distance_squared,
     IsCompatible, compatible_data);
 }
 
@@ -953,7 +1109,7 @@ FindAny(PtrType query_point,
 
 template <class PtrType>
 PtrType R3Kdtree<PtrType>::
-FindAny(PtrType query_point, 
+FindAny(PtrType query_point,
   RNScalar min_distance, RNScalar max_distance) const
 {
   // Find the any point
@@ -964,7 +1120,7 @@ FindAny(PtrType query_point,
 
 template <class PtrType>
 PtrType R3Kdtree<PtrType>::
-FindAny(const R3Point& query_position, 
+FindAny(const R3Point& query_position,
   RNScalar min_distance, RNScalar max_distance) const
 {
   // Check root
@@ -975,8 +1131,8 @@ FindAny(const R3Point& query_position,
   RNLength max_distance_squared = max_distance * max_distance;
 
   // Search nodes recursively
-  return FindAny(root, bbox, 
-    NULL, query_position, 
+  return FindAny(root, bbox,
+    NULL, query_position,
     min_distance_squared, max_distance_squared,
     NULL, NULL);
 }
@@ -990,8 +1146,8 @@ FindAny(const R3Point& query_position,
 template <class PtrType>
 template <class Shape>
 void R3Kdtree<PtrType>::
-FindClosest(R3KdtreeNode<PtrType> *node, const R3Box& node_box, 
-  const Shape& query_shape, 
+FindClosest(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
+  const Shape& query_shape,
   RNScalar min_distance, RNScalar max_distance,
   PtrType& closest_point, RNScalar& closest_distance) const
 {
@@ -1003,27 +1159,27 @@ FindClosest(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
     RNLength distance = R3Distance(query_shape, node_box);
     if (distance >= closest_distance) return;
 
-    // Search negative side 
+    // Search negative side
     R3Box child_box1(node_box);
     child_box1[RN_HI][node->split_dimension] = node->split_coordinate;
-    FindClosest(node->children[0], child_box1, 
-      query_shape, 
-      min_distance, max_distance, 
+    FindClosest(node->children[0], child_box1,
+      query_shape,
+      min_distance, max_distance,
       closest_point, closest_distance);
 
-    // Search positive side 
+    // Search positive side
     R3Box child_box2(node_box);
     child_box2[RN_LO][node->split_dimension] = node->split_coordinate;
-    FindClosest(node->children[1], child_box2, 
-      query_shape, 
-      min_distance, max_distance, 
+    FindClosest(node->children[1], child_box2,
+      query_shape,
+      min_distance, max_distance,
       closest_point, closest_distance);
   }
   else {
     for (int i = 0; i < node->npoints; i++) {
       PtrType point = node->points[i];
       RNLength distance = R3Distance(query_shape, Position(point));
-      if ((distance >= min_distance) && 
+      if ((distance >= min_distance) &&
          (distance <= closest_distance)) {
         closest_distance = distance;
         closest_point = point;
@@ -1036,22 +1192,22 @@ FindClosest(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
 
 template <class PtrType>
 PtrType R3Kdtree<PtrType>::
-FindClosest(const R3Line& query_line, 
-  RNScalar min_distance, RNScalar max_distance, 
+FindClosest(const R3Line& query_line,
+  RNScalar min_distance, RNScalar max_distance,
   RNScalar *closest_distance) const
 {
   // Check root
   if (!root) return NULL;
 
-  // Initialize nearest point 
+  // Initialize nearest point
   PtrType nearest_point = NULL;
   RNLength nearest_distance = max_distance;
 
   // Search nodes recursively
-  FindClosest<R3Line>(root, bbox, 
-    query_line, 
-    min_distance, max_distance, 
-    NULL, NULL, 
+  FindClosest<R3Line>(root, bbox,
+    query_line,
+    min_distance, max_distance,
+    NULL, NULL,
     nearest_point, nearest_distance);
 
   // Return closest distance
@@ -1065,22 +1221,22 @@ FindClosest(const R3Line& query_line,
 
 template <class PtrType>
 PtrType R3Kdtree<PtrType>::
-FindClosest(const R3Plane& query_plane, 
-  RNScalar min_distance, RNScalar max_distance, 
+FindClosest(const R3Plane& query_plane,
+  RNScalar min_distance, RNScalar max_distance,
   RNScalar *closest_distance) const
 {
   // Check root
   if (!root) return NULL;
 
-  // Initialize nearest point 
+  // Initialize nearest point
   PtrType nearest_point = NULL;
   RNLength nearest_distance = max_distance;
 
   // Search nodes recursively
-  FindClosest<R3Plane>(root, bbox, 
-    query_plane, 
-    min_distance, max_distance, 
-    NULL, NULL, 
+  FindClosest<R3Plane>(root, bbox,
+    query_plane,
+    min_distance, max_distance,
+    NULL, NULL,
     nearest_point, nearest_distance);
 
   // Return closest distance
@@ -1094,22 +1250,22 @@ FindClosest(const R3Plane& query_plane,
 
 template <class PtrType>
 PtrType R3Kdtree<PtrType>::
-FindClosest(const R3Shape& query_shape, 
-  RNScalar min_distance, RNScalar max_distance, 
+FindClosest(const R3Shape& query_shape,
+  RNScalar min_distance, RNScalar max_distance,
   RNScalar *closest_distance) const
 {
   // Check root
   if (!root) return NULL;
 
-  // Initialize nearest point 
+  // Initialize nearest point
   PtrType nearest_point = NULL;
   RNLength nearest_distance = max_distance;
 
   // Search nodes recursively
-  FindClosest<R3Shape>(root, bbox, 
-    query_shape, 
-    min_distance, max_distance, 
-    NULL, NULL, 
+  FindClosest<R3Shape>(root, bbox,
+    query_shape,
+    min_distance, max_distance,
+    NULL, NULL,
     nearest_point, nearest_distance);
 
   // Return closest distance
@@ -1128,12 +1284,12 @@ FindClosest(const R3Shape& query_shape,
 template <class PtrType>
 template <class Shape>
 void R3Kdtree<PtrType>::
-FindClosest(R3KdtreeNode<PtrType> *node, const R3Box& node_box, 
-  const Shape& query_shape, 
+FindClosest(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
+  const Shape& query_shape,
   RNScalar min_distance, RNScalar max_distance, int max_points,
   RNArray<PtrType>& points, RNLength *distances) const
 {
-  // Update max distance 
+  // Update max distance
   if (points.NEntries() == max_points) {
     max_distance = distances[max_points-1];
   }
@@ -1146,20 +1302,20 @@ FindClosest(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
     RNLength distance = R3Distance(query_shape, node_box);
     if (distance >= max_distance) return;
 
-    // Search negative side 
+    // Search negative side
     R3Box child_box1(node_box);
     child_box1[RN_HI][node->split_dimension] = node->split_coordinate;
-    FindClosest(node->children[0], child_box1, 
+    FindClosest(node->children[0], child_box1,
       query_shape,
-      min_distance, max_distance, max_points, 
+      min_distance, max_distance, max_points,
       points, distances);
 
     // Search positive side
     R3Box child_box2(node_box);
     child_box2[RN_LO][node->split_dimension] = node->split_coordinate;
-    FindClosest(node->children[1], child_box2, 
-      query_shape, 
-      min_distance, max_distance, max_points, 
+    FindClosest(node->children[1], child_box2,
+      query_shape,
+      min_distance, max_distance, max_points,
       points, distances);
   }
   else {
@@ -1167,7 +1323,7 @@ FindClosest(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
     for (int i = 0; i < node->npoints; i++) {
       PtrType point = node->points[i];
       RNLength distance = R3Distance(query_shape, Position(point));
-      if ((distance >= min_distance) && 
+      if ((distance >= min_distance) &&
           (distance <= max_distance)) {
 
         // Find slot for point (points are sorted by distance)
@@ -1176,7 +1332,7 @@ FindClosest(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
           if (distance < distances[slot]) break;
           slot++;
         }
-        
+
         // Insert point and distance into sorted arrays
         if (slot < max_points) {
           int first = points.NEntries();
@@ -1195,8 +1351,8 @@ FindClosest(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
 
 template <class PtrType>
 int R3Kdtree<PtrType>::
-FindClosest(const R3Line& query_line, 
-  RNScalar min_distance, RNScalar max_distance, int max_points, 
+FindClosest(const R3Line& query_line,
+  RNScalar min_distance, RNScalar max_distance, int max_points,
   RNArray<PtrType>& points, RNLength *distances) const
 {
   // Check root
@@ -1206,9 +1362,9 @@ FindClosest(const R3Line& query_line,
   RNLength *tmp_distances = (distances) ? distances : new RNLength [ max_points ];
 
   // Search nodes recursively
-  FindClosest<R3Line>(root, bbox, 
-    query_line, 
-    min_distance, max_distance, max_points, 
+  FindClosest<R3Line>(root, bbox,
+    query_line,
+    min_distance, max_distance, max_points,
     points, tmp_distances);
 
   // Delete temporary array of squared distances
@@ -1222,8 +1378,8 @@ FindClosest(const R3Line& query_line,
 
 template <class PtrType>
 int R3Kdtree<PtrType>::
-FindClosest(const R3Plane& query_plane, 
-  RNScalar min_distance, RNScalar max_distance, int max_points, 
+FindClosest(const R3Plane& query_plane,
+  RNScalar min_distance, RNScalar max_distance, int max_points,
   RNArray<PtrType>& points, RNLength *distances) const
 {
   // Check root
@@ -1233,9 +1389,9 @@ FindClosest(const R3Plane& query_plane,
   RNLength *tmp_distances = (distances) ? distances : new RNLength [ max_points ];
 
   // Search nodes recursively
-  FindClosest<R3Plane>(root, bbox, 
-    query_plane, 
-    min_distance, max_distance, max_points, 
+  FindClosest<R3Plane>(root, bbox,
+    query_plane,
+    min_distance, max_distance, max_points,
     points, tmp_distances);
 
   // Delete temporary array of squared distances
@@ -1249,8 +1405,8 @@ FindClosest(const R3Plane& query_plane,
 
 template <class PtrType>
 int R3Kdtree<PtrType>::
-FindClosest(const R3Shape& query_shape, 
-  RNScalar min_distance, RNScalar max_distance, int max_points, 
+FindClosest(const R3Shape& query_shape,
+  RNScalar min_distance, RNScalar max_distance, int max_points,
   RNArray<PtrType>& points, RNLength *distances) const
 {
   // Check root
@@ -1260,9 +1416,9 @@ FindClosest(const R3Shape& query_shape,
   RNLength *tmp_distances = (distances) ? distances : new RNLength [ max_points ];
 
   // Search nodes recursively
-  FindClosest<R3Shape>(root, bbox, 
-    query_shape, 
-    min_distance, max_distance, max_points, 
+  FindClosest<R3Shape>(root, bbox,
+    query_shape,
+    min_distance, max_distance, max_points,
     points, tmp_distances);
 
   // Delete temporary array of squared distances
@@ -1271,8 +1427,6 @@ FindClosest(const R3Shape& query_shape,
   // Return number of points
   return points.NEntries();
 }
-
-
 
 ////////////////////////////////////////////////////////////////////////
 // Finding all points within some distance to a query shape
@@ -1281,9 +1435,9 @@ FindClosest(const R3Shape& query_shape,
 template <class PtrType>
 template <class Shape>
 void R3Kdtree<PtrType>::
-FindAll(R3KdtreeNode<PtrType> *node, const R3Box& node_box, 
-  const Shape& query_shape, 
-  RNScalar min_distance, RNScalar max_distance, 
+FindAll(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
+  const Shape& query_shape,
+  RNScalar min_distance, RNScalar max_distance,
   RNArray<PtrType>& points) const
 {
   // Check if node is interior
@@ -1294,18 +1448,18 @@ FindAll(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
     RNLength distance = R3Distance(query_shape, node_box);
     if (distance >= max_distance) return;
 
-    // Search negative side 
+    // Search negative side
     R3Box child_box1(node_box);
     child_box1[RN_HI][node->split_dimension] = node->split_coordinate;
     FindAll(node->children[0], child_box1, query_shape,
-      min_distance, max_distance, 
+      min_distance, max_distance,
       points);
 
     // Search positive side
     R3Box child_box2(node_box);
     child_box2[RN_LO][node->split_dimension] = node->split_coordinate;
     FindAll(node->children[1], child_box2, query_shape,
-      min_distance, max_distance, 
+      min_distance, max_distance,
       points);
   }
   else {
@@ -1313,7 +1467,7 @@ FindAll(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
     for (int i = 0; i < node->npoints; i++) {
       PtrType point = node->points[i];
       RNLength distance = R3Distance(query_shape, Position(point));
-      if ((distance >= min_distance) && 
+      if ((distance >= min_distance) &&
           (distance <= max_distance)) {
         points.Insert(point);
       }
@@ -1325,17 +1479,17 @@ FindAll(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
 
 template <class PtrType>
 int R3Kdtree<PtrType>::
-FindAll(const R3Line& query_line, 
-  RNScalar min_distance, RNScalar max_distance, 
+FindAll(const R3Line& query_line,
+  RNScalar min_distance, RNScalar max_distance,
   RNArray<PtrType>& points) const
 {
   // Check root
   if (!root) return 0;
 
   // Search nodes recursively
-  FindAll<R3Line>(root, bbox, 
+  FindAll<R3Line>(root, bbox,
     query_line,
-    min_distance, max_distance, 
+    min_distance, max_distance,
     points);
 
   // Return number of points
@@ -1346,17 +1500,17 @@ FindAll(const R3Line& query_line,
 
 template <class PtrType>
 int R3Kdtree<PtrType>::
-FindAll(const R3Plane& query_plane, 
-  RNScalar min_distance, RNScalar max_distance, 
+FindAll(const R3Plane& query_plane,
+  RNScalar min_distance, RNScalar max_distance,
   RNArray<PtrType>& points) const
 {
   // Check root
   if (!root) return 0;
 
   // Search nodes recursively
-  FindAll<R3Plane>(root, bbox, 
+  FindAll<R3Plane>(root, bbox,
     query_plane,
-    min_distance, max_distance, 
+    min_distance, max_distance,
     points);
 
   // Return number of points
@@ -1367,17 +1521,17 @@ FindAll(const R3Plane& query_plane,
 
 template <class PtrType>
 int R3Kdtree<PtrType>::
-FindAll(const R3Shape& query_shape, 
-  RNScalar min_distance, RNScalar max_distance, 
+FindAll(const R3Shape& query_shape,
+  RNScalar min_distance, RNScalar max_distance,
   RNArray<PtrType>& points) const
 {
   // Check root
   if (!root) return 0;
 
   // Search nodes recursively
-  FindAll<R3Shape>(root, bbox, 
+  FindAll<R3Shape>(root, bbox,
     query_shape,
-    min_distance, max_distance, 
+    min_distance, max_distance,
     points);
 
   // Return number of points
@@ -1403,7 +1557,7 @@ PartitionPoints(PtrType *points, int npoints, RNDimension dim, int imin, int ima
   if (imin == imax) return imin;
 
   // Choose a coordinate at random to split upon
-  int irand = (int) (imin + RNRandomScalar() * (imax - imin + 1));
+  int irand = (int) (imin + RNThreadableRandomScalar() * (imax - imin + 1));
   if (irand < imin) irand = imin;
   if (irand > imax) irand = imax;
   RNCoord split_coord = Position(points[irand])[dim];
@@ -1464,7 +1618,7 @@ PartitionPoints(PtrType *points, int npoints, RNDimension dim, int imin, int ima
 
 template <class PtrType>
 void R3Kdtree<PtrType>::
-InsertPoints(R3KdtreeNode<PtrType> *node, const R3Box& node_box, PtrType *points, int npoints) 
+InsertPoints(R3KdtreeNode<PtrType> *node, const R3Box& node_box, PtrType *points, int npoints)
 {
   // Make sure node is an empty leaf
   assert(node);
@@ -1482,7 +1636,7 @@ InsertPoints(R3KdtreeNode<PtrType> *node, const R3Box& node_box, PtrType *points
   else {
     // Find dimension to split along
     node->split_dimension = node_box.LongestAxis();
-    
+
     // Partition points according to coordinates in split_dimension
     int split_index = PartitionPoints(points, npoints, node->split_dimension, 0, npoints-1);
     assert((split_index >= 0) && (split_index < npoints));
@@ -1515,7 +1669,7 @@ InsertPoints(R3KdtreeNode<PtrType> *node, const R3Box& node_box, PtrType *points
 
 template <class PtrType>
 void R3Kdtree<PtrType>::
-InsertPoint(R3KdtreeNode<PtrType> *node, const R3Box& node_box, PtrType point) 
+InsertPoint(R3KdtreeNode<PtrType> *node, const R3Box& node_box, PtrType point)
 {
   // Check if interior node
   if (node->children[0]) {
@@ -1543,7 +1697,7 @@ InsertPoint(R3KdtreeNode<PtrType> *node, const R3Box& node_box, PtrType point)
   else {
     // Inserting point into a leaf
     assert(!node->children[1]);
-    
+
     // Check number of points
     if (node->npoints < R3kdtree_max_points_per_node) {
       // Insert new point into leaf node and return
@@ -1552,7 +1706,7 @@ InsertPoint(R3KdtreeNode<PtrType> *node, const R3Box& node_box, PtrType point)
     else {
       // Find dimension to split along
       node->split_dimension = node_box.LongestAxis();
-    
+
       // Partition points according to coordinates in split_dimension
       int split_index = PartitionPoints(node->points, node->npoints, node->split_dimension, 0, node->npoints-1);
       assert((split_index >= 0) && (split_index < node->npoints));
@@ -1576,7 +1730,7 @@ InsertPoint(R3KdtreeNode<PtrType> *node, const R3Box& node_box, PtrType point)
       InsertPoints(node->children[0], node0_box, node->points, split_index);
       InsertPoints(node->children[1], node1_box, &node->points[split_index], node->npoints - split_index);
       node->npoints = 0;
-      
+
       // Increment number of nodes
       nnodes += 2;
 
@@ -1688,10 +1842,10 @@ PrintDebugInfo(void) const
 
 template <class PtrType>
 void R3Kdtree<PtrType>::
-FindFurthest(R3KdtreeNode<PtrType> *node, const R3Box& node_box, 
-  PtrType query_point, const R3Point& query_position, 
+FindFurthest(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
+  PtrType query_point, const R3Point& query_position,
   RNScalar min_distance_squared, RNScalar max_distance_squared,
-  int (*IsCompatible)(PtrType, PtrType, void *), void *compatible_data, 
+  int (*IsCompatible)(PtrType, PtrType, void *), void *compatible_data,
   PtrType& furthest_point, RNScalar& furthest_distance_squared) const
 {
   // Check if node is interior
@@ -1712,7 +1866,7 @@ FindFurthest(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
     else if (RNIsLess(query_position.Z(), node_box.ZMin())) dz = node_box.ZMax()- query_position.Z();
     else dz = 0.0;
     RNLength dz_squared = dz * dz;
-    
+
     // Find and check actual distance from point to node box
     RNLength distance_squared = 0;
     if ((dy == 0.0) && (dz == 0.0)) distance_squared = dx_squared;
@@ -1729,17 +1883,17 @@ FindFurthest(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
       // Search negative side first
       R3Box child_box(node_box);
       child_box[RN_LO][node->split_dimension] = node->split_coordinate;
-      FindFurthest(node->children[1], child_box, 
-        query_point, query_position, 
-        min_distance_squared, max_distance_squared, 
+      FindFurthest(node->children[1], child_box,
+        query_point, query_position,
+        min_distance_squared, max_distance_squared,
         IsCompatible, compatible_data,
         furthest_point, furthest_distance_squared);
       if (side*side > furthest_distance_squared) {
         R3Box child_box(node_box);
         child_box[RN_HI][node->split_dimension] = node->split_coordinate;
-        FindFurthest(node->children[0], child_box, 
-          query_point, query_position, 
-          min_distance_squared, max_distance_squared, 
+        FindFurthest(node->children[0], child_box,
+          query_point, query_position,
+          min_distance_squared, max_distance_squared,
           IsCompatible, compatible_data,
           furthest_point, furthest_distance_squared);
       }
@@ -1748,17 +1902,17 @@ FindFurthest(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
       // Search positive side first
       R3Box child_box(node_box);
       child_box[RN_HI][node->split_dimension] = node->split_coordinate;
-      FindFurthest(node->children[0], child_box, 
-        query_point, query_position, 
-        min_distance_squared, max_distance_squared, 
+      FindFurthest(node->children[0], child_box,
+        query_point, query_position,
+        min_distance_squared, max_distance_squared,
         IsCompatible, compatible_data,
         furthest_point, furthest_distance_squared);
       if (side*side > furthest_distance_squared) {
         R3Box child_box(node_box);
         child_box[RN_LO][node->split_dimension] = node->split_coordinate;
-        FindFurthest(node->children[1], child_box, 
-          query_point, query_position, 
-          min_distance_squared, max_distance_squared, 
+        FindFurthest(node->children[1], child_box,
+          query_point, query_position,
+          min_distance_squared, max_distance_squared,
           IsCompatible, compatible_data,
           furthest_point, furthest_distance_squared);
       }
@@ -1768,8 +1922,8 @@ FindFurthest(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
     for (int i = 0; i < node->npoints; i++) {
       PtrType point = node->points[i];
       RNLength distance_squared = R3SquaredDistance(query_position, Position(point));
-      if ((distance_squared >= min_distance_squared) && 
-          (distance_squared <= max_distance_squared) && 
+      if ((distance_squared >= min_distance_squared) &&
+          (distance_squared <= max_distance_squared) &&
           (distance_squared >= furthest_distance_squared)) {
         if (!IsCompatible || !query_point || IsCompatible(query_point, point, compatible_data)) {
           furthest_distance_squared = distance_squared;
@@ -1784,9 +1938,9 @@ FindFurthest(R3KdtreeNode<PtrType> *node, const R3Box& node_box,
 
 template <class PtrType>
 PtrType R3Kdtree<PtrType>::
-FindFurthest(PtrType query_point, 
-  RNScalar min_distance, RNScalar max_distance, 
-  int (*IsCompatible)(PtrType, PtrType, void *), void *compatible_data, 
+FindFurthest(PtrType query_point,
+  RNScalar min_distance, RNScalar max_distance,
+  int (*IsCompatible)(PtrType, PtrType, void *), void *compatible_data,
   RNScalar *furthest_distance) const
 {
   // Check root
@@ -1796,15 +1950,15 @@ FindFurthest(PtrType query_point,
   RNLength min_distance_squared = min_distance * min_distance;
   RNLength max_distance_squared = max_distance * max_distance;
 
-  // Initialize furthest point 
+  // Initialize furthest point
   PtrType furthest_point = NULL;
   RNLength furthest_distance_squared = max_distance_squared;
 
   // Search nodes recursively
-  FindFurthest(root, bbox, 
+  FindFurthest(root, bbox,
     query_point, Position(query_point),
-    min_distance_squared, max_distance_squared, 
-    IsCompatible, compatible_data, 
+    min_distance_squared, max_distance_squared,
+    IsCompatible, compatible_data,
     furthest_point, furthest_distance_squared);
 
   // Return furthest distance
@@ -1818,8 +1972,8 @@ FindFurthest(PtrType query_point,
 
 template <class PtrType>
 PtrType R3Kdtree<PtrType>::
-FindFurthest(PtrType query_point, 
-  RNScalar min_distance, RNScalar max_distance, 
+FindFurthest(PtrType query_point,
+  RNScalar min_distance, RNScalar max_distance,
   RNScalar *furthest_distance) const
 {
   // Find the furthest point
@@ -1830,8 +1984,8 @@ FindFurthest(PtrType query_point,
 
 template <class PtrType>
 PtrType R3Kdtree<PtrType>::
-FindFurthest(const R3Point& query_position, 
-  RNScalar min_distance, RNScalar max_distance, 
+FindFurthest(const R3Point& query_position,
+  RNScalar min_distance, RNScalar max_distance,
   RNScalar *furthest_distance) const
 {
   // Check root
@@ -1841,15 +1995,15 @@ FindFurthest(const R3Point& query_position,
   RNLength min_distance_squared = min_distance * min_distance;
   RNLength max_distance_squared = max_distance * max_distance;
 
-  // Initialize furthest point 
+  // Initialize furthest point
   PtrType furthest_point = NULL;
   RNLength furthest_distance_squared = max_distance_squared;
 
   // Search nodes recursively
-  FindFurthest(root, bbox, 
-    NULL, query_position, 
-    min_distance_squared, max_distance_squared, 
-    NULL, NULL, 
+  FindFurthest(root, bbox,
+    NULL, query_position,
+    min_distance_squared, max_distance_squared,
+    NULL, NULL,
     furthest_point, furthest_distance_squared);
 
   // Return furthest distance
@@ -1864,5 +2018,3 @@ FindFurthest(const R3Point& query_position,
 
 
 #endif
-
-

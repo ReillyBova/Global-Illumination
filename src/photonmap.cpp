@@ -1,710 +1,388 @@
-// Source file for the scene viewer program
+// Source file for the photon mapping program
 
-
-
-// Include files 
-
+// Include files
 #include "R3Graphics/R3Graphics.h"
-#include "fglut/fglut.h"
 #include "render.h"
+#include "photontracer.h"
+#include "interactive_viewer.h"
+#include "utils/io_utils.h"
+#include "utils/graphics_utils.h"
+#include "utils/photon_utils.h"
+#include <vector>
+#include <thread>
+#include <functional>
+#include <mutex>
+#include <atomic>
 
+using namespace std;
 
+////////////////////////////////////////////////////////////////////////
+// Local Parameter Defaults & Variables
+////////////////////////////////////////////////////////////////////////
 
-// Program variables
-
+// Input scene & Output file
 static char *input_scene_name = NULL;
 static char *output_image_name = NULL;
-static char *screenshot_image_name = NULL;
-static int render_image_width = 64;
-static int render_image_height = 64;
-static int print_verbose = 0;
 
+// Image dimensions
+static int render_image_width = 1024;
+static int render_image_height = 1024;
 
+// Anti-alias by super sampling 4^(aa) eye rays sampled per pixel)
+static int aa = 2;
 
-// GLUT variables 
-
-static int GLUTwindow = 0;
-static int GLUTwindow_height = 800;
-static int GLUTwindow_width = 800;
-static int GLUTmouse[2] = { 0, 0 };
-static int GLUTbutton[3] = { 0, 0, 0 };
-static int GLUTmouse_drag = 0;
-static int GLUTmodifiers = 0;
-
-
-
-// Application variables
-
-static R3Viewer *viewer = NULL;
-static R3Scene *scene = NULL;
-static R3Point center(0, 0, 0);
-
-
-
-// Display variables
-
-static int show_shapes = 1;
-static int show_camera = 0;
-static int show_lights = 0;
-static int show_bboxes = 0;
-static int show_rays = 0;
-static int show_frame_rate = 0;
-
-
+// Normalize material components to 1 when loading brdfs
+static bool real_material = false;
 
 ////////////////////////////////////////////////////////////////////////
-// Draw functions
+// Global Parameter Defaults (Declared in render.h)
 ////////////////////////////////////////////////////////////////////////
 
-static void 
-LoadLights(R3Scene *scene)
+// Print Rendering Stats
+bool VERBOSE = false;
+// Number of threads
+int THREADS = 1;
+// Use fresnel equations to split transmission into refraction and reflection
+bool FRESNEL = true;
+// Refraction index of air
+RNScalar IR_AIR = 1.0;
+
+// Render equation toggles
+bool AMBIENT = true;
+bool DIRECT_ILLUM = true;
+bool TRANSMISSIVE_ILLUM = true;
+bool SPECULAR_ILLUM = true;
+bool INDIRECT_ILLUM = true;
+bool CAUSTIC_ILLUM = true;
+
+// Photon map direct visualization
+bool DIRECT_PHOTON_ILLUM = false;
+// Forces DIRECT_PHOTON_ILLUM to be true, but does not store photons on first bounce
+// Used alongide other illuminations to quickly approximate global illumination with less noise
+// than sampling the photon map alone
+bool FAST_GLOBAL = false;
+
+// Soft shadows (toggle and number of shadow rays sent per test)
+bool SHADOWS = true;
+bool SOFT_SHADOWS = true;
+int LIGHT_TEST = 128; // Number of direct illumination tests per 2Dlight;
+                     // NB: Each illumination test is also a shadow test
+int SHADOW_TEST = 128; // Total number of *additional* shadow tests per light
+                      // (on top of implicit the shadow tests set via LIGHT_TEST);
+
+// Monte Carlo Raytracing Parameters
+bool MONTE_CARLO = true; // Toggles monte carlo path tracing
+int MAX_MONTE_DEPTH = 128; // Toggles monte carlo path tracing
+RNScalar PROB_ABSORB = 0.005; // Minimal brdf absorption probability (out of one)
+bool RECURSIVE_SHADOWS = true; // Test shadows while path tracing
+bool DISTRIB_TRANSMISSIVE = true; // Use importance sampling
+int TRANSMISSIVE_TEST = 128;
+bool DISTRIB_SPECULAR = true; // Use importance sampling
+int SPECULAR_TEST = 128;
+
+// Photon Map Tracing Parameters
+int GLOBAL_PHOTON_COUNT = 1920; // Number of photons emmitted for global map
+int CAUSTIC_PHOTON_COUNT = 60000; // Number of photons emmited for caustic map
+int MAX_PHOTON_DEPTH = 128;
+
+// Photon Map Sampling Parameters
+int INDIRECT_TEST = 64;
+int GLOBAL_ESTIMATE_SIZE = 50;
+RNScalar GLOBAL_ESTIMATE_DIST = 2.5;
+int CAUSTIC_ESTIMATE_SIZE = 60;
+RNScalar CAUSTIC_ESTIMATE_DIST = .2;
+
+////////////////////////////////////////////////////////////////////////
+// Global Variable Defaults (Declared in render.h)
+////////////////////////////////////////////////////////////////////////
+
+// KdTrees for the photon maps
+R3Kdtree<Photon *> *GLOBAL_PMAP = NULL;
+R3Kdtree<Photon *> *CAUSTIC_PMAP = NULL;
+
+// Memory for photons
+RNArray <Photon *> GLOBAL_PHOTONS;
+RNArray <Photon *> CAUSTIC_PHOTONS;
+
+// Lookup tables for incident direction
+RNScalar PHOTON_X_LOOKUP[65536];
+RNScalar PHOTON_Y_LOOKUP[65536];
+RNScalar PHOTON_Z_LOOKUP[65536];
+
+// Scene parameters
+R3Scene* SCENE = NULL;
+RNScalar SCENE_RADIUS = 0;
+RNRgb SCENE_AMBIENT = RNblack_rgb;
+int SCENE_NLIGHTS = 0;
+
+// Progress bar
+const int PROGRESS_BAR_WIDTH = 50;
+
+// Shared synchronization primative
+mutex LOCK;
+
+static atomic_int global_emitted_count (0);
+static atomic_int caustic_emitted_count (0);
+
+////////////////////////////////////////////////////////////////////////
+// Photon Mapping Methods
+////////////////////////////////////////////////////////////////////////
+
+// Threadable (parallelizable) photon tracing method
+static void Threadable_PhotonTracer(const int num_global_photons,
+  const int num_caustic_photons, vector<RNScalar> &light_powers, RNScalar total_power,
+  int thread_id)
 {
-  // Load ambient light
-  static GLfloat ambient[4];
-  ambient[0] = scene->Ambient().R();
-  ambient[1] = scene->Ambient().G();
-  ambient[2] = scene->Ambient().B();
-  ambient[3] = 1;
-  glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
-
-  // Load scene lights
-  for (int i = 0; i < scene->NLights(); i++) {
-    R3Light *light = scene->Light(i);
-    light->Draw(i);
-  }
-}
-
-
-
-#if 0
-
-static void 
-DrawText(const R3Point& p, const char *s)
-{
-  // Draw text string s and position p
-  glRasterPos3d(p[0], p[1], p[2]);
-  while (*s) glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, *(s++));
-}
-  
-#endif
-
-
-
-static void 
-DrawText(const R2Point& p, const char *s)
-{
-  // Draw text string s and position p
-  R3Ray ray = viewer->WorldRay((int) p[0], (int) p[1]);
-  R3Point position = ray.Point(2 * viewer->Camera().Near());
-  glRasterPos3d(position[0], position[1], position[2]);
-  while (*s) glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, *(s++));
-}
-
-
-
-static void 
-DrawCamera(R3Scene *scene)
-{
-  // Draw view frustum
-  const R3Camera& camera = scene->Camera();
-  R3Point eye = camera.Origin();
-  R3Vector towards = camera.Towards();
-  R3Vector up = camera.Up();
-  R3Vector right = camera.Right();
-  RNAngle xfov = camera.XFOV();
-  RNAngle yfov = camera.YFOV();
-  double radius = scene->BBox().DiagonalRadius();
-  R3Point org = eye + towards * radius;
-  R3Vector dx = right * radius * tan(xfov);
-  R3Vector dy = up * radius * tan(yfov);
-  R3Point ur = org + dx + dy;
-  R3Point lr = org + dx - dy;
-  R3Point ul = org - dx + dy;
-  R3Point ll = org - dx - dy;
-  glBegin(GL_LINE_LOOP);
-  glVertex3d(ur[0], ur[1], ur[2]);
-  glVertex3d(ul[0], ul[1], ul[2]);
-  glVertex3d(ll[0], ll[1], ll[2]);
-  glVertex3d(lr[0], lr[1], lr[2]);
-  glVertex3d(ur[0], ur[1], ur[2]);
-  glVertex3d(eye[0], eye[1], eye[2]);
-  glVertex3d(lr[0], lr[1], lr[2]);
-  glVertex3d(ll[0], ll[1], ll[2]);
-  glVertex3d(eye[0], eye[1], eye[2]);
-  glVertex3d(ul[0], ul[1], ul[2]);
-  glEnd();
-}
-
-
-
-static void 
-DrawLights(R3Scene *scene)
-{
-  // Draw all lights
-  double radius = scene->BBox().DiagonalRadius();
-  for (int i = 0; i < scene->NLights(); i++) {
-    R3Light *light = scene->Light(i);
-    RNLoadRgb(light->Color());
-    if (light->ClassID() == R3DirectionalLight::CLASS_ID()) {
-      R3DirectionalLight *directional_light = (R3DirectionalLight *) light;
-      R3Vector direction = directional_light->Direction();
-
-      // Draw direction vector
-      glBegin(GL_LINES);
-      R3Point centroid = scene->BBox().Centroid();
-      R3LoadPoint(centroid - radius * direction);
-      R3LoadPoint(centroid - 1.25 * radius * direction);
-      glEnd();
+  RNInitThreadRandomness();
+  // Global (Indirect) Illumination Photon mapping
+  int local_global_emitted_count = 0;
+  if (INDIRECT_ILLUM || DIRECT_PHOTON_ILLUM) {
+    // Print Info
+    if (VERBOSE && (thread_id == 0)) {
+      printf("Building global photon map ...\n");
     }
-    else if (light->ClassID() == R3PointLight::CLASS_ID()) {
-      // Draw sphere at point light position
-      R3PointLight *point_light = (R3PointLight *) light;
-      R3Point position = point_light->Position();
 
-     // Draw sphere at light position 
-       R3Sphere(position, 0.1 * radius).Draw();
-    }
-    else if (light->ClassID() == R3SpotLight::CLASS_ID()) {
-      R3SpotLight *spot_light = (R3SpotLight *) light;
-      R3Point position = spot_light->Position();
-      R3Vector direction = spot_light->Direction();
+    // Emit photons from each light in rounds (slowly reaching GLOBAL_PHOTON_COUNT)
+    PHOTONS_STORED_COUNT = 0;
+    RNScalar average_bounce_rate = 4.0; // Init with an overestimate (depends on scene)
+    RNScalar slowdown_factor = 1.0;
+    int attempts_left = 10;
+    while (PHOTONS_STORED_COUNT < num_global_photons && attempts_left > 0) {
+      // Approach goal based on how we've done thus far
+      int emit_goal = (int) (num_global_photons - PHOTONS_STORED_COUNT)
+                      / average_bounce_rate / slowdown_factor + 1;
+      int photons_assigned = 0;
 
-      // Draw sphere at light position 
-      R3Sphere(position, 0.1 * radius).Draw();
-  
-      // Draw direction vector
-      glBegin(GL_LINES);
-      R3LoadPoint(position);
-      R3LoadPoint(position + 0.25 * radius * direction);
-      glEnd();
-    }
-    else {
-      fprintf(stderr, "Unrecognized light type: %d\n", light->ClassID());
-      return;
-    }
-  }
-}
-
-
-
-static void 
-DrawShapes(R3Scene *scene, R3SceneNode *node, RNFlags draw_flags = R3_DEFAULT_DRAW_FLAGS)
-{
-  // Push transformation
-  node->Transformation().Push();
-
-  // Draw elements 
-  for (int i = 0; i < node->NElements(); i++) {
-    R3SceneElement *element = node->Element(i);
-    element->Draw(draw_flags);
-  }
-
-  // Draw children
-  for (int i = 0; i < node->NChildren(); i++) {
-    R3SceneNode *child = node->Child(i);
-    DrawShapes(scene, child, draw_flags);
-  }
-
-  // Pop transformation
-  node->Transformation().Pop();
-}
-
-
-
-static void 
-DrawBBoxes(R3Scene *scene, R3SceneNode *node)
-{
-  // Draw node bounding box
-  node->BBox().Outline();
-
-  // Push transformation
-  node->Transformation().Push();
-
-  // Draw children bboxes
-  for (int i = 0; i < node->NChildren(); i++) {
-    R3SceneNode *child = node->Child(i);
-    DrawBBoxes(scene, child);
-  }
-
-  // Pop transformation
-  node->Transformation().Pop();
-}
-
-
-
-static void 
-DrawRays(R3Scene *scene)
-{
-  // Ray intersection variables
-  R3SceneNode *node;
-  R3SceneElement *element;
-  R3Shape *shape;
-  R3Point point;
-  R3Vector normal;
-  RNScalar t;
-
-  // Ray generation variables
-  int istep = scene->Viewport().Width() / 20;
-  int jstep = scene->Viewport().Height() / 20;
-  if (istep == 0) istep = 1;
-  if (jstep == 0) jstep = 1;
-
-  // Ray drawing variables
-  double radius = 0.025 * scene->BBox().DiagonalRadius();
-
-  // Draw intersection point and normal for some rays
-  for (int i = istep/2; i < scene->Viewport().Width(); i += istep) {
-    for (int j = jstep/2; j < scene->Viewport().Height(); j += jstep) {
-      R3Ray ray = scene->Viewer().WorldRay(i, j);
-      if (scene->Intersects(ray, &node, &element, &shape, &point, &normal, &t)) {
-        R3Sphere(point, radius).Draw();
-        R3Span(point, point + 2 * radius * normal).Draw();
+      // Emit photons
+      for (int i = 0; i < SCENE_NLIGHTS; i++) {
+        // Emit photons proportional to light contribution over total power, as well as the
+        // assigned total number of photons to emit
+        int num_photons = ceil(emit_goal * (light_powers[i] / total_power));
+        EmitPhotons(num_photons, SCENE->Light(i), GLOBAL, thread_id);
+        photons_assigned += num_photons;
       }
-    }
-  }
-}
+      local_global_emitted_count += photons_assigned;
 
+      // Update average
+      if (PHOTONS_STORED_COUNT > 0 && local_global_emitted_count > 0) {
+        average_bounce_rate = ((RNScalar) (PHOTONS_STORED_COUNT)) / local_global_emitted_count;
 
-
-////////////////////////////////////////////////////////////////////////
-// Glut user interface functions
-////////////////////////////////////////////////////////////////////////
-
-void GLUTStop(void)
-{
-  // Destroy window 
-  glutDestroyWindow(GLUTwindow);
-
-  // Exit
-  exit(0);
-}
-
-
-
-void GLUTRedraw(void)
-{
-  // Check scene
-  if (!scene) return;
-
-  // Set viewing transformation
-  viewer->Camera().Load();
-
-  // Clear window 
-  RNRgb background = scene->Background();
-  glClearColor(background.R(), background.G(), background.B(), 1.0);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-  // Load lights
-  LoadLights(scene);
-
-  // Draw camera
-  if (show_camera) {
-    glDisable(GL_LIGHTING);
-    glColor3d(1.0, 1.0, 1.0);
-    glLineWidth(5);
-    DrawCamera(scene);
-    glLineWidth(1);
-  }
-
-  // Draw lights
-  if (show_lights) {
-    glDisable(GL_LIGHTING);
-    glColor3d(1.0, 1.0, 1.0);
-    glLineWidth(5);
-    DrawLights(scene);
-    glLineWidth(1);
-  }
-
-  // Draw rays
-  if (show_rays) {
-    glDisable(GL_LIGHTING);
-    glColor3d(0.0, 1.0, 0.0);
-    glLineWidth(3);
-    DrawRays(scene);
-    glLineWidth(1);
-  }
-
-  // Draw scene nodes
-  if (show_shapes) {
-    glEnable(GL_LIGHTING);
-    R3null_material.Draw();
-    DrawShapes(scene, scene->Root());
-    R3null_material.Draw();
-  }
-
-  // Draw bboxes
-  if (show_bboxes) {
-    glDisable(GL_LIGHTING);
-    glColor3d(1.0, 0.0, 0.0);
-    DrawBBoxes(scene, scene->Root());
-  }
-
-  // Draw frame time
-  if (show_frame_rate) {
-    char buffer[128];
-    static RNTime last_time;
-    double frame_time = last_time.Elapsed();
-    last_time.Read();
-    if ((frame_time > 0) && (frame_time < 10)) {
-      glDisable(GL_LIGHTING);
-      glColor3d(1.0, 1.0, 1.0);
-      sprintf(buffer, "%.1f fps", 1.0 / frame_time);
-      DrawText(R2Point(100, 100), buffer);
-    }
-  }  
-
-  // Capture screenshot image 
-  if (screenshot_image_name) {
-    if (print_verbose) printf("Creating image %s\n", screenshot_image_name);
-    R2Image image(GLUTwindow_width, GLUTwindow_height, 3);
-    image.Capture();
-    image.Write(screenshot_image_name);
-    screenshot_image_name = NULL;
-  }
-
-  // Swap buffers 
-  glutSwapBuffers();
-}    
-
-
-
-void GLUTResize(int w, int h)
-{
-  // Resize window
-  glViewport(0, 0, w, h);
-
-  // Resize viewer viewport
-  viewer->ResizeViewport(0, 0, w, h);
-
-  // Resize scene viewport
-  scene->SetViewport(viewer->Viewport());
-
-  // Remember window size 
-  GLUTwindow_width = w;
-  GLUTwindow_height = h;
-
-  // Redraw
-  glutPostRedisplay();
-}
-
-
-
-void GLUTMotion(int x, int y)
-{
-  // Invert y coordinate
-  y = GLUTwindow_height - y;
-
-  // Compute mouse movement
-  int dx = x - GLUTmouse[0];
-  int dy = y - GLUTmouse[1];
-  
-  // Update mouse drag
-  GLUTmouse_drag += dx*dx + dy*dy;
-
-  // World in hand navigation 
-  if (GLUTbutton[0]) viewer->RotateWorld(1.0, center, x, y, dx, dy);
-  else if (GLUTbutton[1]) viewer->ScaleWorld(1.0, center, x, y, dx, dy);
-  else if (GLUTbutton[2]) viewer->TranslateWorld(1.0, center, x, y, dx, dy);
-  if (GLUTbutton[0] || GLUTbutton[1] || GLUTbutton[2]) glutPostRedisplay();
-
-  // Remember mouse position 
-  GLUTmouse[0] = x;
-  GLUTmouse[1] = y;
-}
-
-
-
-void GLUTMouse(int button, int state, int x, int y)
-{
-  // Invert y coordinate
-  y = GLUTwindow_height - y;
-
-  // Mouse is going down
-  if (state == GLUT_DOWN) {
-    // Reset mouse drag
-    GLUTmouse_drag = 0;
-  }
-  else {
-    // Check for double click  
-    static RNBoolean double_click = FALSE;
-    static RNTime last_mouse_up_time;
-    double_click = (!double_click) && (last_mouse_up_time.Elapsed() < 0.4);
-    last_mouse_up_time.Read();
-
-    // Check for click (rather than drag)
-    if (GLUTmouse_drag < 100) {
-      // Check for double click
-      if (double_click) {
-        // Set viewing center point 
-        R3Ray ray = viewer->WorldRay(x, y);
-        R3Point intersection_point;
-        if (scene->Intersects(ray, NULL, NULL, NULL, &intersection_point)) {
-          center = intersection_point;
+        // Approach slower for first 75% to avoid shooting over
+        if ((RNScalar) PHOTONS_STORED_COUNT / local_global_emitted_count < 0.75) {
+          slowdown_factor = 2.0;
+        } else {
+          slowdown_factor = 1.0;
         }
+      } else {
+        average_bounce_rate /= 2.0;
+        attempts_left--;
       }
+    }
+    if (VERBOSE && (thread_id == 0)) {
+      PrintProgress(double(PHOTONS_STORED_COUNT) / GLOBAL_PHOTON_COUNT * THREADS,
+        PROGRESS_BAR_WIDTH);
+      printf("\n");
     }
   }
 
-  // Remember button state 
-  int b = (button == GLUT_LEFT_BUTTON) ? 0 : ((button == GLUT_MIDDLE_BUTTON) ? 1 : 2);
-  GLUTbutton[b] = (state == GLUT_DOWN) ? 1 : 0;
+  // Caustic Illumination Photon mapping
+  int local_caustic_emitted_count = 0;
+  if (CAUSTIC_ILLUM) {
+    // Print Info
+    if (VERBOSE && (thread_id == 0)) {
+      printf("Building caustic photon map ...\n");
+    }
 
-  // Remember modifiers 
-  GLUTmodifiers = glutGetModifiers();
+    // Emit photons from each light
+    PHOTONS_STORED_COUNT = 0;
+    RNScalar average_bounce_rate = MAX_PHOTON_DEPTH; // Init with an overestimate (depends on scene)
+    RNScalar slowdown_factor = 1.0;
+    int attempts_left = 10;
+    while (PHOTONS_STORED_COUNT < num_caustic_photons && attempts_left > 0) {
+      // Approach goal based on how we've done thus far
+      int emit_goal = (int) (num_caustic_photons - PHOTONS_STORED_COUNT)
+                        / average_bounce_rate / slowdown_factor + 1;
+      int photons_assigned = 0;
 
-   // Remember mouse position 
-  GLUTmouse[0] = x;
-  GLUTmouse[1] = y;
+      // Emit photons
+      for (int i = 0; i < SCENE_NLIGHTS; i++) {
+        // Emit photons proportional to light contribution to total power and the
+        // assigned total number of photons to emit
+        int num_photons = ceil(emit_goal * (light_powers[i] / total_power));
+        EmitPhotons(num_photons, SCENE->Light(i), CAUSTIC, thread_id);
+        photons_assigned += num_photons;
+      }
+      local_caustic_emitted_count += photons_assigned;
 
-  // Redraw
-  glutPostRedisplay();
-}
+      // Update average
+      if (PHOTONS_STORED_COUNT > 0 && local_caustic_emitted_count > 0) {
+        average_bounce_rate = ((RNScalar) (PHOTONS_STORED_COUNT)) / local_caustic_emitted_count;
 
-
-
-void GLUTSpecial(int key, int x, int y)
-{
-  // Invert y coordinate
-  y = GLUTwindow_height - y;
-
-  // Process keyboard button event 
-
-  // Remember mouse position 
-  GLUTmouse[0] = x;
-  GLUTmouse[1] = y;
-
-  // Remember modifiers 
-  GLUTmodifiers = glutGetModifiers();
-
-  // Redraw
-  glutPostRedisplay();
-}
-
-
-
-void GLUTKeyboard(unsigned char key, int x, int y)
-{
-  // Process keyboard button event 
-  switch (key) {
-  case '~': {
-    // Dump screen shot to file iX.jpg
-    static char buffer[64];
-    static int image_count = 1;
-    sprintf(buffer, "i%d.jpg", image_count++);
-    screenshot_image_name = buffer;
-    break; }
-
-  case 'B':
-  case 'b':
-    show_bboxes = !show_bboxes;
-    break;
-
-  case 'C':
-  case 'c':
-    show_camera = !show_camera;
-    break;
-
-  case 'L':
-  case 'l':
-    show_lights = !show_lights;
-    break;
-
-  case 'R':
-  case 'r':
-    show_rays = !show_rays;
-    break;
-
-  case 'S':
-  case 's':
-    show_shapes = !show_shapes;
-    break;
-
-  case 'T':
-  case 't':
-    show_frame_rate = !show_frame_rate;
-    break;
-
-  case ' ':
-    viewer->SetCamera(scene->Camera());
-    break;
-
-  case 27: // ESCAPE
-    GLUTStop();
-    break;
+        // Approach slower for first 75% to avoid shooting over
+        if ((RNScalar) PHOTONS_STORED_COUNT / num_caustic_photons < 0.75) {
+          slowdown_factor = 2.0;
+        } else {
+          slowdown_factor = 1.0;
+        }
+      } else {
+        average_bounce_rate /= 2.0;
+        attempts_left--;
+      }
+    }
+    if (VERBOSE && (thread_id == 0)) {
+      PrintProgress(double(PHOTONS_STORED_COUNT) / CAUSTIC_PHOTON_COUNT * THREADS,
+        PROGRESS_BAR_WIDTH);
+      printf("\n");
+    }
   }
 
-  // Remember mouse position 
-  GLUTmouse[0] = x;
-  GLUTmouse[1] = GLUTwindow_height - y;
+  // Update counts
+  global_emitted_count += local_global_emitted_count;
+  caustic_emitted_count += local_caustic_emitted_count;
 
-  // Remember modifiers 
-  GLUTmodifiers = glutGetModifiers();
-
-  // Redraw
-  glutPostRedisplay();  
+  RNClearThreadRandomness();
 }
 
-
-
-
-void GLUTInit(int *argc, char **argv)
+// Multithreading method that populates the photon maps as necessarys
+static void MapPhotons(void)
 {
-  // Open window 
-  glutInit(argc, argv);
-  glutInitWindowPosition(100, 100);
-  glutInitWindowSize(GLUTwindow_width, GLUTwindow_height);
-  glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH); // | GLUT_STENCIL
-  GLUTwindow = glutCreateWindow("Property Viewer");
+  // Corner case
+  if (SCENE_NLIGHTS <= 0) {
+    return;
+  }
 
-  // Initialize lighting
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-  static GLfloat lmodel_ambient[] = { 0.2, 0.2, 0.2, 1.0 };
-  glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lmodel_ambient);
-  glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
-  glEnable(GL_NORMALIZE);
-  glEnable(GL_LIGHTING); 
+  // Children threads
+  thread *children = new thread[THREADS - 1];
 
-  // Initialize headlight
-  // static GLfloat light0_diffuse[] = { 0.5, 0.5, 0.5, 1.0 };
-  // static GLfloat light0_position[] = { 0.0, 0.0, 1.0, 0.0 };
-  // glLightfv(GL_LIGHT0, GL_DIFFUSE, light0_diffuse);
-  // glLightfv(GL_LIGHT0, GL_POSITION, light0_position);
-  // glEnable(GL_LIGHT0);
-
-  // Initialize graphics modes  
-  glEnable(GL_DEPTH_TEST);
-  glEnable(GL_CULL_FACE);
-
-  // Initialize GLUT callback functions 
-  glutDisplayFunc(GLUTRedraw);
-  glutReshapeFunc(GLUTResize);
-  glutKeyboardFunc(GLUTKeyboard);
-  glutSpecialFunc(GLUTSpecial);
-  glutMouseFunc(GLUTMouse);
-  glutMotionFunc(GLUTMotion);
-}
-
-
-
-void GLUTMainLoop(void)
-{
-  // Initialize viewing center
-  if (scene) center = scene->BBox().Centroid();
-
-  // Run main loop -- never returns 
-  glutMainLoop();
-}
-
-
- 
-////////////////////////////////////////////////////////////////////////
-// Input/output
-////////////////////////////////////////////////////////////////////////
-
-static R3Scene *
-ReadScene(char *filename)
-{
   // Start statistics
-  RNTime start_time;
-  start_time.Read();
+  RNTime total_start_time, photon_time, kd_time;
+  RNScalar photon_dur, kd_dur;
+  total_start_time.Read();
 
-  // Allocate scene
-  R3Scene *scene = new R3Scene();
-  if (!scene) {
-    fprintf(stderr, "Unable to allocate scene for %s\n", filename);
-    return NULL;
+  // Compute power distribution of lights
+  vector<RNScalar> light_powers(SCENE_NLIGHTS, 0.0);
+  RNScalar total_power = 0;
+  for (int i = 0; i < SCENE_NLIGHTS; i++) {
+    R3Light *light = SCENE->Light(i);
+    if (!(light->IsActive())) continue;
+    RNScalar light_power = LightPower(light);
+    light_powers[i] = light_power;
+    total_power += light_power;
   }
 
-  // Read scene from file
-  if (!scene->ReadFile(filename)) {
-    delete scene;
-    return NULL;
+  // Corner case
+  if (total_power <= 0) {
+    return;
   }
+
+  // Build compressed spherical coordinates mapping for fast lookup
+  BuildDirectionLookupTable();
+
+  // Divide work among threads
+  int global_photons_remaining = 0;
+  int caustic_photons_remaining = 0;
+
+  // For global photons
+  if (INDIRECT_ILLUM || DIRECT_PHOTON_ILLUM) {
+    // Compute how many photons to distribute to each thread
+    global_photons_remaining = GLOBAL_PHOTON_COUNT;
+  }
+  int global_photons_per_thread = (int) global_photons_remaining / THREADS;
+
+  // For caustic photons
+  if (CAUSTIC_ILLUM) {
+    // Compute how many photons to distribute to each thread
+    caustic_photons_remaining = CAUSTIC_PHOTON_COUNT;
+  }
+  int caustic_photons_per_thread = (int) caustic_photons_remaining / THREADS;
+
+  // Split off into threads
+  photon_time.Read();
+  for (int i = 0; i < THREADS - 1; ++i) {
+    // Launch thread and book-keep
+    children[i] = thread(Threadable_PhotonTracer, global_photons_per_thread,
+                      caustic_photons_per_thread, ref(light_powers), total_power, i+1);
+    global_photons_remaining -= global_photons_per_thread;
+    caustic_photons_remaining -= caustic_photons_per_thread;
+  }
+
+  // Use the main thread as well
+  Threadable_PhotonTracer(global_photons_remaining, caustic_photons_remaining,
+                          light_powers, total_power, 0);
+
+  // Join children threads
+  for (int i = 0; i < THREADS - 1; i++)
+    children[i].join();
+  delete [] children;
+
+  photon_dur = photon_time.Elapsed();
+
+  // Build kd trees
+  if (VERBOSE)
+    printf("Building kdtrees ...\n");
+  kd_time.Read();
+
+  // First update globals and scale by power
+  if ((INDIRECT_ILLUM || DIRECT_PHOTON_ILLUM) && GLOBAL_PHOTONS.NEntries()) {
+    GLOBAL_PHOTON_COUNT = GLOBAL_PHOTONS.NEntries();
+    RNScalar photon_power = (RNScalar) total_power / global_emitted_count.load();
+    for (int i = 0; i < GLOBAL_PHOTON_COUNT; i++) {
+      RNRgb color = RGBE_to_RNRgb(GLOBAL_PHOTONS[i]->rgbe);
+      color *= photon_power;
+      RNRgb_to_RGBE(color, GLOBAL_PHOTONS[i]->rgbe);
+    }
+  } else if ((INDIRECT_ILLUM || DIRECT_PHOTON_ILLUM) && GLOBAL_PHOTONS.NEntries() == 0) {
+    INDIRECT_ILLUM = false;
+    DIRECT_PHOTON_ILLUM = false;
+  }
+  if (CAUSTIC_ILLUM && CAUSTIC_PHOTONS.NEntries()) {
+    CAUSTIC_PHOTON_COUNT = CAUSTIC_PHOTONS.NEntries();
+    RNScalar photon_power = total_power / caustic_emitted_count.load();
+    for (int i = 0; i < CAUSTIC_PHOTON_COUNT; i++) {
+      RNRgb color = RGBE_to_RNRgb(CAUSTIC_PHOTONS[i]->rgbe);
+      color *= photon_power;
+      RNRgb_to_RGBE(color, CAUSTIC_PHOTONS[i]->rgbe);
+    }
+  } else if (CAUSTIC_ILLUM && CAUSTIC_PHOTONS.NEntries() == 0) {
+    CAUSTIC_ILLUM = false;
+  }
+
+  // Now build...
+  if (INDIRECT_ILLUM || DIRECT_PHOTON_ILLUM) {
+    GLOBAL_PMAP = new R3Kdtree<Photon *>(GLOBAL_PHOTONS, offsetof(struct Photon, position));
+    if (!GLOBAL_PMAP) {
+      fprintf(stderr, ("Unable to create global photon map\n"));
+      exit(-1);
+    }
+  }
+  if (CAUSTIC_ILLUM) {
+    CAUSTIC_PMAP = new R3Kdtree<Photon *>(CAUSTIC_PHOTONS, offsetof(struct Photon, position));
+    if (!CAUSTIC_PMAP) {
+      fprintf(stderr, ("Unable to create caustic photon map\n"));
+      exit(-1);
+    }
+  }
+  kd_dur = kd_time.Elapsed();
 
   // Print statistics
-  if (print_verbose) {
-    printf("Read scene from %s ...\n", filename);
-    printf("  Time = %.2f seconds\n", start_time.Elapsed());
-    printf("  # Nodes = %d\n", scene->NNodes());
-    printf("  # Lights = %d\n", scene->NLights());
+  if (VERBOSE) {
+    int total_photon_count = 0;
+    printf("Built photon map ...\n");
+    printf("  Total Time = %.2f seconds\n", total_start_time.Elapsed());
+    printf("  Photon Tracing = %.2f seconds\n", photon_dur);
+    printf("  KdTree Construction = %.2f seconds\n", kd_dur);
+    if (INDIRECT_ILLUM || DIRECT_PHOTON_ILLUM) {
+      printf("  # Global Photons Stored = %u\n", GLOBAL_PHOTONS.NEntries());
+      total_photon_count += GLOBAL_PHOTONS.NEntries();
+    }
+    if (CAUSTIC_ILLUM) {
+      printf("  # Caustic Photons Stored = %u\n", CAUSTIC_PHOTONS.NEntries());
+      total_photon_count += CAUSTIC_PHOTONS.NEntries();
+    }
+    printf("Total Photons Stored: %u\n", total_photon_count);
     fflush(stdout);
   }
-
-  // Return scene
-  return scene;
 }
-
-
-
-static int
-WriteImage(R2Image *image, const char *filename)
-{
-  // Start statistics
-  RNTime start_time;
-  start_time.Read();
-
-  // Write image to file
-  if (!image->Write(filename)) return 0;
-
-  // Print statistics
-  if (print_verbose) {
-    printf("Wrote image to %s ...\n", filename);
-    printf("  Time = %.2f seconds\n", start_time.Elapsed());
-    printf("  Width = %d\n", image->Width());
-    printf("  Height = %d\n", image->Height());
-    fflush(stdout);
-  }
-
-  // Return success
-  return 1;
-}  
-
-
-
-////////////////////////////////////////////////////////////////////////
-// Program argument parsing
-////////////////////////////////////////////////////////////////////////
-
-static int 
-ParseArgs(int argc, char **argv)
-{
-  // Parse arguments
-  argc--; argv++;
-  while (argc > 0) {
-    if ((*argv)[0] == '-') {
-      if (!strcmp(*argv, "-v")) {
-        print_verbose = 1; 
-      }
-      else if (!strcmp(*argv, "-resolution")) { 
-        argc--; argv++; render_image_width = atoi(*argv); 
-        argc--; argv++; render_image_height = atoi(*argv); 
-      }
-      else { 
-        fprintf(stderr, "Invalid program argument: %s", *argv); 
-        exit(1); 
-      }
-      argv++; argc--;
-    }
-    else {
-      if (!input_scene_name) input_scene_name = *argv;
-      else if (!output_image_name) output_image_name = *argv;
-      else { fprintf(stderr, "Invalid program argument: %s", *argv); exit(1); }
-      argv++; argc--;
-    }
-  }
-
-  // Check scene filename
-  if (!input_scene_name) {
-    fprintf(stderr, "Usage: photonmap inputscenefile [outputimagefile] [-resolution <int> <int>] [-v]\n");
-    return 0;
-  }
-
-  // Return OK status 
-  return 1;
-}
-
-
 
 ////////////////////////////////////////////////////////////////////////
 // Main program
@@ -713,59 +391,49 @@ ParseArgs(int argc, char **argv)
 int main(int argc, char **argv)
 {
   // Parse program arguments
-  if (!ParseArgs(argc, argv)) exit(-1);
+  if (!ParseArgs(argc, argv, input_scene_name, output_image_name, render_image_width,
+    render_image_height, aa, real_material)) exit(-1);
 
   // Read scene
-  scene = ReadScene(input_scene_name);
-  if (!scene) exit(-1);
+  SCENE = ReadScene(input_scene_name, real_material);
+  if (!SCENE) exit(-1);
 
   // Check output image file
   if (output_image_name) {
-    // Set scene viewport
-    scene->SetViewport(R2Viewport(0, 0, render_image_width, render_image_height));
+    // Set useful constants
+    SCENE_RADIUS = SCENE->BBox().DiagonalRadius();
+    SCENE_AMBIENT = SCENE->Ambient();
+    SCENE_NLIGHTS = SCENE->NLights();
+
+    // Generate Photon Map if necessary
+    if (INDIRECT_ILLUM || CAUSTIC_ILLUM || DIRECT_PHOTON_ILLUM) {
+      MapPhotons();
+    }
+
+    // Scale for anti-aliasing
+    int aa_factor = pow(2.0, aa);
+
+    // Set scene viewport (scaled for anti aliasing)
+    SCENE->SetViewport(R2Viewport(0, 0, render_image_width*aa_factor, render_image_height*aa_factor));
 
     // Render image
-    R2Image *image = RenderImage(scene, render_image_width, render_image_height, print_verbose);
+    R2Image *image = RenderImage(aa, render_image_width, render_image_height);
+
+    // Cleanup Photon Map Memory TODO!!!
+
+    // Error Check
     if (!image) exit(-1);
 
     // Write image
     if (!WriteImage(image, output_image_name)) exit(-1);
-    
+
     // Delete image
     delete image;
-  }
-  else {
-    // Initialize GLUT
-    GLUTInit(&argc, argv);
-
-    // Create viewer
-    viewer = new R3Viewer(scene->Viewer());
-    if (!viewer) exit(-1);
-    
-    // Run GLUT interface
-    GLUTMainLoop();
-
-    // Delete viewer (doesn't ever get here)
-    delete viewer;
+  } else {
+    // Launch viewer
+    RunViewer(SCENE, render_image_width, render_image_height, VERBOSE, argc, argv);
   }
 
-  // Return success 
+  // Return success
   return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

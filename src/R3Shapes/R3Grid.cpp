@@ -1863,7 +1863,7 @@ RasterizeGridPoint(RNScalar x, RNScalar y, RNScalar z, RNScalar value, RNLength 
   if (zmax > ZResolution()-1) zmax = ZResolution()-1;
 
   // Compute Gaussian weighting variables
-  double a = sqrt(2.0 * RN_PI) * sigma;
+  double a = sqrt(RN_TWO_PI) * sigma;
   double fac = 1.0 / (a * a * a);
   double denom = 2.0 * sigma * sigma;
 

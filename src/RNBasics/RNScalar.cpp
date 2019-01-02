@@ -5,6 +5,7 @@
 /* Include files */
 
 #include "RNBasics/RNBasics.h"
+#include <random>
 
 
 
@@ -41,10 +42,12 @@ const RNScalar RN_SQRT_THREE = 1.7320508;
 /* Private variables */
 
 static RNBoolean random_seeded = FALSE;
+static __thread std::mt19937 * generator = NULL;
+static std::uniform_real_distribution<RNScalar> distribution(0,1.0);
 
 
 
-int RNInitScalar() 
+int RNInitScalar()
 {
     /* Return OK status */
     return TRUE;
@@ -67,11 +70,11 @@ RNSetInfinity(RNScalar infinity)
        RN_EPSILON = 1.0E-6 * infinity;
        RN_SMALL_EPSILON = 0.1 * RN_EPSILON;
        RN_BIG_EPSILON = 10.0 * RN_EPSILON;
-#   else 
+#   else
        RN_EPSILON = 1.0E-10 * infinity;
        RN_SMALL_EPSILON = 0.1 * RN_EPSILON;
        RN_BIG_EPSILON = 10.0 * RN_EPSILON;
-#endif    
+#endif
 }
 
 
@@ -85,25 +88,58 @@ RNSetEpsilon(RNScalar epsilon)
        RN_INFINITY = 1.0E7 * epsilon;
        RN_SMALL_EPSILON = 0.1 * RN_EPSILON;
        RN_BIG_EPSILON = 10.0 * RN_EPSILON;
-#   else 
+#   else
        RN_INFINITY = 1.0E10 * epsilon;
        RN_SMALL_EPSILON = 0.1 * RN_EPSILON;
        RN_BIG_EPSILON = 10.0 * RN_EPSILON;
-#endif    
+#endif
+}
+
+/* Threadable Random Number Functions */
+void RNInitThreadRandomness(void) {
+  RNSeedThreadRandomness();
+}
+
+/* Threadable Random Number Functions */
+void RNSeedThreadRandomness(RNScalar seed) {
+  if (generator) {
+    RNClearThreadRandomness();
+  }
+  if (seed == 0) {
+    std::random_device rd;
+    generator = new std::mt19937(rd() * rd() * rd());
+  } else {
+    generator = new std::mt19937(1.0E6 * seed);
+  }
+  generator->discard(700000);
+}
+
+/* Threadable Random Number Functions */
+void RNClearThreadRandomness(void) {
+  if (generator) {
+    delete generator;
+    generator = NULL;
+  }
+}
+
+RNScalar RNThreadableRandomScalar(void)
+{
+  if (!generator) {
+    RNInitThreadRandomness();
+  }
+  return distribution(*generator);
 }
 
 
-
 /* Random number functions */
-
-void 
+void
 RNSeedRandomScalar(RNScalar seed)
 {
 #if (RN_OS == RN_WINDOWS)
   if (seed == 0.0) srand(GetTickCount());
   else srand((int) (1.0E6 * seed));
 #else
-  if (seed == 0.0) { 
+  if (seed == 0.0) {
       struct timeval timevalue;
       gettimeofday(&timevalue, NULL);
       srand48(timevalue.tv_usec);
@@ -132,7 +168,7 @@ RNRandomScalar(void)
 
 
 
-int 
+int
 RNCompareScalars(const void *value1, const void *value2)
 {
   const RNScalar *scalar1 = (const RNScalar *) value1;
@@ -144,7 +180,7 @@ RNCompareScalars(const void *value1, const void *value2)
 
 
 
-int 
+int
 RNCompareDoubles(const void *value1, const void *value2)
 {
   const double *double1 = (const double *) value1;
@@ -156,7 +192,7 @@ RNCompareDoubles(const void *value1, const void *value2)
 
 
 
-int 
+int
 RNCompareFloats(const void *value1, const void *value2)
 {
   const float *float1 = (const float *) value1;
@@ -168,7 +204,7 @@ RNCompareFloats(const void *value1, const void *value2)
 
 
 
-int 
+int
 RNCompareInts(const void *value1, const void *value2)
 {
   const int *int1 = (const int *) value1;
@@ -177,6 +213,3 @@ RNCompareInts(const void *value1, const void *value2)
   else if (*int1 > *int2) return 1;
   else return 0;
 }
-
-
-

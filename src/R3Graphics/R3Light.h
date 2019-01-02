@@ -34,12 +34,20 @@ class R3Light {
   	virtual void SetColor(const RNRgb& color);
 
 	// Reflection evaluation functions
-	virtual RNRgb Reflection(const R3Brdf& brdf, const R3Point& eye, 
+	virtual RNRgb Reflection(const R3Brdf& brdf, const R3Point& eye,
 	    const R3Point& point, const R3Vector& normal) const = 0;
-	virtual RNRgb DiffuseReflection(const R3Brdf& brdf, 
+	virtual RNRgb DiffuseReflection(const R3Brdf& brdf,
 	    const R3Point& point, const R3Vector& normal) const = 0;
-	virtual RNRgb SpecularReflection(const R3Brdf& brdf, const R3Point& eye, 
+	virtual RNRgb SpecularReflection(const R3Brdf& brdf, const R3Point& eye,
 	    const R3Point& point, const R3Vector& normal) const = 0;
+
+  // Sampling parameter for area light (improve this implementation?)
+  virtual RNRgb Reflection(const R3Brdf& brdf, const R3Point& eye,
+	    const R3Point& point, const R3Vector& normal, const int max_samples) const = 0;
+	virtual RNRgb DiffuseReflection(const R3Brdf& brdf,
+	    const R3Point& point, const R3Vector& normal, int max_samples) const = 0;
+	virtual RNRgb SpecularReflection(const R3Brdf& brdf, const R3Point& eye,
+	    const R3Point& point, const R3Vector& normal, const int max_samples) const = 0;
 
 	// Draw functions/operations
         virtual void Draw(int i) const = 0;
@@ -72,7 +80,7 @@ extern RNRgb R3ambient_light_color;
 inline R3Scene *R3Light::
 Scene(void) const
 {
-  // Return scene 
+  // Return scene
   return scene;
 }
 
@@ -108,7 +116,7 @@ IsActive(void) const
 inline const RNScalar R3Light::
 Intensity(void) const
 {
-    // Return intensity 
+    // Return intensity
     return intensity;
 }
 
@@ -117,9 +125,6 @@ Intensity(void) const
 inline const RNRgb& R3Light::
 Color(void) const
 {
-    // Return color 
+    // Return color
     return color;
 }
-
-
-

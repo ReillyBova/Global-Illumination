@@ -172,7 +172,7 @@
     <ClCompile Include="png\inflate.c" />
     <ClCompile Include="png\inftrees.c" />
     <ClCompile Include="png\trees.c" />
-    <ClCompile Include="png\uncompr.c" /> 
+    <ClCompile Include="png\uncompr.c" />
     <ClCompile Include="png\zutil.c" />
     <ClCompile Include="jpeg\jcapimin.c" />
     <ClCompile Include="jpeg\jcapistd.c" />
@@ -270,6 +270,7 @@
     <ClCompile Include="R3Graphics\R2Texture.cpp" />
     <ClCompile Include="R3Graphics\R2Viewport.cpp" />
     <ClCompile Include="R3Graphics\R3AreaLight.cpp" />
+    <ClCompile Include="R3Graphics\R3RectLight.cpp" />
     <ClCompile Include="R3Graphics\R3Brdf.cpp" />
     <ClCompile Include="R3Graphics\R3Camera.cpp" />
     <ClCompile Include="R3Graphics\R3Frustum.cpp" />
@@ -411,6 +412,7 @@
     <ClInclude Include="R3Graphics\R2Texture.h" />
     <ClInclude Include="R3Graphics\R2Viewport.h" />
     <ClInclude Include="R3Graphics\R3AreaLight.h" />
+    <ClInclude Include="R3Graphics\R3RectLight.h" />
     <ClInclude Include="R3Graphics\R3Brdf.h" />
     <ClInclude Include="R3Graphics\R3Camera.h" />
     <ClInclude Include="R3Graphics\R3Frustum.h" />

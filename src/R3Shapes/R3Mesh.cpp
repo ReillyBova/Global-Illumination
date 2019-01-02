@@ -21,7 +21,7 @@ RNMark R3mesh_mark = 1;
 ////////////////////////////////////////////////////////////////////////
 
 R3Mesh::
-R3Mesh(void) 
+R3Mesh(void)
   : vertex_block(NULL),
     edge_block(NULL),
     face_block(NULL),
@@ -45,13 +45,13 @@ R3Mesh(const R3Mesh& mesh)
     bbox(mesh.bbox),
     data(NULL)
 {
-  // Copy vertices 
+  // Copy vertices
   vertex_block = new R3MeshVertex [ mesh.NVertices() ];
   for (int i = 0; i < mesh.NVertices(); i++) {
     R3MeshVertex *vertex = mesh.Vertex(i);
     const R3Point& position = mesh.VertexPosition(vertex);
     R3MeshVertex *copy_vertex = this->CreateVertex(position, &vertex_block[i] );
-    if (this->VertexID(copy_vertex) != i) RNAbort("Mismatching vertex id"); 
+    if (this->VertexID(copy_vertex) != i) RNAbort("Mismatching vertex id");
   }
 
   // Copy edges
@@ -65,7 +65,7 @@ R3Mesh(const R3Mesh& mesh)
     R3MeshVertex *copy_v0 = this->Vertex(i0);
     R3MeshVertex *copy_v1 = this->Vertex(i1);
     R3MeshEdge *copy_edge = this->CreateEdge(copy_v0, copy_v1, &edge_block[i] );
-    if (this->EdgeID(copy_edge) != i) RNAbort("Mismatching edge id"); 
+    if (this->EdgeID(copy_edge) != i) RNAbort("Mismatching edge id");
   }
 
   // Copy faces
@@ -82,14 +82,14 @@ R3Mesh(const R3Mesh& mesh)
     R3MeshVertex *copy_v1 = this->Vertex(i1);
     R3MeshVertex *copy_v2 = this->Vertex(i2);
     R3MeshFace *copy_face = this->CreateFace(copy_v0, copy_v1, copy_v2, &face_block[i]);
-    if (this->FaceID(copy_face) != i) RNAbort("Mismatching face id"); 
+    if (this->FaceID(copy_face) != i) RNAbort("Mismatching face id");
   }
 }
 
 
 
 R3Mesh::
-~R3Mesh(void) 
+~R3Mesh(void)
 {
   // Delete everything
   Empty();
@@ -306,7 +306,7 @@ PCANormalizationTransformation(RNBoolean translate, RNBoolean rotate, int scale)
 
   // Translate center of mass to origin
   affine.Translate(-(centroid.Vector()));
-  
+
   // Return PCA normalization transformation
   return affine;
 }
@@ -333,7 +333,7 @@ VertexArea(const R3MeshVertex *v) const
 
 
 
-RNLength R3Mesh:: 
+RNLength R3Mesh::
 VertexAverageEdgeLength(const R3MeshVertex *v) const
 {
   // Check number of edges
@@ -398,7 +398,7 @@ VertexMeanCurvature(const R3MeshVertex *v) const
 R3Vector R3Mesh::
 VertexLaplacianVector(const R3MeshVertex *v1) const
 {
-  // Compute vector from vertex to cotan weighed average of neighbors 
+  // Compute vector from vertex to cotan weighed average of neighbors
   // From http://www.mpi-inf.mpg.de/~ag4-gm/handouts/06gm_surf3.pdf
   R3Vector laplacian = R3zero_vector;
   const R3Point& p1 = VertexPosition(v1);
@@ -417,9 +417,9 @@ VertexLaplacianVector(const R3MeshVertex *v1) const
       R3Vector vec1 = p1 - p3; vec1.Normalize();
       R3Vector vec2 = p2 - p3; vec2.Normalize();
       RNAngle angle = R3InteriorAngle(vec1, vec2);
-      if (angle == 0) continue; 
+      if (angle == 0) continue;
       double tan_angle = tan(angle);
-      if (tan_angle == 0) continue; 
+      if (tan_angle == 0) continue;
       weight += 1.0 / tan_angle;
     }
 
@@ -436,7 +436,7 @@ VertexLaplacianVector(const R3MeshVertex *v1) const
 
 
 
-R3Vector R3Mesh:: 
+R3Vector R3Mesh::
 EdgeDirection(const R3MeshEdge *e) const
 {
   // Returns the normalized vector pointing in direction of the edge
@@ -448,7 +448,7 @@ EdgeDirection(const R3MeshEdge *e) const
 
 
 
-RNAngle R3Mesh:: 
+RNAngle R3Mesh::
 EdgeInteriorAngle(const R3MeshEdge *e) const
 {
   // Get attached faces
@@ -483,7 +483,7 @@ EdgeNormal(const R3MeshEdge *e) const
 
 
 
-RNScalar R3Mesh:: 
+RNScalar R3Mesh::
 EdgeAspect(const R3MeshEdge *e) const
 {
   // Get attached faces
@@ -506,7 +506,7 @@ EdgeAspect(const R3MeshEdge *e) const
 
 
 
-RNScalar R3Mesh:: 
+RNScalar R3Mesh::
 FaceAspect(const R3MeshFace *f) const
 {
   R3MeshEdge *e0 = EdgeOnFace(f, 0);
@@ -694,10 +694,10 @@ EdgeOnVertex(const R3MeshVertex *v, const R3MeshFace *f, RNDirection dir) const
 
 
 
-R3MeshEdge *R3Mesh:: 
+R3MeshEdge *R3Mesh::
 EdgeAcrossVertex(const R3MeshVertex *v, const R3MeshEdge *e, const R3MeshFace *f) const
 {
-  // Returns edge on the other side of a vertex from an edge on the same face 
+  // Returns edge on the other side of a vertex from an edge on the same face
   if (v == f->vertex[0]) {
     if (e == f->edge[0]) return f->edge[2];
     else if (e == f->edge[2]) return f->edge[0];
@@ -885,7 +885,7 @@ Smooth(void)
         position += w * neighbor_position;
         weight += w;
       }
-      
+
       // Update vertex position
       R3Point smooth_position = position / weight;
       SetVertexPosition(vertex, smooth_position);
@@ -945,7 +945,7 @@ AddRandomNoise(RNScalar factor)
   for (int i = 0; i < NVertices(); i++) {
     R3MeshVertex *vertex = Vertex(i);
     RNLength max_distance = factor * VertexAverageEdgeLength(vertex);
-    R3Vector random_vector(RNRandomScalar(), RNRandomScalar(), RNRandomScalar());
+    R3Vector random_vector(RNThreadableRandomScalar(), RNThreadableRandomScalar(), RNThreadableRandomScalar());
     vertex->position += max_distance * random_vector;
     vertex->flags.Remove(R3_MESH_VERTEX_NORMAL_UPTODATE);
     bbox.Union(vertex->position);
@@ -1268,7 +1268,7 @@ DeleteVertex(R3MeshVertex *v)
 {
   // Delete edges attached to vertex
   RNArray<R3MeshEdge *> vertex_edges = v->edges;
-  for (int i = 0; i < vertex_edges.NEntries(); i++) 
+  for (int i = 0; i < vertex_edges.NEntries(); i++)
     DeleteEdge(vertex_edges.Kth(i));
 
   // Deallocate vertex
@@ -1368,9 +1368,9 @@ MergeVertex(R3MeshVertex *v1, R3MeshVertex *v2)
       for (int j = 0; j < VertexValence(v2); j++) {
         e2 = EdgeOnVertex(v2, j);
         R3MeshVertex *ve2 = VertexAcrossEdge(e2, v2);
-        if (ve1 == ve2) { 
-          v3 = ve1; 
-          break; 
+        if (ve1 == ve2) {
+          v3 = ve1;
+          break;
         }
       }
     }
@@ -1462,12 +1462,12 @@ MergeVertex(R3MeshVertex *v1, R3MeshVertex *v2)
   for (int i = 0; i < v2->edges.NEntries(); i++) {
     R3MeshEdge *e2 = v2->edges.Kth(i);
 
-    // Update edge-vertex relations 
+    // Update edge-vertex relations
     for (int j = 0; j < 2; j++) {
       if (e2->vertex[j] == v2) e2->vertex[j] = v1;
     }
 
-    // Update face-vertex relations 
+    // Update face-vertex relations
     for (int j = 0; j < 2; j++) {
       R3MeshEdge *f2 = e2->face[j];
       for (int k = 0; k < 3; k++) {
@@ -1475,10 +1475,10 @@ MergeVertex(R3MeshVertex *v1, R3MeshVertex *v2)
       }
     }
 
-    // Update vertex-edge relations 
+    // Update vertex-edge relations
     v1->edges.Insert(e2);
   }
- 
+
   // Deallocate vertex
   DeallocateVertex(v2);
 
@@ -1602,14 +1602,14 @@ CollapseEdge(R3MeshEdge *edge, const R3Point& point)
     vf[1]->edges.Remove(ef[1][1]);
   }
 
-  // Update edge-vertex relations (v[1]->v[0]) 
+  // Update edge-vertex relations (v[1]->v[0])
   for (int i = 0; i < v[1]->edges.NEntries(); i++) {
     R3MeshEdge *ev = v[1]->edges[i];
     for (int j = 0; j < 2; j++) {
       if (ev->vertex[j] == v[1]) ev->vertex[j] = v[0];
     }
   }
-  
+
   // Update edge-face relations (ef[i][1]->ef[i][0])
   for (int i = 0; i < 2; i++) {
     if (!f[i]) continue;
@@ -1631,7 +1631,7 @@ CollapseEdge(R3MeshEdge *edge, const R3Point& point)
       }
     }
   }
-  
+
   // Update face-edge relations (ef[i][1]->ef[i][0])
   for (int i = 0; i < 2; i++) {
     if (!f[i]) continue;
@@ -1643,7 +1643,7 @@ CollapseEdge(R3MeshEdge *edge, const R3Point& point)
     }
   }
 
-  // Deallocate faces 
+  // Deallocate faces
   if (f[0]) DeallocateFace(f[0]);
   if (f[1]) DeallocateFace(f[1]);
 
@@ -1661,7 +1661,7 @@ CollapseEdge(R3MeshEdge *edge, const R3Point& point)
   // Return remaining vertex
   return v[0];
 #else
-  // Set vertex position 
+  // Set vertex position
   SetVertexPosition(v[0], point);
 
   // Make arrays of everything attached to v[1]
@@ -1684,9 +1684,9 @@ CollapseEdge(R3MeshEdge *edge, const R3Point& point)
   }
 
   // Remove everything attached to v1
-  for (int i = 0; i < faces_to_remove.NEntries(); i++) 
+  for (int i = 0; i < faces_to_remove.NEntries(); i++)
     DeleteFace(faces_to_remove[i]);
-  for (int i = 0; i < edges_to_remove.NEntries(); i++) 
+  for (int i = 0; i < edges_to_remove.NEntries(); i++)
     DeleteEdge(edges_to_remove[i]);
   DeleteVertex(v[1]);
 
@@ -1808,7 +1808,7 @@ SplitEdge(R3MeshEdge *edge, const R3Point& point, R3MeshEdge **e0, R3MeshEdge **
   if (f[1]) {
     // Create edge splitting f[1]
     R3MeshEdge *es = CreateEdge(vertex, vf[1]);
-    
+
     // Create new face on v[1] side of split
     assert((vf[1] != v[1]) && (vf[1] != vertex) && (v[1] != vertex));
     assert((ef[1][1] != e[1]) && (ef[1][1] != es) && (e[1] != es));
@@ -1889,7 +1889,7 @@ SplitFace(R3MeshFace *f, const R3Point& point, R3MeshFace **f0, R3MeshFace **f1,
   R3MeshFace *t0 = CreateFace(vertex, v0, v1, s0, e0, s1);
   R3MeshFace *t1 = CreateFace(vertex, v1, v2, s1, e1, s2);
   R3MeshFace *t2 = CreateFace(vertex, v2, v0, s2, e2, s0);
-  
+
   // Set face materials
   SetFaceMaterial(t0, m);
   SetFaceMaterial(t1, m);
@@ -1933,10 +1933,10 @@ SubdivideFace(R3MeshFace *f)
   R3MeshVertex *ve2 = SubdivideEdge(e2);
 
   // Create new faces
-  R3MeshFace *f1 = CreateFace(v0, ve0, ve2);  
-  R3MeshFace *f2 = CreateFace(v1, ve1, ve0);  
-  R3MeshFace *f3 = CreateFace(v2, ve2, ve1);  
-  R3MeshFace *f4 = CreateFace(ve0, ve1, ve2);  
+  R3MeshFace *f1 = CreateFace(v0, ve0, ve2);
+  R3MeshFace *f2 = CreateFace(v1, ve1, ve0);
+  R3MeshFace *f3 = CreateFace(v2, ve2, ve1);
+  R3MeshFace *f4 = CreateFace(ve0, ve1, ve2);
 
   // Set face materials
   SetFaceMaterial(f1, m);
@@ -2044,7 +2044,7 @@ FlipFace(R3MeshFace *f)
 
 
 
-static RNScalar 
+static RNScalar
 EdgeLengthCallback(R3MeshEdge *edge, void *data)
 {
   // Return value associated with edge for heap sorting
@@ -2079,8 +2079,8 @@ CollapseShortEdges(RNLength min_edge_length)
 
     // Remove edges to be deleted from queue (e01, e11)
     R3MeshVertex *v1 = VertexOnEdge(edge, 1);
-    R3MeshFace *f0 = FaceOnEdge(edge, 0);  
-    R3MeshFace *f1 = FaceOnEdge(edge, 1);  
+    R3MeshFace *f0 = FaceOnEdge(edge, 0);
+    R3MeshFace *f1 = FaceOnEdge(edge, 1);
     R3MeshEdge *e01 = (f0) ? EdgeAcrossVertex(v1, edge, f0) : NULL;
     R3MeshEdge *e11 = (f1) ? EdgeAcrossVertex(v1, edge, f1) : NULL;
     if (e01) { heap.Remove(e01); SetEdgeMark(e01, 0); }
@@ -2201,7 +2201,7 @@ SubdivideFaces(void)
 // EDGE SWAPPING FUNCTIONS
 ////////////////////////////////////////////////////////////////////////
 
-static RNScalar 
+static RNScalar
 R3MeshEdgeSwapValue(R3Mesh *mesh, R3MeshEdge *e)
 {
   // Get/check faces
@@ -2414,7 +2414,7 @@ FillHoleBoundary(R3Mesh *mesh, R3MeshBoundaryVertexData *head)
     R3MeshFace *face = mesh->CreateFace(prev_vertex, vertex, next_vertex);
     if (!face) { /* ERROR */ return; }
 
-    // Update edge 
+    // Update edge
     vdata->prev->edge = mesh->EdgeAcrossFace(face, vertex);
 
     // Remove vdata from linked list
@@ -2464,7 +2464,7 @@ FillHole(R3MeshEdge *seed_edge)
 {
   // Check if seed edge is on boundary
   R3MeshFace *seed_face = FaceOnEdge(seed_edge);
-  if (!seed_face) return; 
+  if (!seed_face) return;
   if (FaceAcrossEdge(seed_edge, seed_face)) return;
   R3MeshVertex *seed_vertex = VertexOnEdge(seed_edge, seed_face, RN_CCW);
 
@@ -2476,7 +2476,7 @@ FillHole(R3MeshEdge *seed_edge)
   R3MeshVertex *vertex = seed_vertex;
   // R3MeshFace *face = seed_face;
   do {
-    // Create boundary vertex 
+    // Create boundary vertex
     R3MeshBoundaryVertexData *vdata = new R3MeshBoundaryVertexData();
     vdata->vertex = vertex;
     vdata->edge = edge;
@@ -2494,7 +2494,7 @@ FillHole(R3MeshEdge *seed_edge)
     vdata->prev = tail;
     tail = vdata;
 
-    // Update vdata error 
+    // Update vdata error
     if (vdata->prev) {
       R3MeshVertex *prev_vertex = vdata->prev->vertex;
       R3MeshVertex *next_vertex = VertexAcrossEdge(vdata->edge, vdata->vertex);
@@ -2526,10 +2526,10 @@ FillHole(R3MeshEdge *seed_edge)
         head = vdata;
         vdata = head->prev;
         head->prev = NULL;
-        while (vdata) { 
-          R3MeshBoundaryVertexData *prev = vdata->prev; 
-          delete vdata; 
-          vdata = prev; 
+        while (vdata) {
+          R3MeshBoundaryVertexData *prev = vdata->prev;
+          delete vdata;
+          vdata = prev;
         }
 
         // Now have a complete loop
@@ -2543,8 +2543,8 @@ FillHole(R3MeshEdge *seed_edge)
       R3MeshFace *f = FaceOnVertex(vertex, e, RN_CCW);
       if (!f) { assert(e != edge); edge = e; break; }
       e = EdgeOnFace(f, vertex, RN_CW);
-      if (!e || (e == edge)) return; 
-    } 
+      if (!e || (e == edge)) return;
+    }
 
     // Find next face
     // face = FaceOnVertex(vertex, edge, RN_CW);
@@ -2556,7 +2556,7 @@ FillHole(R3MeshEdge *seed_edge)
     head->prev = tail;
     tail->next = head;
 
-    // Update head error 
+    // Update head error
     if (head) {
       R3MeshBoundaryVertexData *vdata = head;
       R3MeshVertex *prev_vertex = vdata->prev->vertex;
@@ -2638,7 +2638,7 @@ void R3Mesh::
 DrawFaces(void) const
 {
   // Draw all faces
-  for (int i = 0; i < faces.NEntries(); i++) 
+  for (int i = 0; i < faces.NEntries(); i++)
     DrawFace(faces[i]);
 }
 
@@ -2701,7 +2701,7 @@ DrawFaceIDs(void) const
 void R3Mesh::
 DrawVertex(R3MeshVertex *v) const
 {
-  // Draw box around vertex 
+  // Draw box around vertex
   RNScalar d = 0.001 * BBox().LongestAxisLength();
   R3Sphere(v->position, d).Draw();
 }
@@ -2751,7 +2751,7 @@ Intersection(const R3Ray& ray, R3MeshIntersection *intersection) const
     intersection->t = RN_INFINITY;
   }
 
-  // Check bounding box for intersection 
+  // Check bounding box for intersection
   if (R3Intersects(ray, bbox)) {
     // Check each face to find closest intersection
     RNScalar min_t = FLT_MAX;
@@ -2922,7 +2922,7 @@ Intersection(const R3Ray& ray, R3MeshFace *f, R3MeshIntersection *intersection) 
             intersection->face = f;
             intersection->t = t;
           }
-        }                      
+        }
         else {
           if (RNIsZero(b, 0.01)) {
             type = R3_MESH_EDGE_TYPE;
@@ -2993,7 +2993,7 @@ ClosestPointOnEdge(const R3MeshEdge *e, const R3Point& point, R3MeshIntersection
   if (t <= 0) p = p0;
   else if (t >= edge_length) p = p1;
   else p = p0 + t * edge_vector;
-  
+
   // Fill in closest point info
   if (closest_point) {
     closest_point->edge = (R3MeshEdge *) e;
@@ -3138,8 +3138,8 @@ RandomPointOnFace(const R3MeshFace *face) const
 
 
   // Return random point on face
-  RNScalar r1 = sqrt(RNRandomScalar());
-  RNScalar r2 = RNRandomScalar();
+  RNScalar r1 = sqrt(RNThreadableRandomScalar());
+  RNScalar r2 = RNThreadableRandomScalar();
   R3Point p = p0 * (1.0 - r1) + p1 * r1 * (1.0 - r2) + p2 * r1 * r2;
   return p;
 }
@@ -3164,7 +3164,7 @@ struct R3MeshGeodesicBeam {
 
 
 static void
-R3MeshCreateGeodesicBeamsForVertex(const R3Mesh *mesh, const R3MeshVertex *source, 
+R3MeshCreateGeodesicBeamsForVertex(const R3Mesh *mesh, const R3MeshVertex *source,
   RNLength max_distance, RNLength distance_to_source, R3MeshGeodesicBeam *parent,
   RNLength *vertex_distances, RNLength *edge_distances, RNLength *face_distances,
   RNHeap<R3MeshGeodesicBeam *>& heap, RNArray<R3MeshGeodesicBeam *>& beams)
@@ -3221,7 +3221,7 @@ R3MeshCreateGeodesicBeamsForVertex(const R3Mesh *mesh, const R3MeshVertex *sourc
     beams.Insert(beam);
   }
 }
- 
+
 
 
 static RNBoolean
@@ -3264,7 +3264,7 @@ GeodesicDistances(const R3MeshVertex *source_vertex, RNLength max_distance) cons
   R3MeshGeodesicBeam tmp;
   RNHeap<R3MeshGeodesicBeam *> heap(&tmp, &(tmp.distance));
   RNArray<R3MeshGeodesicBeam *> beams;
-  R3MeshCreateGeodesicBeamsForVertex(this, source_vertex, max_distance, 0, NULL, 
+  R3MeshCreateGeodesicBeamsForVertex(this, source_vertex, max_distance, 0, NULL,
     vertex_distances, edge_distances, face_distances, heap, beams);
   for (int i = 0; i < VertexValence(source_vertex); i++) {
     R3MeshEdge *e = EdgeOnVertex(source_vertex, i);
@@ -3272,7 +3272,7 @@ GeodesicDistances(const R3MeshVertex *source_vertex, RNLength max_distance) cons
     edge_distances [EdgeID(e)] = EdgeLength(e);
     vertex_distances [VertexID(vertex)] = EdgeLength(e);
     if (R3MeshVertexIsSaddleOrBoundary(this, vertex)) {
-      R3MeshCreateGeodesicBeamsForVertex(this, vertex, max_distance, EdgeLength(e), NULL, 
+      R3MeshCreateGeodesicBeamsForVertex(this, vertex, max_distance, EdgeLength(e), NULL,
         vertex_distances, edge_distances, face_distances, heap, beams);
     }
   }
@@ -3338,13 +3338,13 @@ GeodesicDistances(const R3MeshVertex *source_vertex, RNLength max_distance) cons
       R3Vector span_normal = R3posz_vector % span_vector; span_normal.Normalize();
       R3Plane span_plane(edge_span.Midpoint(), span_normal);
       if (RNIsPositive(R3SignedDistance(span_plane, R3zero_point))) continue;
-      
+
       // Check for edge-beam intersection
       // RNScalar left_dcw = R3SignedDistance(left_plane, edge_span.End());
       // if (RNIsNegative(left_dcw)) continue;
       // RNScalar right_dccw = R3SignedDistance(right_plane, edge_span.Start());
       // if (RNIsNegative(right_dccw)) continue;
-        
+
       // Clip edge span to beam
       if (!edge_span.Clip(left_plane)) continue;
       if (!edge_span.Clip(right_plane)) continue;
@@ -3427,10 +3427,10 @@ GeodesicDistances(const R3MeshVertex *source_vertex, RNLength max_distance) cons
         }
 
         // Spawn beam from "across" vertex if it is a visible saddle or boundary
-        if (vertex_visible && (vertex == VertexAcrossFace(face, beam->edge))) { 
+        if (vertex_visible && (vertex == VertexAcrossFace(face, beam->edge))) {
           if (RNIsLess(vertex_distance, old_vertex_distance)) {
             if (R3MeshVertexIsSaddleOrBoundary(this, vertex)) {
-              R3MeshCreateGeodesicBeamsForVertex(this, vertex, max_distance, vertex_distance, beam, 
+              R3MeshCreateGeodesicBeamsForVertex(this, vertex, max_distance, vertex_distance, beam,
                 vertex_distances, edge_distances, face_distances, heap, beams);
             }
           }
@@ -3793,7 +3793,7 @@ TracePath(const R3MeshVertex *source_vertex, const R3Vector& tangent_direction, 
       cur_edge = edge;
       break;
     }
-  }      
+  }
 
   // Get next distance and direction
   RNLength cur_distance = R3Distance(cur_position, source_position);
@@ -3834,20 +3834,20 @@ TracePath(const R3MeshVertex *source_vertex, const R3Vector& tangent_direction, 
       if (final_face) *final_face = cur_face;
       return cur_distance;
     }
-    
-    // Get next direction 
+
+    // Get next direction
     R3Vector cur_face_normal = FaceNormal(cur_face);
     R3Vector next_face_normal = FaceNormal(next_face);
     R4Matrix matrix = R4identity_matrix;
     matrix.Rotate(cur_face_normal, next_face_normal);
     R3Vector next_direction = matrix * cur_direction;
     next_direction.Normalize();
-    
+
     // Get plane splitting next face along next_direction
-    R3Vector split_plane_normal = next_face_normal % next_direction;  
+    R3Vector split_plane_normal = next_face_normal % next_direction;
     split_plane_normal.Normalize();
     R3Plane split_plane(cur_position, split_plane_normal);
-    
+
     // Get next edge and position
     R3MeshVertex *vertex = VertexAcrossFace(next_face, cur_edge);
     R3Point next_position = VertexPosition(vertex);
@@ -3912,13 +3912,13 @@ ReadFile(const char *filename)
   else if (!strncmp(extension, ".ray", 4))  {
     if (!ReadRayFile(filename)) return 0;
   }
-  else if (!strncmp(extension, ".ply", 4)) { 
+  else if (!strncmp(extension, ".ply", 4)) {
     if (!ReadPlyFile(filename)) return 0;
   }
-  else if (!strncmp(extension, ".cat", 4)) { 
+  else if (!strncmp(extension, ".cat", 4)) {
     if (!ReadCattFile(filename)) return 0;
   }
-  else if (!strncmp(extension, ".ifs", 4)) { 
+  else if (!strncmp(extension, ".ifs", 4)) {
     if (!ReadIfsFile(filename)) return 0;
   }
   else if (!strncmp(extension, ".stl", 4))  {
@@ -4013,7 +4013,7 @@ ReadObjFile(const char *filename)
       R3MeshVertex *v2 = vertices.Kth(i2-1);
       R3MeshVertex *v3 = vertices.Kth(i3-1);
       R3MeshVertex *v4 = (quad) ? vertices.Kth(i4-1) : NULL;
-      
+
       // Check vertices
       if ((v1 == v2) || (v2 == v3) || (v1 == v3)) continue;
       if ((quad) && ((v4 == v1) || (v4 == v2) || (v4 == v3))) quad = 0;
@@ -4138,7 +4138,7 @@ ReadOffFile(const char *filename)
       vertex_count++;
     }
     else if (face_count < nfaces) {
-      // Read number of vertices in face 
+      // Read number of vertices in face
       int face_nverts = 0;
       bufferp = strtok(bufferp, " \t");
       if (bufferp) face_nverts = atoi(bufferp);
@@ -4189,6 +4189,7 @@ ReadOffFile(const char *filename)
       break;
     }
   }
+
 
   // Create degenerate triangles
   for (int i = 0; i <= degenerate_triangle_vertices.NEntries()-3; i+=3) {
@@ -4281,7 +4282,7 @@ ReadRayFile(const char *filename)
       // Increment triangle counter
       triangle_count++;
     }
-	
+
     // Increment command number
     command_number++;
   }
@@ -4312,8 +4313,8 @@ ReadRayFile(const char *filename)
 
 
 static void
-CreatePlyRangeGridFace(R3Mesh *mesh, 
-  R3MeshVertex *v0, R3MeshVertex *v1, R3MeshVertex *v2, 
+CreatePlyRangeGridFace(R3Mesh *mesh,
+  R3MeshVertex *v0, R3MeshVertex *v1, R3MeshVertex *v2,
   RNScalar max_aspect_ratio = 8)
 {
   // Get vertex positions
@@ -4387,8 +4388,8 @@ ReadPlyFile(const char *filename)
     int *verts;
   } PlyRangeGrid;
 
-  // List of property information for a vertex 
-  static PlyProperty vert_props[] = { 
+  // List of property information for a vertex
+  static PlyProperty vert_props[] = {
     {(char *) "x", PLY_FLOAT, PLY_FLOAT, offsetof(PlyVertex,x), 0, 0, 0, 0},
     {(char *) "y", PLY_FLOAT, PLY_FLOAT, offsetof(PlyVertex,y), 0, 0, 0, 0},
     {(char *) "z", PLY_FLOAT, PLY_FLOAT, offsetof(PlyVertex,z), 0, 0, 0, 0},
@@ -4400,19 +4401,19 @@ ReadPlyFile(const char *filename)
     {(char *) "blue", PLY_UCHAR, PLY_UCHAR, offsetof(PlyVertex,blue), 0, 0, 0, 0}
   };
 
-  // List of property information for a face 
-  static PlyProperty face_props[] = { 
+  // List of property information for a face
+  static PlyProperty face_props[] = {
     {(char *) "vertex_indices", PLY_INT, PLY_INT, offsetof(PlyFace,verts), 1, PLY_UCHAR, PLY_UCHAR, offsetof(PlyFace,nverts)},
     {(char *) "material_id", PLY_INT, PLY_INT, offsetof(PlyFace,material), 0, 0, 0, 0},
     {(char *) "segment_id", PLY_INT, PLY_INT, offsetof(PlyFace,segment), 0, 0, 0, 0}
   };
 
   // List of property information for a range_grid
-  static PlyProperty range_grid_props[] = { 
+  static PlyProperty range_grid_props[] = {
     {(char *) "vertex_indices", PLY_INT, PLY_INT, offsetof(PlyFace,verts), 1, PLY_UCHAR, PLY_UCHAR, offsetof(PlyFace,nverts)},
   };
 
-  // Open file 
+  // Open file
   fp = fopen(filename, "rb");
   if (!fp) {
     RNFail("Unable to open file: %s", filename);
@@ -4426,13 +4427,13 @@ ReadPlyFile(const char *filename)
     fclose(fp);
     return 0;
   }
-  
+
   // Get header info
   ply_get_info (ply, &version, &file_type);
 
   // Read all elements
   for (i = 0; i < nelems; i++) {
-    // Get the description of the element 
+    // Get the description of the element
     elem_name = elist[i];
     plist = ply_get_element_description (ply, elem_name, &num_elems, &nprops);
 
@@ -4444,24 +4445,24 @@ ReadPlyFile(const char *filename)
       // Resize array of vertices
       vertices.Resize(num_elems);
 
-      // set up for getting vertex elements 
+      // set up for getting vertex elements
       RNBoolean has_normals = 0;
       RNBoolean has_colors = 0;
       for (j = 0; j < nprops; j++) {
 	if (equal_strings("x", plist[j]->name)) ply_get_property (ply, elem_name, &vert_props[0]);
 	else if (equal_strings("y", plist[j]->name)) ply_get_property (ply, elem_name, &vert_props[1]);
 	else if (equal_strings("z", plist[j]->name)) ply_get_property (ply, elem_name, &vert_props[2]);
-	else if (equal_strings("nx", plist[j]->name)) ply_get_property (ply, elem_name, &vert_props[3]); 
-	else if (equal_strings("ny", plist[j]->name)) ply_get_property (ply, elem_name, &vert_props[4]); 
+	else if (equal_strings("nx", plist[j]->name)) ply_get_property (ply, elem_name, &vert_props[3]);
+	else if (equal_strings("ny", plist[j]->name)) ply_get_property (ply, elem_name, &vert_props[4]);
 	else if (equal_strings("nz", plist[j]->name)) ply_get_property (ply, elem_name, &vert_props[5]);
-	else if (equal_strings("red", plist[j]->name)) ply_get_property (ply, elem_name, &vert_props[6]); 
-	else if (equal_strings("green", plist[j]->name)) ply_get_property (ply, elem_name, &vert_props[7]); 
+	else if (equal_strings("red", plist[j]->name)) ply_get_property (ply, elem_name, &vert_props[6]);
+	else if (equal_strings("green", plist[j]->name)) ply_get_property (ply, elem_name, &vert_props[7]);
 	else if (equal_strings("blue", plist[j]->name)) ply_get_property (ply, elem_name, &vert_props[8]);
 	if (equal_strings("nx", plist[j]->name)) has_normals = 1;
 	else if (equal_strings("red", plist[j]->name)) has_colors = 1;
       }
 
-      // grab all the vertex elements 
+      // grab all the vertex elements
       for (j = 0; j < num_elems; j++) {
         // Read vertex into local struct
         PlyVertex plyvertex;
@@ -4484,7 +4485,7 @@ ReadPlyFile(const char *filename)
       // Resize array of faces
       faces.Resize(num_elems);
 
-      // set up for getting face elements 
+      // set up for getting face elements
       for (j = 0; j < nprops; j++) {
 	if (equal_strings("vertex_indices", plist[j]->name)) ply_get_property (ply, elem_name, &face_props[0]);
 	else if (equal_strings("material_id", plist[j]->name)) ply_get_property (ply, elem_name, &face_props[1]);
@@ -4497,7 +4498,7 @@ ReadPlyFile(const char *filename)
       int *degenerate_triangle_segments = new int [ num_elems ];
       int num_degenerate_triangles = 0;
 
-      // grab all the face elements 
+      // grab all the face elements
       for (j = 0; j < num_elems; j++) {
         // Read face into local struct
         PlyFace plyface;
@@ -4547,7 +4548,7 @@ ReadPlyFile(const char *filename)
         // Free face data allocated by ply
         if (plyface.verts) free(plyface.verts);
       }
-      
+
       // Create degenerate triangles (do this at end to preserve face ordering)
       for (int i = 0; i < num_degenerate_triangles; i++) {
         R3MeshVertex *v1 = degenerate_triangle_vertices.Kth(3*i + 0);
@@ -4600,7 +4601,7 @@ ReadPlyFile(const char *filename)
         R3MeshVertex **vertex_grid = new R3MeshVertex * [num_elems];
         for (j = 0; j < num_elems; j++) vertex_grid[j] = NULL;
 
-        // set up for getting range grid elements 
+        // set up for getting range grid elements
         for (j = 0; j < nprops; j++) {
           if (equal_strings("vertex_indices", plist[j]->name)) ply_get_property (ply, elem_name, &range_grid_props[0]);
         }
@@ -4671,7 +4672,7 @@ ReadPlyFile(const char *filename)
     }
   }
 
-  // Close the file 
+  // Close the file
   ply_close (ply);
 
   // Return success
@@ -4780,7 +4781,7 @@ ReadCattFile(const char *filename)
       }
     }
   }
-    
+
   // Create degenerate triangles
   for (int i = 0; i <= degenerate_triangle_vertices.NEntries()-3; i+=3) {
     R3MeshVertex *v1 = degenerate_triangle_vertices.Kth(i+0);
@@ -4802,11 +4803,11 @@ ReadCattFile(const char *filename)
 
   // Return success
   return 1;
-}    
+}
 
 
 
-static int 
+static int
 ReadIfsString(FILE *fp, char *buffer, int maxlength)
 {
   // Read length
@@ -4887,7 +4888,7 @@ ReadIfsFile(const char *filename)
 
   // Allocate block of vertices
   vertex_block = new R3MeshVertex [nverts];
-  
+
   // Resize array of vertices
   vertices.Resize(nverts);
 
@@ -5099,7 +5100,7 @@ ReadVRMLFile(const char *filename)
     if (coordinate3_point_active) {
       if (*bufferp == ']') {
         coordinate3_point_active = FALSE;
-      } 
+      }
       else {
         do {
           if (*bufferp && !isspace(*bufferp)) {
@@ -5125,7 +5126,7 @@ ReadVRMLFile(const char *filename)
       if (*bufferp == ']') {
         indexedfaceset_active = FALSE;
         indexedfaceset_coordindex_active = FALSE;
-      } 
+      }
       else {
         do {
           // Read next coordinate index
@@ -5146,7 +5147,7 @@ ReadVRMLFile(const char *filename)
 
                 // Check vertices
                 if ((v1 == v2) || (v2 == v3) || (v1 == v3)) continue;
- 
+
                 // Create face
                 if (!CreateFace(v1, v2, v3)) {
                   // Must have been degeneracy (e.g., flips or three faces sharing an edge)
@@ -5207,19 +5208,19 @@ WriteFile(const char *filename)
   }
 
   // Write file of appropriate type
-  if (!strncmp(extension, ".ray", 4)) 
+  if (!strncmp(extension, ".ray", 4))
     return WriteRayFile(filename);
-  else if (!strncmp(extension, ".ply", 4)) 
+  else if (!strncmp(extension, ".ply", 4))
     return WritePlyFile(filename);
-  else if (!strncmp(extension, ".obj", 4)) 
+  else if (!strncmp(extension, ".obj", 4))
     return WriteObjFile(filename);
-  else if (!strncmp(extension, ".off", 4)) 
+  else if (!strncmp(extension, ".off", 4))
     return WriteOffFile(filename);
-  else if (!strncmp(extension, ".cat", 4)) 
+  else if (!strncmp(extension, ".cat", 4))
     return WriteCattFile(filename);
-  else if (!strncmp(extension, ".ifs", 4)) 
+  else if (!strncmp(extension, ".ifs", 4))
     return WriteIfsFile(filename);
-  else if (!strncmp(extension, ".stl", 4)) 
+  else if (!strncmp(extension, ".stl", 4))
     return WriteSTLFile(filename);
   else {
     RNFail("Unable to write file %s (unrecognized extension: %s)", filename, extension);
@@ -5285,8 +5286,8 @@ WritePlyFile(const char *filename, RNBoolean binary)
   // Element names
   char *elem_names[] = { (char *) "vertex", (char *) "face" };
 
-  // List of property information for a vertex 
-  static PlyProperty vert_props[] = { 
+  // List of property information for a vertex
+  static PlyProperty vert_props[] = {
     {(char *) "x", PLY_FLOAT, PLY_FLOAT, offsetof(PlyVertex,x), 0, 0, 0, 0},
     {(char *) "y", PLY_FLOAT, PLY_FLOAT, offsetof(PlyVertex,y), 0, 0, 0, 0},
     {(char *) "z", PLY_FLOAT, PLY_FLOAT, offsetof(PlyVertex,z), 0, 0, 0, 0},
@@ -5298,8 +5299,8 @@ WritePlyFile(const char *filename, RNBoolean binary)
     {(char *) "blue", PLY_UCHAR, PLY_UCHAR, offsetof(PlyVertex,blue), 0, 0, 0, 0}
   };
 
-  // List of property information for a vertex 
-  static PlyProperty face_props[] = { 
+  // List of property information for a vertex
+  static PlyProperty face_props[] = {
     {(char *) "vertex_indices", PLY_INT, PLY_INT, offsetof(PlyFace,verts), 1, PLY_UCHAR, PLY_UCHAR, offsetof(PlyFace,nverts)},
     {(char *) "material_id", PLY_INT, PLY_INT, offsetof(PlyFace,material), 0, 0, 0, 0},
     {(char *) "segment_id", PLY_INT, PLY_INT, offsetof(PlyFace,segment), 0, 0, 0, 0}
@@ -5367,7 +5368,7 @@ WritePlyFile(const char *filename, RNBoolean binary)
     ply_put_element(ply, (void *) &ply_face);
   }
 
-  // Close the file 
+  // Close the file
   ply_close(ply);
 
   // Return number of faces written
@@ -5495,7 +5496,7 @@ WriteCattFile(const char *filename)
 
 
 
-static int 
+static int
 WriteIfsString(FILE *fp, const char *buffer)
 {
   // Write length
@@ -5738,11 +5739,11 @@ UpdateVertexNormal(R3MeshVertex *v) const
   for (int i = 0; i < v->edges.NEntries(); i++) {
     R3MeshEdge *e = v->edges[i];
     if (e->vertex[0] == v) {
-      if (e->face[0]) 
+      if (e->face[0])
         v->normal += FaceNormal(e->face[0]);
     }
     else {
-      if (e->face[1]) 
+      if (e->face[1])
         v->normal += FaceNormal(e->face[1]);
     }
   }
@@ -5796,7 +5797,7 @@ UpdateFaceArea(R3MeshFace *f) const
 void R3Mesh::
 UpdateFacePlane(R3MeshFace *f) const
 {
-  // Reset plane 
+  // Reset plane
   f->plane = R3Plane(f->vertex[0]->position, f->vertex[1]->position, f->vertex[2]->position);
 
   // Update flags
@@ -5851,8 +5852,8 @@ UpdateFaceRefs(R3MeshFace *f,
   v2->flags.Remove(R3_MESH_VERTEX_NORMAL_UPTODATE | R3_MESH_VERTEX_CURVATURE_UPTODATE);
   v3->flags.Remove(R3_MESH_VERTEX_NORMAL_UPTODATE | R3_MESH_VERTEX_CURVATURE_UPTODATE);
 }
- 
-   
+
+
 
 ////////////////////////////////////////////////////////////////////////
 // EUCLIDEAN DISTANCE FUNCTIONS
@@ -5872,7 +5873,7 @@ R3Distance(R3Mesh *mesh, R3MeshVertex *vertex, const R3Point& point, R3MeshInter
     closest_point->edge = NULL;
     closest_point->face = NULL;
     closest_point->point = vertex_position;
-    closest_point->t = distance; 
+    closest_point->t = distance;
   }
 
   // Return distance
@@ -5881,7 +5882,7 @@ R3Distance(R3Mesh *mesh, R3MeshVertex *vertex, const R3Point& point, R3MeshInter
 
 
 
-RNLength 
+RNLength
 R3Distance(R3Mesh *mesh, R3MeshEdge *edge, const R3Point& point, R3MeshIntersection* closest_point)
 {
   // Compute distance from edge to point
@@ -5892,7 +5893,7 @@ R3Distance(R3Mesh *mesh, R3MeshEdge *edge, const R3Point& point, R3MeshIntersect
   if (closest_point) {
     closest_point->edge = edge;
     closest_point->face = NULL;
-    closest_point->t = distance; 
+    closest_point->t = distance;
     RNScalar edge_t = edge_span.T(point);
     if (RNIsEqual(edge_t, 0)) {
       R3MeshVertex *vertex = mesh->VertexOnEdge(edge, 0);
@@ -5920,7 +5921,7 @@ R3Distance(R3Mesh *mesh, R3MeshEdge *edge, const R3Point& point, R3MeshIntersect
 
 
 RNLength
-R3Distance(R3Mesh *mesh, R3MeshFace *face, const R3Point& point, R3MeshIntersection *closest_point) 
+R3Distance(R3Mesh *mesh, R3MeshFace *face, const R3Point& point, R3MeshIntersection *closest_point)
 {
   // Compute projection of point onto face plane
   const R3Plane& plane = mesh->FacePlane(face);
@@ -5977,7 +5978,7 @@ R3Distance(R3Mesh *mesh, R3MeshFace *face, const R3Point& point, R3MeshIntersect
 ////////////////////////////////////////////////////////////////////////
 
 R3MeshVertex::
-R3MeshVertex(void) 
+R3MeshVertex(void)
   : position(0.0, 0.0, 0.0),
     normal(0.0, 0.0, 0.0),
     color(0.0, 0.0, 0.0),
@@ -5993,14 +5994,14 @@ R3MeshVertex(void)
 
 
 R3MeshVertex::
-~R3MeshVertex(void) 
+~R3MeshVertex(void)
 {
 }
 
 
 
 R3MeshEdge::
-R3MeshEdge(void) 
+R3MeshEdge(void)
   : length(0),
     id(-1),
     flags(0),
@@ -6016,14 +6017,14 @@ R3MeshEdge(void)
 
 
 R3MeshEdge::
-~R3MeshEdge(void) 
+~R3MeshEdge(void)
 {
 }
 
 
 
 R3MeshFace::
-R3MeshFace(void) 
+R3MeshFace(void)
   : plane(0.0, 0.0, 0.0, 0.0),
     bbox(1.0, 1.0, 1.0, -1.0, -1.0, -1.0),
     material(-1),
@@ -6042,10 +6043,6 @@ R3MeshFace(void)
 
 
 R3MeshFace::
-~R3MeshFace(void) 
+~R3MeshFace(void)
 {
 }
-
-
-
-

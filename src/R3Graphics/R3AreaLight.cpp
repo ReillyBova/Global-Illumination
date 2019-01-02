@@ -1,18 +1,12 @@
 /* Source file for the R3 light class */
 
-
-
 /* Include files */
 
 #include "R3Graphics.h"
 
-
-
 /* Public variables */
 
 R3AreaLight R3null_area_light;
-
-
 
 /* Class type definitions */
 
@@ -22,7 +16,7 @@ RN_CLASS_TYPE_DEFINITIONS(R3AreaLight);
 
 /* Public functions */
 
-int 
+int
 R3InitAreaLight()
 {
     /* Return success */
@@ -31,7 +25,7 @@ R3InitAreaLight()
 
 
 
-void 
+void
 R3StopAreaLight()
 {
 }
@@ -124,15 +118,11 @@ SetQuadraticAttenuation(RNScalar qa)
   this->quadratic_attenuation = qa;
 }
 
-
-
 RNRgb R3AreaLight::
-DiffuseReflection(const R3Brdf& brdf, 
-    const R3Point& point, const R3Vector& normal) const
+DiffuseReflection(const R3Brdf& brdf,
+    const R3Point& point, const R3Vector& normal, int max_samples) const
 {
-    // Parameter ????
-    const int max_samples = 4;
-
+    max_samples = ceil(max_samples/2);
     // Check if light is active
     if (!IsActive()) return RNblack_rgb;
 
@@ -144,41 +134,64 @@ DiffuseReflection(const R3Brdf& brdf,
 
     // Get circle axes
     R3Vector direction = circle.Normal();
+    R3Point center = Position();
+
+    // Check normal direction
+    if (direction.Dot(point - center) < 0) {
+      return RNblack_rgb;
+    }
+
     RNDimension dim = direction.MinDimension();
     R3Vector axis1 = direction % R3xyz_triad[dim];
     axis1.Normalize();
     R3Vector axis2 = direction % axis1;
     axis2.Normalize();
 
+    // Scale axes
+    axis1 *= Radius();
+    axis2 *= Radius();
+
     // Sample points on light source
     int sample_count = 0;
     RNRgb sample_sum = RNblack_rgb;
+    RNScalar r1;
+    RNScalar r2;
+    R3Point sample_point;
+    RNScalar I;
+    RNLength d;
+    RNScalar denom;
+    R3Vector L;
+    RNScalar NL;
+    RNRgb diffuse;
     while (sample_count < max_samples) {
         // Sample point in circle
-        RNScalar r1 = RNRandomScalar();
-        RNScalar r2 = RNRandomScalar();
+        r1 = RNThreadableRandomScalar();
+        r2 = RNThreadableRandomScalar();
         if (r1*r1 + r2*r2 > 1) continue;
-        R3Point sample_point = Position();
-        sample_point += r1 * Radius() * axis1;
-        sample_point += r2 * Radius() * axis2;
+
+        sample_point = center;
+        sample_point += r1 * axis1;
+        sample_point += r2 * axis2;
         sample_count++;
-        
+
         // Compute intensity at point
-        RNScalar I = Intensity();
-        RNLength d = R3Distance(point, sample_point);
-        RNScalar denom = constant_attenuation;
+        I = Intensity();
+        d = R3Distance(point, sample_point);
+        denom = constant_attenuation;
         denom += d * linear_attenuation;
         denom += d * d * quadratic_attenuation;
         if (RNIsPositive(denom)) I /= denom;
 
         // Compute direction at point
-        R3Vector L = sample_point - point;
+        L = sample_point - point;
         L.Normalize();
 
+        // Weight intensity by probability of area light emission direction
+        I *= direction.Dot(-L) * 2.0;
+
         // Compute diffuse reflection from sample point
-        RNScalar NL = normal.Dot(L);
-        if (RNIsNegativeOrZero(NL)) continue;
-        RNRgb diffuse = (I * NL) * Dc * Ic;
+        NL = normal.Dot(L);
+        diffuse = (I * abs(NL) / RN_PI) * Dc * Ic;
 
         // Add to result
         sample_sum += diffuse;
@@ -191,15 +204,16 @@ DiffuseReflection(const R3Brdf& brdf,
     return area * sample_mean;
 }
 
-
+RNRgb R3AreaLight::
+DiffuseReflection(const R3Brdf& brdf, const R3Point& point, const R3Vector& normal) const
+{
+  return DiffuseReflection(brdf, point, normal, 16);
+}
 
 RNRgb R3AreaLight::
-SpecularReflection(const R3Brdf& brdf, const R3Point& eye, 
-    const R3Point& point, const R3Vector& normal) const
+SpecularReflection(const R3Brdf& brdf, const R3Point& eye,
+    const R3Point& point, const R3Vector& normal, const int max_samples) const
 {
-    // Parameter ????
-    const int max_samples = 8;
-
     // Check if light is active
     if (!IsActive()) return RNblack_rgb;
 
@@ -212,48 +226,73 @@ SpecularReflection(const R3Brdf& brdf, const R3Point& eye,
 
     // Get circle axes
     R3Vector direction = circle.Normal();
+    R3Point center = Position();
+
+    // Check normal direction
+    if (direction.Dot(point - center) < 0) {
+      return RNblack_rgb;
+    }
+
     RNDimension dim = direction.MinDimension();
     R3Vector axis1 = direction % R3xyz_triad[dim];
     axis1.Normalize();
     R3Vector axis2 = direction % axis1;
     axis2.Normalize();
 
+    // Scale axes
+    axis1 *= Radius();
+    axis2 *= Radius();
+
     // Sample points on light source
     int sample_count = 0;
     RNRgb sample_sum = RNblack_rgb;
+    RNScalar r1;
+    RNScalar r2;
+    R3Point sample_point;
+    RNScalar I;
+    RNLength d;
+    RNScalar denom;
+    R3Vector L;
+    RNScalar NL;
+    R3Vector R;
+    R3Vector V;
+    RNScalar VR;
     for (int i = 0; i < max_samples; i++) {
         // Sample point in circle
-        RNScalar r1 = RNRandomScalar();
-        RNScalar r2 = RNRandomScalar();
+        r1 = RNThreadableRandomScalar();
+        r2 = RNThreadableRandomScalar();
         if (r1*r1 + r2*r2 > 1) continue;
-        R3Point sample_point = Position();
-        sample_point += r1 * Radius() * axis1;
-        sample_point += r2 * Radius() * axis2;
+        sample_point = center;
+        sample_point += r1 * axis1;
+        sample_point += r2 * axis2;
         sample_count++;
 
         // Compute intensity at point
-        RNScalar I = Intensity();
-        RNLength d = R3Distance(point, sample_point);
-        RNScalar denom = constant_attenuation;
+        I = Intensity();
+        d = R3Distance(point, sample_point);
+        denom = constant_attenuation;
         denom += d * linear_attenuation;
         denom += d * d * quadratic_attenuation;
         if (RNIsPositive(denom)) I /= denom;
 
         // Compute direction at point
-        R3Vector L = sample_point - point;
+        L = sample_point - point;
         L.Normalize();
 
+        // Weight intensity by probability of area light emission direction
+        I *= direction.Dot(-L) * 2.0;
+
         // Compute specular reflection from sample_point
-        RNScalar NL = normal.Dot(L);
-        if (RNIsNegativeOrZero(NL)) return RNblack_rgb;
-        R3Vector R = (2.0 * NL) * normal - L;
-        R3Vector V = eye - point;
+        NL = normal.Dot(L);
+        R = (2.0 * NL) * normal - L;
+        V = eye - point;
         V.Normalize();
-        RNScalar VR = V.Dot(R);
+        VR = V.Dot(R);
         if (RNIsNegativeOrZero(VR)) continue;
 
         // Return specular component of reflection
-        sample_sum += (I * pow(VR,s)) * Sc * Ic;
+        // NB: (s + 2.0) / (RN_TWO_PI) term is too noisy so it is excluded
+        sample_sum += (I * pow(VR,s) * Sc * Ic);
     }
 
     // Return specular reflection from area
@@ -263,19 +302,32 @@ SpecularReflection(const R3Brdf& brdf, const R3Point& eye,
     return area * sample_mean;
 }
 
-
-
 RNRgb R3AreaLight::
-Reflection(const R3Brdf& brdf, const R3Point& eye, 
+SpecularReflection(const R3Brdf& brdf, const R3Point& eye,
     const R3Point& point, const R3Vector& normal) const
 {
+  return SpecularReflection(brdf, eye, point, normal, 16);
+}
+
+RNRgb R3AreaLight::
+Reflection(const R3Brdf& brdf, const R3Point& eye,
+    const R3Point& point, const R3Vector& normal, const int max_samples) const
+{
     // Return total reflection
-    RNRgb diffuse = DiffuseReflection(brdf, point, normal);
-    RNRgb specular = SpecularReflection(brdf, eye, point, normal);
+    RNRgb diffuse = DiffuseReflection(brdf, point, normal, max_samples);
+    RNRgb specular = SpecularReflection(brdf, eye, point, normal, max_samples);
     return diffuse + specular;
 }
 
-
+RNRgb R3AreaLight::
+Reflection(const R3Brdf& brdf, const R3Point& eye,
+    const R3Point& point, const R3Vector& normal) const
+{
+    // Return total reflection
+    RNRgb diffuse = DiffuseReflection(brdf, point, normal, 16);
+    RNRgb specular = SpecularReflection(brdf, eye, point, normal, 16);
+    return diffuse + specular;
+}
 
 void R3AreaLight::
 Draw(int i) const
@@ -305,6 +357,3 @@ Draw(int i) const
     glLightf(index, GL_LINEAR_ATTENUATION, buffer[1]);
     glLightf(index, GL_QUADRATIC_ATTENUATION, buffer[2]);
 }
-
-
-

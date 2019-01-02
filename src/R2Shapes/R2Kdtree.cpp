@@ -457,7 +457,7 @@ PartitionPoints(PtrType *points, int npoints, RNDimension dim, int imin, int ima
   if (imin == imax) return imin;
 
   // Choose a coordinate at random to split upon
-  int irand = (int) (imin + RNRandomScalar() * (imax - imin + 1));
+  int irand = (int) (imin + RNThreadableRandomScalar() * (imax - imin + 1));
   if (irand < imin) irand = imin;
   if (irand > imax) irand = imax;
   RNCoord split_coord = Position(points[irand])[dim];
