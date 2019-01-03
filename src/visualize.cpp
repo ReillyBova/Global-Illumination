@@ -275,6 +275,7 @@ DrawCustom(R3Scene *scene)
   // Ray drawing variables
   double radius = 0.025;
   R3Vector beam = R3Vector(cos(0.0872665), sin(0.0872665), 0);
+  //R3Vector beam = R3Vector(0, 1, 0);
   beam.Normalize();
   beam *= 1.25;
   R3Point top = beam.Point() + R3Vector(0, 1, 0);
@@ -285,22 +286,41 @@ DrawCustom(R3Scene *scene)
       R3Sphere(top, radius).Draw();
       R3Span(point, top).Draw();
       radius = 0.015;
+      R3Vector view = point - top;
+      view.Normalize();
+      RNScalar cos_theta = abs(normal.Dot(view));
+      int n = 1000;
+      R3Vector view_flipped_perp = normal * cos_theta;
+      R3Vector view_reflection = view + view_flipped_perp*2.0;
+      view_reflection.Normalize();
+      R3Vector exact = view_reflection;
       for (int i = 0; i < 500; i++) {
-        // Pick spherical coords
-        const RNAngle theta = acos(sqrt(RNRandomScalar()));
-        const RNAngle phi = 2*RN_PI*RNRandomScalar();
+        // Get the max value for alpha (becomes increasingly small as cos theta shrinks
+        // to prevent the reflection from penetrating the surface; mimics real behavior
+        // of increased specularity sharpness near grazing angles)
+        // Computed from: 2/pi * (angle between surface and exact) = 2/pi * (pi/2 - acos(N*V))
+        //                = 1 - 2/pi * cos(|cos_theta|)
+        const RNScalar angle_limit = (1.0 - acos(abs(cos_theta)) * 2.0 / RN_PI);
 
-        // Build a vector with angle alpha relative to the normal direction
-        R3Vector perpendicular_direction = R3Vector(normal[1], -normal[0], 0);
-        if (1.0 - abs(normal[2]) < 0.1) {
-          perpendicular_direction = R3Vector(normal[2], 0, -normal[0]);
+        // Find axis perturbation values from brdf (see Lafortune & Williams, 1994)
+        const RNAngle alpha = acos(pow(RNRandomScalar(), 1.0 / (n + 1.0))) * angle_limit;
+
+        const RNAngle phi = RN_TWO_PI*RNRandomScalar();
+
+        // Build a vector with angle alpha relative to the exact direction
+        R3Vector perpendicular_direction = R3Vector(exact[1], -exact[0], 0);
+        if (1.0 - abs(exact[2]) < 0.1) {
+          perpendicular_direction = R3Vector(exact[2], 0, -exact[0]);
         }
         perpendicular_direction.Normalize();
-        R3Vector result = perpendicular_direction*sin(theta) + normal*cos(theta);
+
+        R3Vector result = perpendicular_direction*sin(alpha) + exact*cos(alpha);
 
         // Rotate around axis by phi and normalize
-        result.Rotate(normal, phi);
+        result.Rotate(exact, phi);
         result.Normalize();
+
+        // Rotate around axis by phi and normalize
         R3Point end = result + point;
         glColor3d(0, 0, 0);
         R3Sphere(end, radius).Draw();
