@@ -88,9 +88,9 @@ Under our BRDF model, the outgoing direction of a diffuse bounce is independent 
 
 || Viewpoint A | Viewpoint B |
 |:----------------:|:----------------:|:----------------:|
-| 90° | ![Fig_1a.i](/gallery/figures/fig_1a-i.png?raw=true) | ![Fig_1a.ii](/gallery/figures/fig_1a-ii.png?raw=true) |
-| 45° | ![Fig_1b.i](/gallery/figures/fig_1b-i.png?raw=true) | ![Fig_1b.ii](/gallery/figures/fig_1b-ii.png?raw=true) |
-| 5° | ![Fig_1c.i](/gallery/figures/fig_1c-i.png?raw=true) | ![Fig_1c.ii](/gallery/figures/fig_1c-ii.png?raw=true) |
+| 90° | ![Fig 1a.i](/gallery/figures/fig_1a-i.png?raw=true) | ![Fig 1a.ii](/gallery/figures/fig_1a-ii.png?raw=true) |
+| 45° | ![Fig 1b.i](/gallery/figures/fig_1b-i.png?raw=true) | ![Fig 1b.ii](/gallery/figures/fig_1b-ii.png?raw=true) |
+| 5° | ![Fig 1c.i](/gallery/figures/fig_1c-i.png?raw=true) | ![Fig 1c.ii](/gallery/figures/fig_1c-ii.png?raw=true) |
 
 #### Specular Importance Sampling
 For specular importance sampling, the outgoing direction is sampled as a perturbance from the direction of perfect reflection of the incident ray. Again referencing Lawrence's note, we initially sample this direction as (α, φ) = (arccos(pow(u,1/(n+1))), 2πv), where (u, v) are uniformly-distributed random variables in the range \[0, 1), α is the angle between the outgoing ray and the direction of perfect reflection, and φ is the angle around the plane perpendicular to the direction of perfect reflection. Finally, although this is not mentioned in the notes, in order to ensure the sampled outgoing ray is on the same side of the surface as the incoming ray, it is necessary to scale alpha from the range \[0, pi/2) to \[0, θ], where θ is the angle between the direction of perfect reflection and the plane of the surface. Note that this rescaling is not a perfectly accurate model and somewhat inconsistent with our BRDF (rejection sampling would be a more accurate approach, but significantly more inefficient and not worth the cost), but it is still has a physical basis since glossy reflections become significantly sharper at increasingly grazing angles.
@@ -99,9 +99,9 @@ For specular importance sampling, the outgoing direction is sampled as a perturb
 
 || Viewpoint A, n = 100| Viewpoint B, n = 100 | Viewpoint A, n = 1000 | Viewpoint B, n = 1000 |
 |:----------------:|:----------------:|:----------------:|:----------------:|:----------------:|
-| 90° | ![Fig_2a.i](/gallery/figures/fig_2a-i.png?raw=true) | ![Fig_2a.ii](/gallery/figures/fig_2a-ii.png?raw=true) | ![Fig_2a.iii](/gallery/figures/fig_2a-iii.png?raw=true) | ![Fig_2a.iv](/gallery/figures/fig_2a-iv.png?raw=true) |
-| 45° | ![Fig_2b.i](/gallery/figures/fig_2b-i.png?raw=true) | ![Fig_2b.ii](/gallery/figures/fig_2b-ii.png?raw=true) | ![Fig_2b.iii](/gallery/figures/fig_2b-iii.png?raw=true) | ![Fig_2b.iv](/gallery/figures/fig_2b-iv.png?raw=true) |
-| 5° | ![Fig_2c.i](/gallery/figures/fig_2c-i.png?raw=true) | ![Fig_2c.ii](/gallery/figures/fig_2c-ii.png?raw=true) | ![Fig_2c.iii](/gallery/figures/fig_2c-iii.png?raw=true) | ![Fig_2c.iv](/gallery/figures/fig_2c-iv.png?raw=true) |
+| 90° | ![Fig 2a.i](/gallery/figures/fig_2a-i.png?raw=true) | ![Fig 2a.ii](/gallery/figures/fig_2a-ii.png?raw=true) | ![Fig 2a.iii](/gallery/figures/fig_2a-iii.png?raw=true) | ![Fig 2a.iv](/gallery/figures/fig_2a-iv.png?raw=true) |
+| 45° | ![Fig 2b.i](/gallery/figures/fig_2b-i.png?raw=true) | ![Fig 2b.ii](/gallery/figures/fig_2b-ii.png?raw=true) | ![Fig 2b.iii](/gallery/figures/fig_2b-iii.png?raw=true) | ![Fig 2b.iv](/gallery/figures/fig_2b-iv.png?raw=true) |
+| 5° | ![Fig 2c.i](/gallery/figures/fig_2c-i.png?raw=true) | ![Fig 2c.ii](/gallery/figures/fig_2c-ii.png?raw=true) | ![Fig 2c.iii](/gallery/figures/fig_2c-iii.png?raw=true) | ![Fig 2c.iv](/gallery/figures/fig_2c-iv.png?raw=true) |
 
 Poisson cloning is the main workhorse of this program and is run without flags:
 
