@@ -106,7 +106,7 @@ For specular importance sampling, the outgoing direction is sampled as a perturb
 | 5° | ![Fig 2c.i](/gallery/figures/fig_2c-i.png?raw=true) | ![Fig 2c.ii](/gallery/figures/fig_2c-ii.png?raw=true) | ![Fig 2c.iii](/gallery/figures/fig_2c-iii.png?raw=true) | ![Fig 2c.iv](/gallery/figures/fig_2c-iv.png?raw=true) |
 
 ### 2D Lights
-The only physically-plausible light in the R3Graphics codebase is a circular area light. Because all example scenes in Jensen's Photon Mapping paper use a rectangular area light, the we added an R3RectLight class. Additionally, the original R3AreaLight class required modifications to its reflectance function implementation in order to more accurately reflect how light is emitted through diffuse surfaces as well as to prevent sampling the reflectance on a surface due to a potentially occluded ray from the light.
+The only physically-plausible light in the R3Graphics codebase is a circular area light. Because all example scenes in Jensen's Photon Mapping paper use a rectangular area light, the we added an R3RectLight class. Additionally, the original R3AreaLight class required modifications to its reflectance function implementation in order to more accurately reflect how light is emitted through diffuse surfaces.
 
 #### R3RectLight
 The syntax of the a rectanglar light object is as follows:
@@ -121,230 +121,61 @@ This defines a rectangular light with radiance `r g b` (in Watts/sr/m^2) centere
 |:----------------:|:----------------:|
 | ![Fig 3a](/gallery/figures/fig_3a.png?raw=true) | ![Fig 3b](/gallery/figures/fig_3b.png?raw=true) |
 
-Poisson cloning is the main workhorse of this program and is run without flags:
-
-```
-$ ./poisson_clone src.png mask.png dest.png out.png xOffset yOffset
-```
-
 #### Weighted Area Light Reflectance
-Since area lights emit light diffusely — that is, according to the distribution of a cosine-weighted hemisphere — it was necessary to modify the area light reflectance implementation provided in R3AreaLight. When computing the illumination of a surface due to an area light (circular or rectangular), the intensity of the illumination doubled and then scaled by the cosine of the angle between the light normal and the vector spanning from the light to the surface. The doubling is necessary since we want to keep the power of the light consistent with the original implementation (the flux through an evenly-weighted hemisphere is `2π`, whereas the flux through a cosine-weighted hemisphere is `π`).
+Since area lights emit light diffusely — that is, according to the distribution of a cosine-weighted hemisphere — it was necessary to modify the area light reflectance implementation provided in R3AreaLight. When computing the illumination of a surface due to an area light (circular or rectangular), the intensity of the illumination doubled and then scaled by the cosine of the angle between the light normal and the vector spanning from the light to the surface. The doubling is necessary since we want to keep the power of the light consistent with the original implementation (the flux through an evenly-weighted hemisphere is 2π, whereas the flux through a cosine-weighted hemisphere is π).
 
-##### Figure 4: A comparison of area light falloff. In Figure (4a) we see a Cornell Box illuminated by an area light that emits light evenly in all directions (the provided implemention). In Figure (4b) we see a Cornell Box illuminated by an area light that emits light according to a cosine-weighted hemisphere. Notice that (4b) looks significantly more natural than (4a).
+##### Figure 4: A comparison of area light falloff. In Figure (4a) we see a Cornell Box illuminated by an area light that emits light evenly in all directions (the provided implemention). In Figure (4b) we see a Cornell Box illuminated by an area light that emits light according to a cosine-weighted hemisphere. Notice that this improvement alone already makes the box appear far more realistic and natural.
 
 | No Light Falloff | Cosine Light Falloff |
 |:----------------:|:----------------:|
 | ![Fig 4a](/gallery/figures/fig_4a.png?raw=true) | ![Fig 4b](/gallery/figures/fig_4b.png?raw=true) |
 
-#### Explanation
-This method of cloning solves a sparse linear system of equations of the form `Ax = b` bound by two contraints: (1) the border of the cloned region must match the border of the region before cloning, and (2) the color gradient-field within the pasted cloned-region must match the gradient-field of the source cloned-region as closely as possible.
+## Direct Illumination
+### Shadows
+When sampling the illumination of a surface by a particular light, it is necessary to test if there are any objects in the scene that occlude the surface from that light (thereby casting a shadow). Details on how this is computed for each light follow.
 
-In pseudocode, the matrices and vectors for this system of equations are constructed as follows:
-```
-for each pixel i in the mask:
-  Np = 0  // "Number of neighbors"
-  for each neighbor j of i:
-    set Aij to -1 if j in mask;
-    add dest[j] to b_i if j in image but not in mask (=> j is a border pixel)
-    add 1 to Np if j is in image
-    add guidance (src[i] - src[j]) to b_i if j is in image
-  set Aii to num neighbors Np
-```
+#### Point Light & Spotlight Shadows
+For point lights and spotlights, a ray is cast from the light's position to the surface sample. Then the first intersection of the ray with an object in the scene is computed, and if the distance between this intersection point and the light does not match up with the distance between the light and the surface sample, the surface sample is taken to be in shadow.
 
-#### Results
+##### Figure 5: A demonstration of how point lights illuminate surfaces and cast shadows. In (5a) a sphere is illuminated on a box by a bright blue point light outside of the camera's view. In (5b) a sphere is illuminated by three brightly-colored point lights outside of the camera's view. Notice how the colors of the lights mix to form new colors.
 
-|  Direct Cloning | Poisson Cloning | 
-|:--------------:|:----------------:|
-| ![Direct Cloning](/results/battleOfPrinceton_direct.png?raw=true) | ![Poisson Cloning](/results/battleOfPrinceton_poisson.png?raw=true) |
-| ![Direct Cloning](/results/fig3a_direct.png?raw=true) | ![Poisson Cloning](/results/fig3a_poisson.png?raw=true) |
-| ![Direct Cloning](/results/fig3b_direct.png?raw=true) | ![Poisson Cloning](/results/fig3b_poisson.png?raw=true) |
-| ![Direct Cloning](/results/fig4_direct.png?raw=true) | ![Poisson Cloning](/results/fig4_poisson.png?raw=true) |
+| Figure 5a | Figure 5b |
+|:----------------:|:----------------:|
+| ![Fig 5a](/gallery/figures/fig_5a.png?raw=true) | ![Fig 5b](/gallery/figures/fig_5b.png?raw=true) |
 
+##### Figure 6: A demonstration of how spotlights illuminate surfaces and cast shadows. In (6a) a sphere is illuminated on a box by a bright white spotlight (similar to a studio light) outside of the camera's view. In (6b) a sphere is illuminated by three brightly-colored spotlights outside of the camera's view that are focused on the sphere. Notice how only very faint shadows are cast in the scene because the cutoff angles of the spotlights are set such that the sphere "eclipses" the cones of light.
 
-### Direct Cloning
-#### Usage
-Direct cloning is the naive (seamed) implementation of cloning and requires a `-d` or `-direct` flag. It takes no further parameters:
+| Figure 6a | Figure 6b |
+|:----------------:|:----------------:|
+| ![Fig 6a](/gallery/figures/fig_6a.png?raw=true) | ![Fig 6b](/gallery/figures/fig_6b.png?raw=true) |
 
-```
-$ ./poisson_clone src.png mask.png dest.png out.png xOffset yOffset -d
-```
-or
-```
-$ ./poisson_clone src.png mask.png dest.png out.png xOffset yOffset -direct
-```
+#### Directional Light Shadows
+For directional lights, it is first necessary to find a point far outside the scene such that the vector from this point to the surface sample is colinear with the direction of the the directional light. Then a ray is cast from this point to the surface sample. The rest of the shadowing computation continues as before.
+
+##### Figure 7: A demonstration of how directional lights illuminate surfaces and cast shadows. In (7a) a sphere is illuminated on a box by a bright blue directional light. In (7b) a sphere is illuminated by three brightly-colored directional lights. Notice the coloring of the shadows is subtractive (whereas the coloring on the ball is additive) because of the sharpness of directional light (i.e. there is no bleeding).
+
+| Figure 7a | Figure 7b |
+|:----------------:|:----------------:|
+| ![Fig 7a](/gallery/figures/fig_7a.png?raw=true) | ![Fig 7b](/gallery/figures/fig_7b.png?raw=true) |
+
+#### Improved Area Light Reflectance Sampling
 
 
-### Monochromatic Poisson Cloning
-#### Usage
-Monochromatic cloning requires the `-mono` or `-monochrome` flag and takes no further parameters:
-
-```
-$ ./poisson_clone src.png mask.png dest.png out.png xOffset yOffset -mono
-```
-or
-```
-$ ./poisson_clone src.png mask.png dest.png out.png xOffset yOffset -monochrome
-```
-
-#### Explanation
-First monochromatic cloning converts the source image to greyscale through luminance, and it then applies Poisson cloning on using the black and white source image. This is useful when the chromacity of the cloned region needs to remain relatively constant, as the default (polychromatic) Poisson cloning will allow for changes in color within the cloned region that are somewhat independent of the destination's border constraints.
-
-#### Results
-
-| Source | Destination | Polychromatic Poisson Cloning | Monochromatic Poisson Cloning | 
-|:--------------:|:----------------:|:----------------:|:----------------:|
-| ![Source](/test_images/perez-fig5-src.png?raw=true) | ![Destination](/test_images/perez-fig5-dst.png?raw=true) |![Poisson Cloning](/results/fig5_poisson.png?raw=true) | ![Monochromatic Cloning](/results/fig5_mono.png?raw=true) |
 
 
-### Mixed Poisson Cloning
-#### Usage
-Mixed cloning requires the `-mx` or `-mixed` flag and takes no further parameters:
-
-```
-$ ./poisson_clone src.png mask.png dest.png out.png xOffset yOffset -mx
-```
-or
-```
-$ ./poisson_clone src.png mask.png dest.png out.png xOffset yOffset -mixed
-```
-
-#### Explanation
-Sometimes there is detail in the target region of the destination that needs to be preserved (e.g. a brick wall, or a sharp edge in the background). This is accomplished by adjusting the guidance function between two pixels (i, j) such that if the gradient between pixels i and j are greater (by magnitude) in the destitiation image than in the source, this larger gradient will be used for the system of equations
-
-#### Results
-
-| Source | Destination | Poisson Cloning | Mixed Poisson Cloning | 
-|:--------------:|:----------------:|:----------------:|:----------------:|
-| ![Source](/test_images/perez-fig6-src.png?raw=true) | ![Destination](/test_images/perez-fig6-dst.png?raw=true) |![Poisson Cloning](/results/fig6_poisson.png?raw=true) | ![Mixed Cloning](/results/fig6_mixed.png?raw=true) |
-| ![Source](/test_images/perez-fig7-src.png?raw=true) | ![Destination](/test_images/perez-fig7-dst.png?raw=true) |![Poisson Cloning](/results/fig7_poisson.png?raw=true) | ![Mixed Cloning](/results/fig7_mixed.png?raw=true) |
-| ![Source](/test_images/perez-fig8-src.png?raw=true) | ![Destination](/test_images/perez-fig8-dst.png?raw=true) |![Poisson Cloning](/results/fig8_poisson.png?raw=true) | ![Mixed Cloning](/results/fig8_mixed.png?raw=true) |
-
-
-### Image Flattening
-#### Usage
-Image flattening requires the `-f` or `-flat` flag along with `threshold` and `factor` values. It is recommended that the source and destination arguments point to the same image, and that the offsets are set to `0`:
-
-```
-$ ./poisson_clone src.png mask.png src.png out.png 0 0 -f threshold factor
-```
-or
-```
-$ ./poisson_clone src.png mask.png src.png out.png 0 0 - flat threshold factor
-```
-
-#### Explanation
-Image flattening throws away gradients in the source that do not exceed the threshold value in magnitude. As such, only the sharper edges and features of the image are preserved, giving a flattening feel. The preserved gradients are either compressed or heightened depending on whether `factor` is greater than or less than `1` respectively.
-
-#### Results
-
-| Source | Image Flattening |
-|:--------------:|:----------------:|
-| ![Source](/test_images/perez-fig9-src.png?raw=true) | ![Flat](/results/fig9_flat.png?raw=true) |
-
-
-### Local Illumination Changes
-#### Usage
-Local illumination requires the `-il` or `-illumination` flag along with `alpha` and `beta` values. It is recommended that the source and destination arguments point to the same image, and that the offsets are set to `0`:
-
-```
-$ ./poisson_clone src.png mask.png src.png out.png 0 0 -il alpha beta
-```
-or
-```
-$ ./poisson_clone src.png mask.png src.png out.png 0 0 -illumination alpha beta
-```
-
-#### Explanation
-Nonlinear expansion and compression of the source image gradient (applied through alpha and beta) can be used to fix locally underexposed (e.g. shadows) and overexposed (e.g. specular highlights) areas in images. It is recommended that `alpha` is set to a value in the vicinity of `0.2` times the average gradient of the image, and that `beta` be set to a value simply within the neighborhood of `0.2`.
-
-#### Results
-
-| Source | Local Illumination |
-|:--------------:|:----------------:|
-| ![Source](/test_images/perez-fig10a-src.png?raw=true) | ![Illuminated](/results/fig10a_illum.png?raw=true) |
-| ![Source](/test_images/perez-fig10b-src.png?raw=true) | ![Illuminated](/results/fig10b_illum.png?raw=true) |
-
-
-### Background Decolorization
-#### Usage
-Background decolorization requires the `-dec` or `-decolor` flag and takes no further parameters. It is recommended that the source and destination arguments point to the same image, and that the offsets are set to `0`:
-
-```
-$ ./poisson_clone src.png mask.png src.png out.png 0 0 -dec
-```
-or
-```
-$ ./poisson_clone src.png mask.png src.png out.png 0 0 -decolor
-```
-
-#### Explanation
-If there is a particularly colorful area within an image (more specifically, that the region has a distinct color from its immediate surroundings), then if the source is Poisson-cloned onto a greyscale version of itself, the colorful region should still retain its color through the cloning process.
-
-#### Results
-
-| Source | Background Decolorization |
-|:--------------:|:----------------:|
-| ![Source](/test_images/perez-fig11-src.png?raw=true) | ![Decolorization](/results/fig11_dec.png?raw=true) |
-
-
-### Local Recolorization
-#### Usage
-Local recolorization requires the `-rec` or `-recolor` flag as well as three additional parameters that coorespond to the scaling of RGB in recolorization. It is recommended that the source and destination arguments point to the same image, and that the offsets are set to `0`:
-
-```
-$ ./poisson_clone src.png mask.png src.png out.png 0 0 -rec scaleR scaleG scaleB
-```
-or
-```
-$ ./poisson_clone src.png mask.png src.png out.png 0 0 -recolor scaleR scaleG scaleB
-```
-
-#### Explanation
-Recoloring works by scaling RGB values in the source image by the specified amounts before applying Poisson cloning. The bordering region around the object of interest in the mask will return to its original color when the boundary constraints of the cloning process are applied, the but object of interest itself will retain its new color.
-
-#### Results
-
-| Source | Background Local Recolorization |
-|:--------------:|:----------------:|
-| ![Source](/test_images/perez-fig11-src.png?raw=true) | ![Recolorization](/results/fig11_rec.png?raw=true) |
-
-
-### Texture Preserving Poisson Cloning
-#### Usage
-Texture preserving poisson cloning requires the `-tex` or `-texture` flag as well as one addition `threshold` argument:
-
-```
-$ ./poisson_clone src.png mask.png src.png out.png xOffset yOffset -tex threshold
-```
-or
-```
-$ ./poisson_clone src.png mask.png src.png out.png xOffset yOffset -texture threshold
-```
-
-#### Explanation
-This is an experimental extension that was not proposed in the original 2003 paper. Although Poisson cloning is excellent at removing seams, differences between cloned textures and the destination textures (e.g. grain) can still leave an apparent seam around the cloning region. In an effort to preserve grain and other small details of the destination, gradients in the destination below the threshold are added onto the source gradient in this mode. Unfortunately, this method is not always successful as discoloration occasionally pops up, and it is not able to remove any grain from the source (so it effectively only adds grain and other nearly imperceptible details).
-
-#### Results
-
-| Poisson Cloning vs. Poisson Cloning with Texture Preservation |
-|:--------------:|
-| ![Texture Comparison](/results/texture_comparison.png?raw=true) |
-
-
+# Credits
 ## Authors
-
-* **Reilly Bova** - *Cloning Program and Examples* - [ReillyBova](https://github.com/ReillyBova)
-* **Szymon Rusinkiewicz** - *Basic C++ and C Image I/O files*
+* **Reilly Bova** - *Rendering Program and Examples* - [ReillyBova](https://github.com/ReillyBova)
+* **Tom Funkhouser** - *Basic C++ and C Image I/O files*
 
 See also the list of [contributors](https://github.com/ReillyBova/poisson/contributors) who participated in this project.
 
 ## References
-[1] Pérez, Patrick, Michel Gangnet, and Andrew Blake. "Poisson image editing." ACM Transactions on Graphics (TOG). Vol. 22. No. 3. ACM, 2003.
+* [Henrik Wann Jensen, Frank Suykens, and Per Christensen. "A Practical Guide to Global Illumination using Photon Mapping" SIGGRAPH'2001 Course 38, Los Angeles, August 2001.](http://www.cs.princeton.edu/courses/archive/fall18/cos526/papers/jensen01.pdf)
+* [Jason Lawrence. "Importance Sampling of the Phong Reflectance Model" COS 526 Course Notes.](http://www.cs.princeton.edu/courses/archive/fall18/cos526/papers/importance.pdf)
 
 ## License
-
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
 
 ## Acknowledgments
-
-Thank you to Professor Szymon Rusinkiewicz for teaching and assigning this brilliant technique in the Fall 2018 semester of COS 526: Advanced Computer Graphics
+Thank you to Professor Szymon Rusinkiewicz adn the rest of the Computer Graphics faculty at Princeton University for teaching me all the techniques I needed to champion this assignment in the Fall 2018 semester of COS 526: Advanced Computer Graphics.
