@@ -190,7 +190,7 @@ DiffuseReflection(const R3Brdf& brdf,
 
         // Compute diffuse reflection from sample point
         NL = normal.Dot(L);
-        diffuse = (I * abs(NL) / RN_PI) * Dc * Ic;
+        diffuse = (I * abs(NL)) * Dc * Ic;
 
         // Add to result
         sample_sum += diffuse;
@@ -291,7 +291,6 @@ SpecularReflection(const R3Brdf& brdf, const R3Point& eye,
         if (RNIsNegativeOrZero(VR)) continue;
 
         // Return specular component of reflection
-        // NB: (s + 2.0) / (RN_TWO_PI) term is too noisy so it is excluded
         sample_sum += (I * pow(VR,s) * Sc * Ic);
     }
 

@@ -178,7 +178,7 @@ void ComputeAreaLightReflection(R3AreaLight& area_light, RNRgb& color,
     }
     // Add diffuse contribution
     if (hits > 0) {
-      color += weight * Dc * Ic * area / hits / RN_PI;
+      color += weight * Dc * Ic * area / hits;
     }
     total_num_hits += hits;
     total_num_samples += num_light_samples;
@@ -340,7 +340,7 @@ void ComputeRectLightReflection(R3RectLight& rect_light, RNRgb& color,
     }
     // Add diffuse contribution
     if (hits > 0) {
-      color += weight * Dc * Ic * area / hits / RN_PI;
+      color += weight * Dc * Ic * area / hits;
     }
     total_num_hits += hits;
     total_num_samples += num_light_samples;
@@ -390,7 +390,6 @@ void ComputeRectLightReflection(R3RectLight& rect_light, RNRgb& color,
     }
     // Add specular contribution
     if (hits > 0) {
-      // NB Adding the (n+2)/2pi term heavily increases variance so it is omitted
       color += weight * Sc * Ic * area / hits;
     }
     total_num_hits += hits;

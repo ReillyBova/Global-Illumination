@@ -96,7 +96,7 @@ DiffuseReflection(const R3Brdf& brdf,
     // Return diffuse component of reflection
     R3Vector L = -(Direction());
     RNScalar NL = normal.Dot(L);
-    return (I * abs(NL) / RN_PI) * Dc * Ic;
+    return (I * abs(NL)) * Dc * Ic;
 }
 
 
@@ -126,7 +126,7 @@ SpecularReflection(const R3Brdf& brdf, const R3Point& eye,
     if (RNIsNegativeOrZero(VR)) return RNblack_rgb;
 
     // Return specular component of reflection
-    return (I * pow(VR,s) * Sc * Ic * (s + 2.0) / (RN_TWO_PI)) ;
+    return (I * pow(VR,s) * Sc * Ic);
 }
 
 
@@ -156,10 +156,10 @@ Reflection(const R3Brdf& brdf, const R3Point& eye,
     RNScalar VR = V.Dot(R);
 
     // Compute diffuse reflection
-    RNRgb rgb = (I * abs(NL) / RN_PI) * Dc * Ic;
+    RNRgb rgb = (I * abs(NL)) * Dc * Ic;
 
     // Compute specular reflection
-    if (RNIsPositive(VR)) rgb += (I * pow(VR,s) * Sc * Ic * (s + 2.0) / (RN_TWO_PI));
+    if (RNIsPositive(VR)) rgb += (I * pow(VR,s) * Sc * Ic);
 
     // Return total reflection
     return rgb;

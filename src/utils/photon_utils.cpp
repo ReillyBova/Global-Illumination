@@ -114,10 +114,10 @@ void EstimateRadiance(R3Point& point, R3Vector& normal, RNRgb& color,
       // Clamp to pi/2
       cos_alpha = 0;
     }
-    // Shading
+    // Phong BRDF
     RNScalar n = brdf->Shininess();
-    photon_color *= abs(perp_component) / RN_PI * (brdf->Diffuse()
-                        + (n + 2.0)/2.0 * pow(cos_alpha, n) * brdf->Specular());
+    photon_color *= abs(perp_component) * brdf->Diffuse()
+                        + pow(cos_alpha, n) * brdf->Specular();
     estimate += photon_color;
   }
   // Project to disk

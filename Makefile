@@ -5,8 +5,7 @@
 ########################################################################
 
 RESOLUTION= 512 512
-CFLAGS= -resolution $(RESOLUTION) -aa 2 -v -lt 64 -ss 0 -tt 64 -st 128 -md 128 -threads 8 -no_caustic -no_indirect -no_transmissive -no_specular
-#RESOLUTION= 300 300
+CFLAGS= -resolution $(RESOLUTION) -aa 0 -v -lt 64 -ss 0 -tt 128 -st 128 -md 32 -threads 8 -no_specular -no_caustic -no_indirect -no_transmissive
 #CFLAGS= -resolution $(RESOLUTION) -aa 0 -v -lt 128 -no_rs -no_ss -no_fresnel -no_dt -no_ds -tt 32 -st 32 -md 8 -threads 8
 #RESOLUTION= 1024 1024
 #CFLAGS= -resolution $(RESOLUTION) -aa 1 -v -real -lt 64 -ss 64 -tt 128 -st 128 -md 64 -threads 8
@@ -64,7 +63,7 @@ box:
 	cd src; make photonmap
 	$(MAKE) $(EXE) output/box.png
 
-cos:
+cos526:
 	rm -f output/cos526.png
 	cd src; make photonmap
 	$(MAKE) $(EXE) output/cos526.png
