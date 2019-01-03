@@ -170,7 +170,14 @@ Note that if the ray can make it all the way to the surface, then as an optimiza
 |:---:|:---:|:---:|:---:|:---:|:---:|
 | ![Fig 8a](/gallery/figures/fig_8a.png?raw=true) | ![Fig 8b](/gallery/figures/fig_8b.png?raw=true) | ![Fig 8c](/gallery/figures/fig_8c.png?raw=true) | ![Fig 8d](/gallery/figures/fig_8d.png?raw=true) | ![Fig 8e](/gallery/figures/fig_8e.png?raw=true) | ![Fig 8f](/gallery/figures/fig_8f.png?raw=true) |
 
+##### Figure 9: A comparison of hard shadowing to soft shadowing in two different scenes. Note that certain features that have not yet been discussed are disabled, hence the black spheres in (9b). For both scenes, which measure 512x512
+| Hard Shadows | Soft Shadows |
+|:----------------:|:----------------:|
+| ![Fig 9a-a](/gallery/figures/fig_9a-i.png?raw=true) | ![Fig 9a-ii](/gallery/figures/fig_9a-ii.png?raw=true) |
+| ![Fig 9b-i](/gallery/figures/fig_9b-i.png?raw=true) | ![Fig 9b-ii](/gallery/figures/fig_9b-ii.png?raw=true) |
 
+## Transmission, Reflection, & Monte Carlo Path-Tracing
+###
 # Credits
 ## Authors
 * **Reilly Bova** - *Rendering Program and Examples* - [ReillyBova](https://github.com/ReillyBova)
