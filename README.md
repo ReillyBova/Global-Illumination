@@ -1,6 +1,31 @@
 # Global Illumination Renderer
 This repository contains C++ program that uses multithreaded raytracing and photon mapping to render photorealistic images of 3D environments. The photon mapping technique was described in Henrik Wann Jensen ["Global Illumination using Photon Maps"](http://graphics.ucsd.edu/~henrik/papers/photon_map/global_illumination_using_photon_maps_egwr96.pdf).
 
+## Table of Contents
+- [Global Illumination Renderer](#global-illumination-renderer)
+  * [Table of Contents](#table-of-contents)
+  * [Getting Started](#getting-started)
+    + [A Note on Portability](#a-note-on-portability)
+    + [Installing](#installing)
+    + [Running the Program](#running-the-program)
+  * [Program Input](#program-input)
+    + [Provided Scenes](#provided-scenes)
+    + [Adding a Custom Scene](#adding-a-custom-scene)
+- [Implementation Details](#implementation-details)
+  * [BRDF Sampling & Lighting](#brdf-sampling--lighting)
+    + [The BRDF Function](#the-brdf-function)
+    + [Importance Sampling the BRDF](#importance-sampling-the-brdf)
+    + [2D Lights](#2d-lights)
+  * [Direct Illumination](#direct-illumination)
+    + [Shadows](#shadows)
+    + [Soft Shadows](#soft-shadows)
+  * [Transmission, Reflection, & Monte Carlo Path-Tracing](#transmission-reflection--monte-carlo-path-tracing)
+- [Credits](#credits)
+  * [Authors](#authors)
+  * [References](#references)
+  * [License](#license)
+  * [Acknowledgments](#acknowledgments)
+
 ## Getting Started
 Follow these instructions in order to run this program on your local machine.
 
