@@ -39,11 +39,11 @@ class R3RectLight : public R3Light {
 
       	// Reflection evaluation functions
       	virtual RNRgb Reflection(const R3Brdf& brdf, const R3Point& eye,
-      	    const R3Point& point, const R3Vector& normal, const int max_samples) const;
-      	virtual RNRgb DiffuseReflection(const R3Brdf& brdf,
       	    const R3Point& point, const R3Vector& normal, int max_samples) const;
-      	virtual RNRgb SpecularReflection(const R3Brdf& brdf, const R3Point& eye,
+      	virtual RNRgb DiffuseReflection(const R3Brdf& brdf,
       	    const R3Point& point, const R3Vector& normal, const int max_samples) const;
+      	virtual RNRgb SpecularReflection(const R3Brdf& brdf, const R3Point& eye,
+      	    const R3Point& point, const R3Vector& normal, int max_samples) const;
 
 
         virtual RNRgb Reflection(const R3Brdf& brdf, const R3Point& eye,

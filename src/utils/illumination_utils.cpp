@@ -376,7 +376,7 @@ void ComputeRectLightReflection(R3RectLight& rect_light, RNRgb& color,
         L.Normalize();
 
         // Weight intensity by probability of area light emission direction
-        I *= light_norm.Dot(-L) * 2;
+        I *= light_norm.Dot(-L) * 2.0;
 
         // Compute specular reflection from sample point
         NL = normal.Dot(L);

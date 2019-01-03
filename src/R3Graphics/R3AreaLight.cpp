@@ -120,9 +120,8 @@ SetQuadraticAttenuation(RNScalar qa)
 
 RNRgb R3AreaLight::
 DiffuseReflection(const R3Brdf& brdf,
-    const R3Point& point, const R3Vector& normal, int max_samples) const
+    const R3Point& point, const R3Vector& normal, const int max_samples) const
 {
-    max_samples = ceil(max_samples/2);
     // Check if light is active
     if (!IsActive()) return RNblack_rgb;
 
@@ -212,8 +211,9 @@ DiffuseReflection(const R3Brdf& brdf, const R3Point& point, const R3Vector& norm
 
 RNRgb R3AreaLight::
 SpecularReflection(const R3Brdf& brdf, const R3Point& eye,
-    const R3Point& point, const R3Vector& normal, const int max_samples) const
+    const R3Point& point, const R3Vector& normal, int max_samples) const
 {
+    max_samples *= 2;
     // Check if light is active
     if (!IsActive()) return RNblack_rgb;
 
@@ -311,7 +311,7 @@ SpecularReflection(const R3Brdf& brdf, const R3Point& eye,
 
 RNRgb R3AreaLight::
 Reflection(const R3Brdf& brdf, const R3Point& eye,
-    const R3Point& point, const R3Vector& normal, const int max_samples) const
+    const R3Point& point, const R3Vector& normal, int max_samples) const
 {
     // Return total reflection
     RNRgb diffuse = DiffuseReflection(brdf, point, normal, max_samples);

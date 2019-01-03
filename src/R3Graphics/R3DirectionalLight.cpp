@@ -167,21 +167,21 @@ Reflection(const R3Brdf& brdf, const R3Point& eye,
 
 RNRgb R3DirectionalLight::
 DiffuseReflection(const R3Brdf& brdf, const R3Point& point,
-  const R3Vector& normal, int max_samples) const
+  const R3Vector& normal, const int max_samples) const
 {
   return DiffuseReflection(brdf, point, normal);
 }
 
 RNRgb R3DirectionalLight::
 SpecularReflection(const R3Brdf& brdf, const R3Point& eye,
-    const R3Point& point, const R3Vector& normal, const int max_samples) const
+    const R3Point& point, const R3Vector& normal, int max_samples) const
 {
   return SpecularReflection(brdf, eye, point, normal);
 }
 
 RNRgb R3DirectionalLight::
 Reflection(const R3Brdf& brdf, const R3Point& eye,
-    const R3Point& point, const R3Vector& normal, const int max_samples) const
+    const R3Point& point, const R3Vector& normal, int max_samples) const
 {
   return Reflection(brdf, eye, point, normal);
 }

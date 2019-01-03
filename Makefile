@@ -5,7 +5,7 @@
 ########################################################################
 
 RESOLUTION= 512 512
-CFLAGS= -resolution $(RESOLUTION) -aa 2 -v -real -lt 256 -no_ss -tt 256 -st 256 -md 128 -threads 8 -no_caustic -no_indirect
+CFLAGS= -resolution $(RESOLUTION) -aa 2 -v -real -lt 128 -ss 0 -tt 256 -st 256 -md 128 -threads 8 -no_caustic -no_indirect
 #RESOLUTION= 300 300
 #CFLAGS= -resolution $(RESOLUTION) -aa 0 -v -lt 128 -no_rs -no_ss -no_fresnel -no_dt -no_ds -tt 32 -st 32 -md 8 -threads 8
 #RESOLUTION= 1024 1024

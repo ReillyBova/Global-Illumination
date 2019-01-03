@@ -43,11 +43,11 @@ class R3Light {
 
   // Sampling parameter for area light (improve this implementation?)
   virtual RNRgb Reflection(const R3Brdf& brdf, const R3Point& eye,
-	    const R3Point& point, const R3Vector& normal, const int max_samples) const = 0;
-	virtual RNRgb DiffuseReflection(const R3Brdf& brdf,
 	    const R3Point& point, const R3Vector& normal, int max_samples) const = 0;
-	virtual RNRgb SpecularReflection(const R3Brdf& brdf, const R3Point& eye,
+	virtual RNRgb DiffuseReflection(const R3Brdf& brdf,
 	    const R3Point& point, const R3Vector& normal, const int max_samples) const = 0;
+	virtual RNRgb SpecularReflection(const R3Brdf& brdf, const R3Point& eye,
+	    const R3Point& point, const R3Vector& normal, int max_samples) const = 0;
 
 	// Draw functions/operations
         virtual void Draw(int i) const = 0;
