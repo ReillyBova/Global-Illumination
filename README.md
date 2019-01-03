@@ -1,5 +1,5 @@
 # Global Illumination Renderer
-This repository contains a C++ program that uses multithreaded raytracing and photon mapping to render photorealistic images of 3D environments. The photon mapping technique was described in Henrik Wann Jensen ["Global Illumination using Photon Maps"](http://graphics.ucsd.edu/~henrik/papers/photon_map/global_illumination_using_photon_maps_egwr96.pdf)[1].
+This repository contains a C++ program that uses multithreaded raytracing and photon mapping to render photorealistic images of 3D environments. The photon mapping technique was described in Henrik Wann Jensen's paper, ["Global Illumination using Photon Maps"][1], and implementation decisions were heavily influenced by [Jensen's SIGGRAPH course notes][2].
 
 ## Table of Contents
 - [Global Illumination Renderer](#global-illumination-renderer)
@@ -220,9 +220,23 @@ In order to accurately estimate the integrals in the rendering equation that rep
 See also the list of [contributors](https://github.com/ReillyBova/poisson/contributors) who participated in this project.
 
 ## References
-[1] [Henrik Wann Jensen, Frank Suykens, and Per Christensen. "A Practical Guide to Global Illumination using Photon Mapping". SIGGRAPH'2001 Course 38, Los Angeles, August 2001.](http://www.cs.princeton.edu/courses/archive/fall18/cos526/papers/jensen01.pdf)
-[2] [Jason Lawrence. "Importance Sampling of the Phong Reflectance Model". COS 526 Course Notes.](http://www.cs.princeton.edu/courses/archive/fall18/cos526/papers/importance.pdf)
-[3] [E. Lafortune and Y. Willems. "Using the modified Phong reflectance model for physically based rendering". Technical Report CW197, Dept. Comp. Sci., K.U. Leuven, 1994.](http://mathinfo.univ-reims.fr/IMG/pdf/Using_the_modified_Phong_reflectance_model_for_Physically_based_rendering_-_Lafortune.pdf)
+1. [Henrik Wann Jensen. “Global illumination using photon maps”. Rendering Techniques ’96 (Proceedings of the Seventh Eurographics Workshop on Rendering), pages 21–30. Springer Verlag, 1996.][1]
+
+2. [Henrik Wann Jensen, Frank Suykens, and Per Christensen. "A Practical Guide to Global Illumination using Photon Mapping". SIGGRAPH'2001 Course 38, Los Angeles, August 2001.][2]
+
+3. [http://www.cs.princeton.edu/courses/archive/fall18/cos526/papers/importance.pdf "Jason Lawrence. "Importance Sampling of the Phong Reflectance Model". COS 526 Course Notes.][3]
+
+4. [E. Lafortune and Y. Willems. "Using the modified Phong reflectance model for physically based rendering". Technical Report CW197, Dept. Comp. Sci., K.U. Leuven, 1994.][4]
+
+http://graphics.ucsd.edu/~henrik/papers/photon_map/global_illumination_using_photon_maps_egwr96.pdf
+
+[1]: http://graphics.ucsd.edu/~henrik/papers/photon_map/global_illumination_using_photon_maps_egwr96.pdf “Global illumination using photon maps”
+
+[2]: http://www.cs.princeton.edu/courses/archive/fall18/cos526/papers/jensen01.pdf "A Practical Guide to Global Illumination using Photon Mapping"
+
+[3]: http://www.cs.princeton.edu/courses/archive/fall18/cos526/papers/importance.pdf "Importance Sampling of the Phong Reflectance Model"
+
+[4]: http://mathinfo.univ-reims.fr/IMG/pdf/Using_the_modified_Phong_reflectance_model_for_Physically_based_rendering_-_Lafortune.pdf "Using the modified Phong reflectance model for physically based rendering"
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
