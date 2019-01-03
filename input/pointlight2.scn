@@ -10,7 +10,7 @@ point_light   0 6 0   0.866 1.0 .5    0 0 1
 point_light   0 0 6   -0.866 1.0 0.5  0 0 1
 
 # A mostly diffuse material
-material   0 0 0   1 1 1  0.2 0.2 0.2   0.0 0.0 0.0  0.0 0.0 0.0  1 1 0
+material   0 0 0   1 1 1  0.03 0.03 0.03   0.0 0.0 0.0  0.0 0.0 0.0  10 1 0
 
 # A sphere on a box
 sphere 0 0.0 0.2 0.0 0.2
