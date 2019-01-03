@@ -4,8 +4,8 @@
 # output directory from the ones in your input directory.
 ########################################################################
 
-RESOLUTION= 1024 1024
-CFLAGS= -resolution $(RESOLUTION) -aa 1 -real -v -lt 1 -ss 0 -tt 64 -st 128 -md 128 -threads 8 -no_caustic -no_indirect -no_specular
+RESOLUTION= 512 512
+CFLAGS= -resolution $(RESOLUTION) -aa 2 -real -v -lt 1 -ss 0 -tt 64 -st 128 -md 128 -threads 8 -no_caustic -no_indirect -no_specular
 #RESOLUTION= 300 300
 #CFLAGS= -resolution $(RESOLUTION) -aa 0 -v -lt 128 -no_rs -no_ss -no_fresnel -no_dt -no_ds -tt 32 -st 32 -md 8 -threads 8
 #RESOLUTION= 1024 1024
