@@ -4,14 +4,14 @@
 # output directory from the ones in your input directory.
 ########################################################################
 
-#RESOLUTION= 400 400
-#CFLAGS= -resolution $(RESOLUTION) -aa 0 -v -lt 128 -ss 128 -tt 128 -st 128 -it 128 -md 64 -threads 8 -no_indirect -no_direct -photon_viz
+RESOLUTION= 512 512
+CFLAGS= -resolution $(RESOLUTION) -aa 2 -v -real -lt 256 -no_ss -tt 256 -st 256 -md 128 -threads 8 -no_caustic -no_indirect
 #RESOLUTION= 300 300
 #CFLAGS= -resolution $(RESOLUTION) -aa 0 -v -lt 128 -no_rs -no_ss -no_fresnel -no_dt -no_ds -tt 32 -st 32 -md 8 -threads 8
 #RESOLUTION= 1024 1024
 #CFLAGS= -resolution $(RESOLUTION) -aa 1 -v -real -lt 64 -ss 64 -tt 128 -st 128 -md 64 -threads 8
-RESOLUTION= 4096 4096
-CFLAGS= -resolution $(RESOLUTION) -aa 1 -v -real -lt 128 -ss 128 -tt 128 -st 128 -md 128 -threads 8 -it 512
+#RESOLUTION= 4096 4096
+#CFLAGS= -resolution $(RESOLUTION) -aa 1 -v -real -lt 128 -ss 128 -tt 256 -st 256 -md 128 -threads 8 -it 512
 NICE=0# -20 is highest priority; negative values require root permissions
 
 ########################################################################

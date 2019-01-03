@@ -149,8 +149,8 @@ void ComputeAreaLightReflection(R3AreaLight& area_light, RNRgb& color,
     for (int i = 0; i < num_light_samples; i++) {
       do {
         // Sample point in circle
-        r1 = RNThreadableRandomScalar();
-        r2 = RNThreadableRandomScalar();
+        r1 = (RNThreadableRandomScalar()*2.0) - 1.0;
+        r2 = (RNThreadableRandomScalar()*2.0) - 1.0;
       } while (r1*r1 + r2*r2 > 1.0);
 
       // Use values r1, r2 and vectors u, v to find a random point on light
@@ -197,8 +197,8 @@ void ComputeAreaLightReflection(R3AreaLight& area_light, RNRgb& color,
     for (int i = 0; i < num_light_samples; i++) {
       do {
         // Sample point in circle
-        r1 = RNThreadableRandomScalar();
-        r2 = RNThreadableRandomScalar();
+        r1 = (RNThreadableRandomScalar()*2.0) - 1.0;
+        r2 = (RNThreadableRandomScalar()*2.0) - 1.0;
       } while (r1*r1 + r2*r2 > 1.0);
 
       // Use values r1, r2 and vectors u, v to find a random point on light
@@ -244,8 +244,8 @@ void ComputeAreaLightReflection(R3AreaLight& area_light, RNRgb& color,
   for (int i = 0; i < num_extra_shadow_samples; i++) {
     do {
       // Sample point in circle
-      r1 = RNThreadableRandomScalar();
-      r2 = RNThreadableRandomScalar();
+      r1 = (RNThreadableRandomScalar()*2.0) - 1.0;
+      r2 = (RNThreadableRandomScalar()*2.0) - 1.0;
     } while (r1*r1 + r2*r2 > 1.0);
 
     // Use values r1, r2 and vectors u, v to find a random point on light

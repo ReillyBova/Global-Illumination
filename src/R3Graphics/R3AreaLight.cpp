@@ -165,8 +165,8 @@ DiffuseReflection(const R3Brdf& brdf,
     RNRgb diffuse;
     while (sample_count < max_samples) {
         // Sample point in circle
-        r1 = RNThreadableRandomScalar();
-        r2 = RNThreadableRandomScalar();
+        r1 = (RNThreadableRandomScalar()*2.0) - 1.0;
+        r2 = (RNThreadableRandomScalar()*2.0) - 1.0;
         if (r1*r1 + r2*r2 > 1) continue;
 
         sample_point = center;
@@ -259,8 +259,8 @@ SpecularReflection(const R3Brdf& brdf, const R3Point& eye,
     RNScalar VR;
     for (int i = 0; i < max_samples; i++) {
         // Sample point in circle
-        r1 = RNThreadableRandomScalar();
-        r2 = RNThreadableRandomScalar();
+        r1 = (RNThreadableRandomScalar()*2.0) - 1.0;
+        r2 = (RNThreadableRandomScalar()*2.0) - 1.0;
         if (r1*r1 + r2*r2 > 1) continue;
         sample_point = center;
         sample_point += r1 * axis1;

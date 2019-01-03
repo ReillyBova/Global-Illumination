@@ -30,7 +30,7 @@ LDFLAGS=
 # Pkg Libraries
 #
 
-PHOTON_LIBS= \
+PHOTONMAP_LIBS= \
   R3Graphics/libR3Graphics.a \
   R3Shapes/libR3Shapes.a \
   R2Shapes/libR2Shapes.a \
@@ -84,12 +84,12 @@ endif
 # Make targets
 #
 
-all: $(PKG_LIBS) photonmap visualize
+all: $(PHOTONMAP_LIBS) $(VIZ_LIBS) photonmap visualize
 
-photonmap: $(PKG_LIBS) $(PHOTONMAP_OBJS)
-	    $(CC) -o photonmap $(CPPFLAGS) $(LDFLAGS) $(PHOTONMAP_OBJS) $(PHOTON_LIBS) -lm
+photonmap: $(PHOTONMAP_LIBS) $(PHOTONMAP_OBJS)
+	    $(CC) -o photonmap $(CPPFLAGS) $(LDFLAGS) $(PHOTONMAP_OBJS) $(PHOTONMAP_LIBS) $(OPENGL_LIBS) -lm
 
-visualize: $(PKG_LIBS) $(VIZ_OBJS)
+visualize: $(VIZ_LIBS) $(VIZ_OBJS)
 	    $(CC) -o visualize $(CPPFLAGS) $(LDFLAGS) $(VIZ_OBJS) $(VIZ_LIBS) $(OPENGL_LIBS) -lm
 
 R3Graphics/libR3Graphics.a:
@@ -114,7 +114,7 @@ jpeg/libjpeg.a:
 	    cd jpeg; make
 
 clean:
-	    ${RM} -f */*.a */*/*.a *.o */*.o */*/*.o photonmap photonmap.exe visualize visualize.exe $(PHOTON_LIBS) $(VIZ_LIBS)
+	    ${RM} -f */*.a */*/*.a *.o */*.o */*/*.o photonmap photonmap.exe visualize visualize.exe $(PHOTONMAP_LIBS) $(VIZ_LIBS)
 
 distclean:  clean
 	    ${RM} -f *~
