@@ -118,7 +118,7 @@ This defines a rectangular light with radiance `r g b` (in Watts/sr/m^2) centere
 ##### Figure 3: A comparison of area lights. In Figure (3a) we see a Cornell Box illuminated by a circular area light. In Figure (3b) we see a Cornell Box illuminated by a rectangular area light.
 
 | Circular Area Light | Rectangular Area Light |
-|:----------------:|:----------------:|:----------------:|
+|:----------------:|:----------------:|
 | ![Fig 3a](/gallery/figures/fig_3a.png?raw=true) | ![Fig 3b](/gallery/figures/fig_3b.png?raw=true) |
 
 Poisson cloning is the main workhorse of this program and is run without flags:
@@ -126,6 +126,15 @@ Poisson cloning is the main workhorse of this program and is run without flags:
 ```
 $ ./poisson_clone src.png mask.png dest.png out.png xOffset yOffset
 ```
+
+#### Weighted Area Light Reflectance
+Since area lights emit light diffusely — that is, according to the distribution of a cosine-weighted hemisphere — it was necessary to modify the area light reflectance implementation provided in R3AreaLight. When computing the illumination of a surface due to an area light (circular or rectangular), the intensity of the illumination doubled and then scaled by the cosine of the angle between the light normal and the vector spanning from the light to the surface. The doubling is necessary since we want to keep the power of the light consistent with the original implementation (the flux through an evenly-weighted hemisphere is `2π`, whereas the flux through a cosine-weighted hemisphere is `π`).
+
+##### Figure 4: A comparison of area light falloff. In Figure (4a) we see a Cornell Box illuminated by an area light that emits light evenly in all directions (the provided implemention). In Figure (4b) we see a Cornell Box illuminated by an area light that emits light according to a cosine-weighted hemisphere. Notice that (4b) looks significantly more natural than (4a).
+
+| No Light Falloff | Cosine Light Falloff |
+|:----------------:|:----------------:|
+| ![Fig 4a](/gallery/figures/fig_4a.png?raw=true) | ![Fig 4b](/gallery/figures/fig_4b.png?raw=true) |
 
 #### Explanation
 This method of cloning solves a sparse linear system of equations of the form `Ax = b` bound by two contraints: (1) the border of the cloned region must match the border of the region before cloning, and (2) the color gradient-field within the pasted cloned-region must match the gradient-field of the source cloned-region as closely as possible.
