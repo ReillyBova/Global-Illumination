@@ -263,6 +263,59 @@ DrawRays(R3Scene *scene)
 static void
 DrawCustom(R3Scene *scene)
 {
+  glDisable(GL_LIGHTING);
+  glLineWidth(4);
+  R3Point camera = scene->Camera().Origin();
+  double radius = 0.025;
+  R3Sphere(camera, radius).Draw();
+
+  R3SceneNode *node;
+  R3SceneElement *element;
+  R3Shape *shape;
+  R3Point point;
+  R3Vector normal;
+  RNScalar t;
+  radius = 0.007;
+  for (int i = 0; i < scene->Viewport().Width(); i += 40) {
+    for (int j = 0; j < scene->Viewport().Height(); j += 40) {
+      R3Ray ray = scene->Viewer().WorldRay(i, j);
+      if (scene->Intersects(ray, &node, &element, &shape, &point, &normal, &t)) {
+        const R3Material *material = (element) ? element->Material() : &R3default_material;
+        const R3Brdf *brdf = (material) ? material->Brdf() : &R3default_brdf;
+        if (brdf && brdf->IsSpecular()) {
+          glColor3d(.9, .9, .9);
+          R3Sphere(point, radius).Draw();
+          glColor3d(0.1, 0.1, 0.7);
+          R3Span(camera, point).Draw();
+          R3Point prev = camera;
+          for (int k = 0; k < 8; k++) {
+            // Get reflection
+            R3Vector view = point - prev;
+            view.Normalize();
+            RNScalar cos_theta = abs(normal.Dot(view));
+            R3Vector view_flipped_perp = normal * cos_theta;
+            R3Vector view_reflection = view + view_flipped_perp*2.0;
+            view_reflection.Normalize();
+            R3Vector exact = view_reflection;
+            ray = R3Ray(point + exact*RN_EPSILON, exact, true);
+            prev = point;
+            if (scene->Intersects(ray, &node, &element, &shape, &point, &normal, &t)) {
+              glColor3d(1, 1, 1);
+              R3Sphere(point, radius).Draw();
+              glColor3d(k / 8.0, 0.2, 0.8 - k/10.0);
+              R3Span(prev, point).Draw();
+            } else {
+              glColor3d(1, 1, 1);
+              glColor3d(k / 8.0, 0.2, 0.8 - k/10.0);
+              R3Span(prev, prev + 100 * exact).Draw();
+              break;
+            }
+          }
+        }
+      }
+    }
+  }
+  /*
   // Ray intersection variables
   glDisable(GL_LIGHTING);
   glLineWidth(2);
@@ -329,7 +382,7 @@ DrawCustom(R3Scene *scene)
       }
   }
 
-  glLineWidth(1);
+  glLineWidth(1);*/
 }
 
 
@@ -588,11 +641,11 @@ void GLUTKeyboard(unsigned char key, int x, int y)
     break;
   case 'E':
   case 'e':
-    viewer->RotateCameraRoll(-.05);
+    viewer->RotateCameraRoll(-.01);
     break;
   case 'Q':
   case 'q':
-    viewer->RotateCameraRoll(.05);
+    viewer->RotateCameraRoll(.01);
     break;
   case 'R':
   case 'r':
