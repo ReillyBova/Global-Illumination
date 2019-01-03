@@ -158,9 +158,17 @@ For directional lights, it is first necessary to find a point far outside the sc
 |:----------------:|:----------------:|
 | ![Fig 7a](/gallery/figures/fig_7a.png?raw=true) | ![Fig 7b](/gallery/figures/fig_7b.png?raw=true) |
 
-#### Improved Area Light Reflectance Sampling
+### Soft Shadows
+For area lights, it is possible for a surface to be partially occluded from a light, causing a penumbra. In order to compute soft shadows, many random points on the surface of the light are sampled, and then a shadow ray (i.e. occlusion test) is sent from each of them to the potentially-occluded surface and the results are averaged to estimate the degree to which the object sits in shadow relative to the area light source.
 
+#### An Illumination Optimization
+Note that if the ray can make it all the way to the surface, then as an optimization, the surface illumination due to the ray is also sampled. For the R3AreaLight, this requires rewriting the provided reflection code to sit within the soft shadow loop. Note that this optimization is, remarkably, also a more accurate model since the illumination of a surface is now only sampled from unoccluded portions of area lights.
 
+##### Figure 8: A comparison of soft shadow quality based the number of shadow rays sent per sample.
+
+| No Soft Shadows | 1 Sample | 4 Samples | 16 Samples | 64 Samples | 256 Samples |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| ![Fig 8a](/gallery/figures/fig_8a.png?raw=true) | ![Fig 8b](/gallery/figures/fig_8b.png?raw=true) | ![Fig 8c](/gallery/figures/fig_8c.png?raw=true) | ![Fig 8d](/gallery/figures/fig_8d.png?raw=true) | ![Fig 8e](/gallery/figures/fig_8e.png?raw=true) | ![Fig 8f](/gallery/figures/fig_8f.png?raw=true) |
 
 
 # Credits
