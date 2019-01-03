@@ -101,7 +101,7 @@ This section contains descriptions and examples of the rendering program's vario
 
 ## BRDF Sampling & Lighting
 ### The BRDF Function
-This program uses two BRDFs depending on the sampling context. When sampling radiance (evaulating the integral directly), the original Phong BRDF is used in order to remain consistent with both the reflectance functions for the provided light classes as well as the provided input scenes. Since the Phong BRDF is not energy-conserving, it is necessary to use a normalized version of the Phong BRDF when importance sampling. This physically-based Phong model is borrowed from course notes by Jason Lawrence in ["Importance Sampling of the Phong Reflectance Model"][2], which in turn is sourced from Lafortune & William's 1994 paper, ["Using the modified Phong reflectance model for physically based rendering"][3].
+This program uses two BRDFs depending on the sampling context. When sampling radiance (evaulating the integral directly), the original Phong BRDF is used in order to remain consistent with both the reflectance functions for the provided light classes as well as the provided input scenes. Since the Phong BRDF is not energy-conserving, it is necessary to use a normalized version of the Phong BRDF when importance sampling. This physically-based Phong model is borrowed from course notes by Jason Lawrence in ["Importance Sampling of the Phong Reflectance Model"][3], which in turn is sourced from Lafortune & William's 1994 paper, ["Using the modified Phong reflectance model for physically based rendering"][4].
 
 ### Importance Sampling the BRDF
 In order to converge more quickly on the correct solution to the rendering equation, it is necessary to importance sample the BRDF when tracing a ray through a specular or diffuse bounce. In other words, rather than sampling all directions and weighting them according to the probability of a bounce heading in each direction, it is better to sample each direction at a frequency proportional to its probability, and then weight all bounces evenly when averaging.
@@ -193,7 +193,7 @@ Note that if the ray can make it all the way to the surface, then as an optimiza
 |:---:|:---:|:---:|:---:|:---:|:---:|
 | ![Fig 8a](/gallery/figures/fig_8a.png?raw=true) | ![Fig 8b](/gallery/figures/fig_8b.png?raw=true) | ![Fig 8c](/gallery/figures/fig_8c.png?raw=true) | ![Fig 8d](/gallery/figures/fig_8d.png?raw=true) | ![Fig 8e](/gallery/figures/fig_8e.png?raw=true) | ![Fig 8f](/gallery/figures/fig_8f.png?raw=true) |
 
-##### Figure 9: A comparison of hard shadowing to soft shadowing in two different scenes. Note that certain features that have not yet been discussed are disabled, hence the black spheres in (9b). For both scenes, which measure 512x512
+##### Figure 9: A comparison of hard shadowing to soft shadowing in two different scenes. Note that certain features that have not yet been discussed are disabled, hence the black spheres in (9b). For both scenes, which both measure 512x512, 512 shadow rays were sent for each pixel.
 | Hard Shadows | Soft Shadows |
 |:----------------:|:----------------:|
 | ![Fig 9a-a](/gallery/figures/fig_9a-i.png?raw=true) | ![Fig 9a-ii](/gallery/figures/fig_9a-ii.png?raw=true) |
@@ -203,7 +203,7 @@ Note that if the ray can make it all the way to the surface, then as an optimiza
 ### Perfect Reflection
 To model perfect reflective behavior (a simplification of the physically-based reflective behavior that is implemented in this program), rays from the camera are reflected about the surface normal whenever they hit a reflective (specular) surface. Then the raytrace recurs on the reflected ray. This recursive process terminates when the ray bounces out of the scene, hits a non-specular (or transmissive) surface, or after the raytrace exceeds a maximum recursion depth.
 
-##### Figure 10: A comparison of hard shadowing to soft shadowing in two different scenes. Note that certain features that have not yet been discussed are disabled, hence the black spheres in (9b). For both scenes, which measure 512x512
+##### Figure 10: A comparison of hard shadowing to soft shadowing in two different scenes. Note that certain features that have not yet been discussed are disabled, hence the black spheres in (9b). For both scenes, which both measure 512x512, 512 shadow rays were sent for each pixel.
 
 ### Perfect Transmission
 #### Fresnel Coefficients
@@ -228,9 +228,8 @@ See also the list of [contributors](https://github.com/ReillyBova/poisson/contri
 
 4. [E. Lafortune and Y. Willems. "Using the modified Phong reflectance model for physically based rendering". Technical Report CW197, Dept. Comp. Sci., K.U. Leuven, 1994.][4]
 
-http://graphics.ucsd.edu/~henrik/papers/photon_map/global_illumination_using_photon_maps_egwr96.pdf
 
-[1]: http://graphics.ucsd.edu/~henrik/papers/photon_map/global_illumination_using_photon_maps_egwr96.pdf “Global illumination using photon maps”
+[1]: http://graphics.ucsd.edu/~henrik/papers/photon_map/global_illumination_using_photon_maps_egwr96.pdf "Global illumination using photon maps"
 
 [2]: http://www.cs.princeton.edu/courses/archive/fall18/cos526/papers/jensen01.pdf "A Practical Guide to Global Illumination using Photon Mapping"
 
