@@ -201,9 +201,10 @@ Note that if the ray can make it all the way to the surface, then as an optimiza
 
 ## Reflection & Transmission
 ### Perfect Reflection
-To model perfect reflective behavior (a simplification of the physically-based reflective behavior that is implemented in this program), rays from the camera are reflected about the surface normal whenever they hit a reflective (specular) surface. Then the raytrace recurs on the reflected ray. This recursive process terminates when the ray bounces out of the scene, hits a non-specular (or transmissive) surface, or after the raytrace exceeds a maximum recursion depth.
+To model perfect reflective behavior (a simplification of the physically-based reflective behavior that is implemented in this program), rays from the camera are reflected about the surface normal whenever they hit a reflective (specular) surface, and then the raytrace recurs on the reflected ray. This recursive raytracing process terminates when the ray bounces out of the scene, hits a non-specular (or transmissive) surface, or after the raytrace exceeds a maximum recursion depth.
 
-##### Figure 10: A comparison of hard shadowing to soft shadowing in two different scenes. Note that certain features that have not yet been discussed are disabled, hence the black spheres in (9b). For both scenes, which both measure 512x512, 512 shadow rays were sent for each pixel.
+##### Figure 10: A visualization of how light bounces around in a scene with a mirror sphere and mirror walls. Only light rays that bounces off of the sphere are shown, and traces are terminated after eight bounces or when they will bounce out of the scene.
+![Fig 10](/gallery/figures/fig_910.png?raw=true)
 
 ### Perfect Transmission
 #### Fresnel Coefficients
