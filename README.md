@@ -215,18 +215,34 @@ When light passes between optical media, it is necessary to apply to Snell's law
 | ![Fig 11a](/gallery/figures/fig_11a.png?raw=true) | ![Fig 11b](/gallery/figures/fig_11b.png?raw=true) | ![Fig 11c](/gallery/figures/fig_11c.png?raw=true) | ![Fig 11d](/gallery/figures/fig_11d.png?raw=true) | ![Fig 11e](/gallery/figures/fig_11e.png?raw=true) |
 
 #### Fresnel Coefficients
-For real dielectric surfaces (such as glass), full transmission of light never actually occurs, even if the material is fully transparent. Rather the incoming ray is split into specular and transmissive components, whose relative weightings depend on the Fresnel equations. Since these equations are somewhat computationally-challenging, Schlick's Fresnel Approximation is used instead (a common substitution in renderers).
+For real dielectric surfaces (such as glass), full transmission of light never actually occurs, even if the material is fully transparent. Rather the incoming ray is split into specular and transmissive components, whose relative weightings depend on the Fresnel equations. Since evaluating these equations is relatively difficult to do quickly (e.g. as fast as a few floating-point operations), Schlick's Fresnel Approximation is used instead; this is a common substitution in physically-based renderers.
 
-##### Figure 12: A comparison of how transparent objects appear with and without fresnel effects. Notice how the front of the cornell box is very softly reflected on the front of the glass sphere in the rendering with fresnel effects enabled.
+##### Figure 12: A comparison of how transparent objects appear with and without fresnel effects. Notice how the front of the Cornell Box is very softly reflected on the front of the glass sphere in the rendering with fresnel effects enabled.
 | Fresnel Off | Fresnel On |
 |:----------------:|:----------------:|
 | ![Fig 12a](/gallery/figures/fig_12a.png?raw=true) | ![Fig 12b](/gallery/figures/fig_12b.png?raw=true) |
 
 
 ### Monte Carlo Path-Tracing
-In order to accurately estimate the integrals in the rendering equation that represent radiance due to reflection and transmission, it is necessary to implement a properly render specular and clear surfaces, the it  necessary
+Although direct path-tracing is sufficient for estimating perfect reflection and perfect transmission, a stochastic path-tracing approach is needed in order to accurately estimate the integrals in the rendering equation that represent radiance due to reflection and transmission; this is because for a given backwards traced light ray that intersects a glossy surface (finite BRDF shininess value), the incoming light may be reflected in several direction in accordance to the specular lobe of the BRDF model.
+
+Sampling all possible incoming directions and weighting them according to the specular pdf is not feasible, and so instead we use the Monte Carlo approach at each intersection to randomly select a diffuse, specular, or transmissive bounce (each chosen with probability proportional to their relative magnitude in the intersecting surface's material), importance sample the selected bounce, and then recur from there with adjusted weights. Although this approach proveably increases the variance of the sampling (thereby introducing noise into the rendering), it will converge to a fairly accurate estimate of reflected and transmitted radiance after a relatively small number of samples.
+
+##### Figure 13: A visualization of several Monte Carlo paths traced from the camera into a Cornell Box with a glossy mirror sphere and a frosted transparent sphere. This visualization feature can be toggled by pressing `M` or `m` while in the visualization tool. The color of a ray corresponds to the pixel in the final render for which the ray was traced. Notice how specular importance sampling causes clusters of rays traced for the same pixel.
+![Fig 13](/gallery/figures/fig_13.png?raw=true)
+
+##### Figure 14: A comparison of noise introduced to reflective and transparent materials by the Monte Carlo method. For both spheres, the shininess value is `n = 1000`. Higher shininess constants will also reduce noise because there will be less variance in the specular importance sampling.
+| 8 Samples | 32 Samples | 128 Samples |
+|:---:|:---:|:---:|
+| ![Fig 14a](/gallery/figures/fig_14a.png?raw=true) | ![Fig 14b](/gallery/figures/fig_14b.png?raw=true) | ![Fig 14c](/gallery/figures/fig_14c.png?raw=true) |
 
 #### Glossy Reflection & Transmission
+With our Monte Carlo path tracer, we are now able to accurately render specular and transmissive materials with low shininess parameters. When mirrors have low shininess values, the result is a glossy or nearly-diffuse reflection. When transmissive materials have low shininess values, the result is a "frosted glass" appearance.
+
+##### Figure 15: A Cornell Box showcasing all specular and transmissive effects discussed in this section.
+![Fig 15](/gallery/figures/fig_15.png?raw=true)
+
+
 
 # Credits
 ## Authors
