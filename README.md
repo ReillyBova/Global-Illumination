@@ -209,13 +209,20 @@ To model perfect reflective behavior (a simplification of the physically-based r
 ### Perfect Transmission
 When light passes between optical media, it is necessary to apply to Snell's law in order to compute the correct angle of refraction. For most cases, this is a straightforward application of the refraction equations; however, when a ray attempts to pass via a sufficiently grazing angle into an optical medium with a lower index of refraction than that of its current optical medium, it is necessary to instead return a reflective bounce ("total internal reflection").
 
-##### Figure 11: A visualization of how light is refracted through glass spheres with different indices of refraction (ir).
+##### Figure 11: A visualization of how light is refracted through tramissive spheres with different indices of refraction (ir). Notice that the focus plane moves into the sphere from beyond the absorbing plane as the index of refraction grows. 
 | ir = 1 | ir = 1.1 | ir = 1.2 | ir = 2 | ir = 16 |
 |:---:|:---:|:---:|:---:|:---:|
 | ![Fig 11a](/gallery/figures/fig_11a.png?raw=true) | ![Fig 11b](/gallery/figures/fig_11b.png?raw=true) | ![Fig 11c](/gallery/figures/fig_11c.png?raw=true) | ![Fig 11d](/gallery/figures/fig_11d.png?raw=true) | ![Fig 11e](/gallery/figures/fig_11e.png?raw=true) |
 
-
 #### Fresnel Coefficients
+For real dielectric surfaces (such as glass), full transmission of light never actually occurs, even if the material is fully transparent. Rather the incoming ray is split into specular and transmissive components, whose relative weightings depend on the Fresnel equations. Since these equations are somewhat computationally-challenging, Schlick's Fresnel Approximation is used instead (a common substitution in renderers).
+
+##### Figure 12: A comparison of how transparent objects appear with and without fresnel effects. Notice how the front of the cornell box is very softly reflected on the front of the glass sphere in the rendering with fresnel effects enabled.
+| Fresnel Off | Fresnel On |
+|:----------------:|:----------------:|
+| ![Fig 12a](/gallery/figures/fig_12a.png?raw=true) | ![Fig 12b](/gallery/figures/fig_12b.png?raw=true) |
+
+
 ### Monte Carlo Path-Tracing
 In order to accurately estimate the integrals in the rendering equation that represent radiance due to reflection and transmission, it is necessary to implement a properly render specular and clear surfaces, the it  necessary
 
