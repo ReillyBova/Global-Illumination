@@ -1,6 +1,8 @@
 # This is a scene that has four transparent spheres in front of another
-# Each of the spheres has the same reflectance properties, 
+# Each of the spheres has the same reflectance properties,
 # except the index of refraction.
+
+camera 0 10 0  0 -1 0    0 0 1  0.25  0.01 100
 
 # One point light source in middle above scene
 point_light   1 1 1           0 0 1   0 0 1
@@ -13,8 +15,8 @@ material   0 0 0  0.2 0.2 0.2  0 0 0  0.8 0.8 0.8  0 0 0  0 1.2 0
 material   0 0 0  0.2 0.2 0.2  0 0 0  0.8 0.8 0.8  0 0 0  0 1.3 0
 
 # Four spheres touching one another
-sphere   0   0  0 -2  2   
-sphere   1  -1 -1  0  1   
-sphere   2  -1  1  0  1   
-sphere   3   1 -1  0  1   
-sphere   4   1  1  0  1   
+sphere   0   0  0 -2  2
+sphere   1  -1 -1  0  1
+sphere   2  -1  1  0  1
+sphere   3   1 -1  0  1
+sphere   4   1  1  0  1

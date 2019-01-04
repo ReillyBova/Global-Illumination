@@ -15,7 +15,7 @@ static int render_image_width = 64;
 static int render_image_height = 64;
 static int print_verbose = 0;
 
-
+static RNScalar IR = 1.0;
 
 // GLUT variables
 
@@ -260,11 +260,64 @@ DrawRays(R3Scene *scene)
   }
 }
 
+// Return the direction of a perfect reflective bounce
+R3Vector ReflectiveBounce(R3Vector normal, R3Vector& view, RNScalar cos_theta)
+{
+  // Flip normal to incident side of surface
+  if (cos_theta < 0) {
+    normal.Flip();
+    cos_theta *= -1.0;
+  }
+
+  // Find perpendicular component (recall cos_theta is defined from flip of view)
+  R3Vector view_flipped_perp = normal * cos_theta;
+  R3Vector view_reflection = view + view_flipped_perp*2.0;
+  view_reflection.Normalize();
+  return view_reflection;
+}
+
+// Return the direction of a perfect transmissive bounce (may return reflection
+// if beyond critical angle)
+R3Vector TransmissiveBounce(R3Vector normal, R3Vector& view, RNScalar cos_theta,
+  const RNScalar ir_mat)
+{
+  // Compute ir ratio according to whether we are entering or leaving an object
+  RNScalar eta;
+  if (cos_theta < 0) {
+    // Leaving
+    eta = ir_mat / 1.0;
+    // Need to flip normal (NB: not copy be reference so safe to overwrite)
+    normal.Flip();
+    cos_theta *= -1.0;
+  } else {
+    // Entering
+    eta = 1.0 / ir_mat;
+  }
+
+  // Find relevant angles
+  RNAngle theta = acos(cos_theta);
+  RNScalar sin_phi = eta * sin(theta);
+
+  // Check for total internal reflection
+  if (sin_phi < -1.0 || 1.0 < sin_phi) {
+    // Return reflection direction
+    return ReflectiveBounce(normal, view, cos_theta);
+  }
+
+  // Otherwise return refraction direction
+  RNAngle phi = asin(sin_phi);
+  R3Vector view_parallel = view + normal*cos_theta;
+  view_parallel.Normalize();
+  R3Vector view_refraction = view_parallel*tan(phi) - normal;
+  view_refraction.Normalize();
+  return view_refraction;
+}
+
 static void
 DrawCustom(R3Scene *scene)
 {
   glDisable(GL_LIGHTING);
-  glLineWidth(4);
+  glLineWidth(2);
   R3Point camera = scene->Camera().Origin();
   double radius = 0.025;
   R3Sphere(camera, radius).Draw();
@@ -275,40 +328,55 @@ DrawCustom(R3Scene *scene)
   R3Point point;
   R3Vector normal;
   RNScalar t;
-  radius = 0.007;
-  for (int i = 0; i < scene->Viewport().Width(); i += 40) {
-    for (int j = 0; j < scene->Viewport().Height(); j += 40) {
+  radius = 0.025;
+  for (int i = 0; i < scene->Viewport().Width(); i += 35) {
+    for (int j = 0; j < scene->Viewport().Height(); j += 35) {
       R3Ray ray = scene->Viewer().WorldRay(i, j);
       if (scene->Intersects(ray, &node, &element, &shape, &point, &normal, &t)) {
         const R3Material *material = (element) ? element->Material() : &R3default_material;
         const R3Brdf *brdf = (material) ? material->Brdf() : &R3default_brdf;
-        if (brdf && brdf->IsSpecular()) {
-          glColor3d(.9, .9, .9);
+        if (brdf && brdf->IsTransparent()) {
+          glColor3d(1, 0, 0);
           R3Sphere(point, radius).Draw();
           glColor3d(0.1, 0.1, 0.7);
           R3Span(camera, point).Draw();
           R3Point prev = camera;
-          for (int k = 0; k < 8; k++) {
-            // Get reflection
-            R3Vector view = point - prev;
-            view.Normalize();
-            RNScalar cos_theta = abs(normal.Dot(view));
-            R3Vector view_flipped_perp = normal * cos_theta;
-            R3Vector view_reflection = view + view_flipped_perp*2.0;
-            view_reflection.Normalize();
-            R3Vector exact = view_reflection;
-            ray = R3Ray(point + exact*RN_EPSILON, exact, true);
-            prev = point;
-            if (scene->Intersects(ray, &node, &element, &shape, &point, &normal, &t)) {
-              glColor3d(1, 1, 1);
-              R3Sphere(point, radius).Draw();
-              glColor3d(k / 8.0, 0.2, 0.8 - k/10.0);
-              R3Span(prev, point).Draw();
-            } else {
-              glColor3d(1, 1, 1);
-              glColor3d(k / 8.0, 0.2, 0.8 - k/10.0);
-              R3Span(prev, prev + 100 * exact).Draw();
-              break;
+          for (int k = 0; k < 5; k++) {
+            material = (element) ? element->Material() : &R3default_material;
+            brdf = (material) ? material->Brdf() : &R3default_brdf;
+            if (brdf) {
+              if (!brdf->IsTransparent()) {
+                break;
+              }
+              R3Vector view = point - prev;
+              view.Normalize();
+              RNScalar cos_theta = normal.Dot(-view);
+              RNScalar ir_mat = IR;
+              // Get reflection
+              R3Vector exact = TransmissiveBounce(normal, view, cos_theta, ir_mat);
+              ray = R3Ray(point + exact*RN_EPSILON, exact, true);
+              prev = point;
+              if (scene->Intersects(ray, &node, &element, &shape, &point, &normal, &t)) {
+                glColor3d(1, 0, 0);
+                R3Sphere(point, radius).Draw();
+                if (k == 0)
+                  glColor3d(0.8, 0.8, 0.8);
+                else if (k == 1)
+                  glColor3d(0.0, 0.8, 0.2);
+                else
+                  glColor3d(0.8, 0.0, 0.2);
+                R3Span(prev, point).Draw();
+              } else {
+                glColor3d(1, 1, 1);
+                if (k == 0)
+                  glColor3d(0.8, 0.8, 0.8);
+                else if (k == 1)
+                  glColor3d(0.0, 0.8, 0.2);
+                else
+                  glColor3d(0.8, 0.0, 0.2);
+                R3Span(prev, prev + 200 * exact).Draw();
+                break;
+              }
             }
           }
         }
@@ -655,7 +723,16 @@ void GLUTKeyboard(unsigned char key, int x, int y)
   case 'o':
     show_shapes = !show_shapes;
     break;
-
+  case 'i':
+    IR += 0.1;
+    printf("%f\n", IR);
+    break;
+  case 'I':
+    IR *= 2;
+    break;
+  case 'a':
+    IR = 1;
+    break;
   case 'T':
   case 't':
     show_frame_rate = !show_frame_rate;
