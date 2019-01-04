@@ -245,12 +245,56 @@ With our Monte Carlo path tracer, we are now able to accurately render specular 
 ##### Figure 15: A Cornell Box showcasing all specular and transmissive effects discussed in this section.
 ![Fig 15](/gallery/figures/fig_15.png?raw=true)
 
+## Photon Mapping
+### Photon Emission
+As suggested in [Jensen's notes][2], photons are emitted with equal power from each light source, where the power of a color is taken to be the sum of its RGB channels. The number of photons emitted from a particular light source is proportional to that light source's contribution to the total power of all light in the scene. Once the emission phase is complete, the power of all stored photons is scaled down by the total power of light in the scene over the total number of photons emitted.
 
+#### The Power of a Light Source
+For 1D lights, the power of a light source is the flux of light into the scene due to the light source, and for 2D lights, the power of a light source is the area of the light multiplied by the flux of light into the scene due to any one point. In general, the area of a light is straightforward to compute, whereas the flux is a bit more tricky. Ignoring unrealistic light-attenuation, the flux due a point light is 4π (this follows from Gauss' Law). Conversly, the flux due to any point on a rectangular or circular light is just 2π since area lights only emit in one direction (there is only light flux through a single hemisphere around the point, as opposed to flux through a full sphere). For a given point on a directional light, the flux is only 1 since that point can only emit light along a single direction. Finally, the trickiest flux to compute is that of the spotlight, as it requires that we integrate isoenergetic rings around the spotlight's axis of emission. This works out to integrating `2π * sin(x) * cos(x)^n` with respect to `x` over the range `[0, α]` (where `α` is the cutoff angle and `n` is the dropoff rate). This works out to `Φ(Spotlight) = 2π / (n + 1.0) * (1.0 - pow(cos(α), n + 1.0))`.
+
+#### The Emission Cycle
+Because the user provides how many photons they would (roughly) like to store in their photon maps, it is necessary to emit light in several cycles so as to slowly approach the provided storage goal. This is efficiently achieved by first underestimating the number of photons to emit (e.g. assume each photon will be stored as many times as it is allowed to bounce before certain termination), distributing this number among the scene's lights for emittance, sampling the average stores per photon, and then using this average to arrive at the provided goal in three or four additional rounds (giving the average more time to converge lest we overshoot).
+
+#### Point Light Photon Emission
+Point Lights emit photons uniformly in all directions. In order to achieve this, each photon leaves the point light in a direction chosen from a standard spherical point-picking process with rejection-sampling.
+
+#### Spotlight Photon Emission
+Spotlights emit photons in a distribution very similar to the specular lobe of the Phong BRDF. Therefore, we are able to recycle our specular importance sampling function to pick an emission vector for each photon emitted from a spotlight. As one modification, it is necessary restrict sampled vectors to fall the cutoff angle; this is again achieved with rejection sampling (however if enough samples are rejected, the program falls back to rescaling the displacement angle of the result by the cutoff angle).
+
+#### Directional Light Photon Emission
+To discuss emission from directional lights, we must first define our surface of emission. Although directional light is intended to simulate light emission from a extremely-bright and extremely-distant point (e.g. the sun), the same emission behavior can be achieved by emitting photons from a large disc that is oriented along the light's direction, placed sufficiently far outside the scene, and that has a diameter at least as wide as the diameter of the scene itself. With this established, emitting photons from a directional light is as simple as picking an emission point uniformly at random from the disc's surface and then sending that photon along the direction of the light.
+
+#### Area Light Emission
+For both rectangular and circular area lights, we first pick a point uniformly at random on their surface. Next, we use the diffuse important sampling function described in the first section to select a direction of emission from a cosine-weighted hemisphere along the light's normal.
+
+### Photon Storage
+In order to allow users to store hundreds of millions of photons in photon maps, it was necessary to compress the photon data structure as far as efficiently as possible (without losing accuracy). Using the compression suggestions from [Jensen][2], a storage size of only 30 Bytes per photon was achieved (this would be as low as 18 Bytes if single-precision floating-point values were used for position instead of double-precision).
+
+#### The Photon Data Structure
+A Photon object has three fields: `position`, `rgbe`, `direction`. The `position` field holds an R3Point, which consists of three doubles; the `rgbe` field is an `unsigned char` array of length four that compactly stores RGB channels with single-precision floating-point values); the `direction` field is an integer value in the range `[0, 65536)` which maps to the incident direction of the photon. The 65536 possible directions are precomputed before the rendering step as an optimization.
+
+#### The Photon Map Data Structure
+A Photon Map is comprised of two objects: a global array of Photons, and a KdTree of Photons. Both of these data structures only hold pointers to Photons (which are stored in the heap). It is necessary to keep the original array of Photons even after the KdTree has been constructed because it is used for memory cleanup after rendering is complete.
+
+### Radiance Sampling
+## Global Illumination
+### Caustics
+### Indirect Illumination
+#### Importance Sampling
+#### Directly Sampling the Global Map
+## Additional Features
+### Pixel Integration (Anti-Aliasing)
+### Progress Bar & Statistics
+### Optimized KdTree Implementation
+### Multithreading
+#### Multithreaded Randomness
+#### Multithreaded Rendering
+#### Multithreaded Photon Mapping
 
 # Credits
 ## Authors
 * **Reilly Bova** - *Rendering Program and Examples* - [ReillyBova](https://github.com/ReillyBova)
-* **Tom Funkhouser** - *Basic C++ and C Image I/O files*
+* **Tom Funkhouser** - *C++ Graphics & Geometry Library*
 
 See also the list of [contributors](https://github.com/ReillyBova/poisson/contributors) who participated in this project.
 
@@ -276,4 +320,4 @@ See also the list of [contributors](https://github.com/ReillyBova/poisson/contri
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
 
 ## Acknowledgments
-Thank you to Professor Szymon Rusinkiewicz adn the rest of the Computer Graphics faculty at Princeton University for teaching me all the techniques I needed to champion this assignment in the Fall 2018 semester of COS 526: Advanced Computer Graphics.
+Thank you to Professor Szymon Rusinkiewicz and the rest of the Computer Graphics faculty at Princeton University for teaching me all the techniques I needed to champion this assignment in the Fall 2018 semester of COS 526: Advanced Computer Graphics.
