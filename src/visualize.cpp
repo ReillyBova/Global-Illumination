@@ -329,8 +329,8 @@ DrawCustom(R3Scene *scene)
   R3Vector normal;
   RNScalar t;
   radius = 0.025;
-  for (int i = 0; i < scene->Viewport().Width(); i += 35) {
-    for (int j = 0; j < scene->Viewport().Height(); j += 35) {
+  for (int i = 0; i < scene->Viewport().Width(); i += 60) {
+    for (int j = 0; j < scene->Viewport().Height(); j += 60) {
       R3Ray ray = scene->Viewer().WorldRay(i, j);
       if (scene->Intersects(ray, &node, &element, &shape, &point, &normal, &t)) {
         const R3Material *material = (element) ? element->Material() : &R3default_material;
@@ -724,7 +724,7 @@ void GLUTKeyboard(unsigned char key, int x, int y)
     show_shapes = !show_shapes;
     break;
   case 'i':
-    IR += 0.1;
+    IR += 0.01;
     printf("%f\n", IR);
     break;
   case 'I':
