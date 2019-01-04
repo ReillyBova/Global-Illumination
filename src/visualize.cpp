@@ -15,8 +15,6 @@ static int render_image_width = 64;
 static int render_image_height = 64;
 static int print_verbose = 0;
 
-static RNScalar IR = 1.0;
-
 // GLUT variables
 
 static int GLUTwindow = 0;
@@ -44,6 +42,7 @@ static int show_camera = 0;
 static int show_lights = 0;
 static int show_bboxes = 0;
 static int show_rays = 0;
+static int show_paths = 0;
 static int show_frame_rate = 0;
 
 
@@ -260,6 +259,19 @@ DrawRays(R3Scene *scene)
   }
 }
 
+////////////////////////////////////////////////////////////////////////
+// Geometry and Graphics Functions
+////////////////////////////////////////////////////////////////////////
+
+// Use Schlick's approximation to return reflection coefficient between media
+RNScalar ComputeReflectionCoeff(RNScalar cos_theta, const RNScalar ir_mat)
+{
+  // Parallel Light (direction agnostic)
+  const RNScalar R_o = pow((1.0 - ir_mat)/(1.0 + ir_mat), 2);
+  // Schlick's approximation (need to flip normal if theta is greater than pi)
+  return (R_o + (1.0 - R_o) * pow((1.0 -  abs(cos_theta)), 5));
+}
+
 // Return the direction of a perfect reflective bounce
 R3Vector ReflectiveBounce(R3Vector normal, R3Vector& view, RNScalar cos_theta)
 {
@@ -313,14 +325,214 @@ R3Vector TransmissiveBounce(R3Vector normal, R3Vector& view, RNScalar cos_theta,
   return view_refraction;
 }
 
+// Use importance sampling to return a vector offset from a perfect bounce by
+// a random variable drawn from the brdf
+R3Vector Specular_ImportanceSample(const R3Vector& exact, const RNScalar n,
+  const RNScalar cos_theta)
+{
+  // Get the max value for alpha (becomes increasingly small as cos theta shrinks
+  // to prevent the reflection from penetrating the surface; mimics real behavior
+  // of increased specularity sharpness near grazing angles)
+  // Computed from: 2/pi * (angle between surface and exact) = 2/pi * (pi/2 - acos(N*V))
+  //                = 1 - 2/pi * cos(|cos_theta|)
+  const RNScalar angle_limit = (1.0 - acos(abs(cos_theta)) * 2.0 / RN_PI);
+
+  // Find axis perturbation values from brdf (see Lafortune & Williams, 1994)
+  const RNAngle alpha = acos(pow(RNRandomScalar(), 1.0 / (n + 1.0))) * angle_limit;
+
+  const RNAngle phi = RN_TWO_PI*RNRandomScalar();
+
+  // Build a vector with angle alpha relative to the exact direction
+  R3Vector perpendicular_direction = R3Vector(exact[1], -exact[0], 0);
+  if (1.0 - abs(exact[2]) < 0.1) {
+    perpendicular_direction = R3Vector(exact[2], 0, -exact[0]);
+  }
+  perpendicular_direction.Normalize();
+  R3Vector result = perpendicular_direction*sin(alpha) + exact*cos(alpha);
+
+  // Rotate around axis by phi and normalize
+  result.Rotate(exact, phi);
+  result.Normalize();
+  return result;
+}
+
+// Return the max value across all RGB color channels
+RNScalar MaxChannelVal(const RNRgb &color)
+{
+ RNScalar max = 0;
+ for (int i = 0; i < 3; i++) {
+   if (color[i] > max)
+     max = color[i];
+ }
+ return max;
+}
+
+void MonteCarlo_PathTrace(R3Ray& ray, const RNScalar R, const RNScalar G, const RNScalar B)
+{
+  // Intersection variables and forward declarations
+  R3SceneElement *element;
+  R3Point point;
+  R3Vector normal;
+  const R3Material *material;
+  const R3Brdf *brdf;
+  R3Point ray_start = ray.Start();
+  R3Vector view;
+  RNScalar cos_theta;
+  RNScalar R_coeff;
+
+  // Probability values
+  RNScalar prob_diffuse;
+  RNScalar prob_transmission;
+  RNScalar prob_specular;
+  RNScalar prob_terminate;
+  RNScalar prob_total;
+  RNScalar rand;
+
+  // Bouncing geometries
+  R3Vector exact_bounce;
+  R3Vector sampled_bounce;
+
+  for (int iter = 0; iter < 10 &&
+    scene->Intersects(ray, NULL, &element, NULL, &point, &normal, NULL); iter++)
+  {
+    // Draw
+    glColor3d(1, 1, 1);
+    R3Sphere(point, 0.01).Draw();
+    glColor3d(R, G, B);
+    R3Span(ray_start, point).Draw();
+
+    // Get intersection information
+    material = (element) ? element->Material() : &R3default_material;
+    brdf = (material) ? material->Brdf() : &R3default_brdf;
+    if (brdf) {
+      // Useful geometric values to precompute
+      view = (point - ray_start);
+      view.Normalize();
+      cos_theta = normal.Dot(-view);
+
+      // Bounced sampling (monte carlo) ----------------------------------------
+
+      // Compute Reflection Coefficient, carry reflection portion to Specular
+      R_coeff = 0;
+      if (brdf->IsTransparent()) {
+        R_coeff = ComputeReflectionCoeff(cos_theta, brdf->IndexOfRefraction());
+      }
+
+      // Generate material probabilities of bounce type
+      prob_diffuse = MaxChannelVal(brdf->Diffuse());
+      prob_transmission = MaxChannelVal(brdf->Transmission());
+      prob_specular = MaxChannelVal(brdf->Specular()) + R_coeff*prob_transmission;
+      prob_transmission *= (1.0 - R_coeff);
+      prob_terminate = MaxChannelVal(brdf->Emission());
+      prob_total = prob_diffuse + prob_transmission + prob_specular + prob_terminate;
+
+      // Scale down to 1.0 (but never scale up bc of implicit absorption)
+      // NB: faster to scale rand up than to normalize; would also need to adjust
+      //     brdf values when updating weights (dividing prob_total back out)
+      rand = RNRandomScalar();
+      if (prob_total > 1.0) {
+        rand *= prob_total;
+      }
+
+      // Bounce and recur (choose one from distribution)
+      if (rand < prob_diffuse) {
+        glColor3d(1, 1, 1);
+        R3Sphere(point, 0.01).Draw();
+        break;
+      } else if (rand < prob_diffuse + prob_transmission) {
+        // Compute direction of transmissive bounce
+        exact_bounce = TransmissiveBounce(normal, view, cos_theta,
+                                          brdf->IndexOfRefraction());
+        // Use importance sampling
+        sampled_bounce = Specular_ImportanceSample(exact_bounce, brdf->Shininess(), cos_theta);
+      } else if (rand < prob_diffuse + prob_transmission + prob_specular) {
+        // Compute direction of specular bounce
+        exact_bounce = ReflectiveBounce(normal, view, cos_theta);
+        // Use importance sampling
+        sampled_bounce = Specular_ImportanceSample(exact_bounce, brdf->Shininess(), cos_theta);
+      } else {
+        // Photon absorbed; terminate trace
+        glColor3d(1, 1, 1);
+        R3Sphere(point, 0.01).Draw();
+        break;
+      }
+
+      // Recur
+      ray_start = point + sampled_bounce * RN_EPSILON;
+      ray = R3Ray(ray_start, sampled_bounce, TRUE);
+    }
+  }
+}
+
+// Compute transmissive bounce on point
+void DrawTransmissive(R3Point& point, R3Vector& normal, const RNScalar R,
+  const RNScalar G, const RNScalar B, const R3Brdf *brdf, R3Vector& view,
+  RNScalar cos_theta, RNScalar T_coeff)
+{
+  // Get direction of bounced ray (might be a specular if total internal reflection)
+  const R3Vector exact_bounce = TransmissiveBounce(normal, view, cos_theta,
+                                                  brdf->IndexOfRefraction());
+
+  // Scale number of samples with contribution to final color of pixel
+  RNRgb total_weight = T_coeff * (brdf->Transmission());
+  RNScalar highest_weight = MaxChannelVal(total_weight);
+  const int num_samples = ceil((5*highest_weight + 5) / 2.0);
+
+  // Recursively raytrace the bounce using montecarlo path tracing
+  R3Ray ray;
+  R3Vector sampled_bounce;
+  const RNScalar n = brdf->Shininess();
+  for (int i = 0; i < num_samples; i++) {
+    // Use importance sampling
+    sampled_bounce = Specular_ImportanceSample(exact_bounce, n, cos_theta);
+    ray = R3Ray(point + sampled_bounce * RN_EPSILON, sampled_bounce, TRUE);
+    MonteCarlo_PathTrace(ray, R, G, B);
+  }
+}
+
+// Compute specular bounce on point
+void DrawSpecular(R3Point& point, R3Vector& normal,
+  const RNScalar R, const RNScalar G, const RNScalar B, const R3Brdf *brdf,
+  R3Vector& view, RNScalar cos_theta, RNScalar R_coeff)
+{
+  // Get direction of bounced ray
+  const R3Vector exact_bounce = ReflectiveBounce(normal, view, cos_theta);
+
+  // Scale number of samples with contribution to final color of pixel
+  RNRgb total_weight = brdf->Transmission()*R_coeff + brdf->Specular();
+  RNScalar highest_weight = MaxChannelVal(total_weight);
+  const int num_samples = ceil((5*highest_weight + 5) / 2.0);
+
+  // Recursively raytrace the bounce using montecarlo path tracing
+  R3Ray ray;
+  R3Vector sampled_bounce;
+  const RNScalar n = brdf->Shininess();
+  for (int i = 0; i < num_samples; i++) {
+    // Use importance sampling
+    sampled_bounce = Specular_ImportanceSample(exact_bounce, n, cos_theta);
+    ray = R3Ray(point + sampled_bounce * RN_EPSILON, sampled_bounce, TRUE);
+    MonteCarlo_PathTrace(ray, R, G, B);
+  }
+}
+
+////////////////////////////////////////////////////////////////////////
+// Path Visualizer
+////////////////////////////////////////////////////////////////////////
+
 static void
-DrawCustom(R3Scene *scene)
+DrawPaths(R3Scene *scene)
 {
   glDisable(GL_LIGHTING);
-  glLineWidth(2);
+  glLineWidth(1);
   R3Point camera = scene->Camera().Origin();
   double radius = 0.025;
   R3Sphere(camera, radius).Draw();
+  radius = 0.01;
+
+  int istep = scene->Viewport().Width() / 25;
+  int jstep = scene->Viewport().Height() / 25;
+  if (istep == 0) istep = 1;
+  if (jstep == 0) jstep = 1;
 
   R3SceneNode *node;
   R3SceneElement *element;
@@ -328,19 +540,58 @@ DrawCustom(R3Scene *scene)
   R3Point point;
   R3Vector normal;
   RNScalar t;
-  radius = 0.025;
-  for (int i = 0; i < scene->Viewport().Width(); i += 60) {
-    for (int j = 0; j < scene->Viewport().Height(); j += 60) {
+  int W = scene->Viewport().Width();
+  int H = scene->Viewport().Height();
+  for (int i = 0; i < W; i += istep) {
+    const RNScalar R = ((RNScalar) i) / W;
+    for (int j = 0; j < H; j += jstep) {
+      const RNScalar B = ((RNScalar) j) / H;
+      const RNScalar G = ((RNScalar) j * i) / (H * W);
+
       R3Ray ray = scene->Viewer().WorldRay(i, j);
       if (scene->Intersects(ray, &node, &element, &shape, &point, &normal, &t)) {
         const R3Material *material = (element) ? element->Material() : &R3default_material;
         const R3Brdf *brdf = (material) ? material->Brdf() : &R3default_brdf;
-        if (brdf && brdf->IsTransparent()) {
-          glColor3d(1, 0, 0);
+
+        if (brdf) {
+          // Draw 1/4 times if it is absorbed
+          if (!brdf->IsTransparent() && !brdf->IsSpecular()) {
+            continue;
+          }
+          glColor3d(1, 1, 1);
           R3Sphere(point, radius).Draw();
-          glColor3d(0.1, 0.1, 0.7);
+          glColor3d(R, G, B);
           R3Span(camera, point).Draw();
           R3Point prev = camera;
+
+          // Useful geometric values to precompute
+          R3Vector view = (point - camera);
+          view.Normalize();
+          RNScalar cos_theta = normal.Dot(-view);
+
+          // Fresnel Reflection Coefficient for transmission (approximated)
+          RNScalar R_coeff = 0;
+          if (brdf->IsTransparent()) {
+            // Compute Reflection Coefficient, carry reflection portion to Specular
+            R_coeff = ComputeReflectionCoeff(cos_theta, brdf->IndexOfRefraction());
+
+            // Compute contribution from transmission
+            if (R_coeff < 1.0) {
+              DrawTransmissive(point, normal, R, G, B, brdf, view, cos_theta,
+                1.0 - R_coeff);
+            }
+          }
+          if (brdf->IsSpecular() || R_coeff > 0) {
+            // Compute contribution from transmission
+            DrawSpecular(point, normal, R, G, B, brdf, view, cos_theta,
+              R_coeff);
+          }
+        }
+      }
+    }
+  }
+
+        /*
           for (int k = 0; k < 5; k++) {
             material = (element) ? element->Material() : &R3default_material;
             brdf = (material) ? material->Brdf() : &R3default_brdf;
@@ -383,7 +634,6 @@ DrawCustom(R3Scene *scene)
       }
     }
   }
-  /*
   // Ray intersection variables
   glDisable(GL_LIGHTING);
   glLineWidth(2);
@@ -448,9 +698,9 @@ DrawCustom(R3Scene *scene)
         glColor3d(0.1, 0.1, 0.7);
         R3Span(point, end).Draw();
       }
-  }
+  } */
 
-  glLineWidth(1);*/
+  glLineWidth(1);
 }
 
 
@@ -513,8 +763,10 @@ void GLUTRedraw(void)
     glLineWidth(1);
   }
 
-
-  DrawCustom(scene);
+  // Draw paths
+  if (show_paths) {
+    DrawPaths(scene);
+  }
 
   // Draw scene nodes
   if (show_shapes) {
@@ -723,15 +975,9 @@ void GLUTKeyboard(unsigned char key, int x, int y)
   case 'o':
     show_shapes = !show_shapes;
     break;
-  case 'i':
-    IR += 0.01;
-    printf("%f\n", IR);
-    break;
-  case 'I':
-    IR *= 2;
-    break;
-  case 'a':
-    IR = 1;
+  case 'M':
+  case 'm':
+    show_paths = !show_paths;
     break;
   case 'T':
   case 't':

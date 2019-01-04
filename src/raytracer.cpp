@@ -172,24 +172,25 @@ void RayTrace(R3SceneElement* element, R3Point& point, R3Vector& normal,
   const R3Material *material = (element) ? element->Material() : &R3default_material;
   const R3Brdf *brdf = (material) ? material->Brdf() : &R3default_brdf;
 
-  // Useful geometric values to precompute
-  R3Vector view = (point - eye);
-  view.Normalize();
-  RNScalar cos_theta = normal.Dot(-view);
-
-  // Fresnel Reflection Coefficient for transmission (approximated)
-  RNScalar R_coeff = 0;
-
   if (AMBIENT) {
     // Global ambient contribution (ambience from scene)
     color += SCENE_AMBIENT;
   }
   if (brdf) {
+    // Material dependent contribution
+
+    // Useful geometric values to precompute
+    R3Vector view = (point - eye);
+    view.Normalize();
+    RNScalar cos_theta = normal.Dot(-view);
+
+    // Fresnel Reflection Coefficient for transmission (approximated)
+    RNScalar R_coeff = 0;
+
     if (AMBIENT && brdf->IsAmbient()) {
       // Local ambient contribution (ambience from material)
       color += brdf->Ambient();
     }
-    // Material dependent contribution
     if (DIRECT_ILLUM && (brdf->IsDiffuse() || brdf->IsSpecular())) {
       // Compute contribution from direct illumination
       DirectIllumination(point, normal, eye, color, brdf, false);
