@@ -323,7 +323,7 @@ Once the photon map is built, it is easy to use the map to estimate the radiance
 ##### Figure 23: A comparison of how the maximum radius of a radiance sample effects the overall radiance estimate. In these figures, direct radiance estimates were on made a global photon map containing 5000 photons, and the number of samples per estimate is always 64.
 | R = 0.05 | R = 0.25 | R = 0.5 | R = 1 | 
 |:---:|:---:|:---:|:---:|
-|  ![Fig 23a](/gallery/figures/fig_23a.png?raw=true) | ![Fig 23b](/gallery/figures/fig_23b.png?raw=true) |  ![Fig 23c](/gallery/figures/fig_23c.png?raw=true) | ![Fig 22d](/gallery/figures/fig_22d.png?raw=true) |
+|  ![Fig 23a](/gallery/figures/fig_23a.png?raw=true) | ![Fig 23b](/gallery/figures/fig_23b.png?raw=true) |  ![Fig 23c](/gallery/figures/fig_23c.png?raw=true) | ![Fig 23d](/gallery/figures/fig_23d.png?raw=true) |
 
 ## Global Illumination
 ### Caustics
