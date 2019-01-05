@@ -282,7 +282,7 @@ For both rectangular and circular area lights, we first pick a point uniformly a
 ##### Figure 18: A visualization of area light point-picking and normal directions for photon emission.
 | Light Type | Point-Picking | Emission Normals |
 |:------:|:---:|:---:|
-| Directional| ![Fig 18a-i](/gallery/figures/fig_18a-a.png?raw=true) | ![Fig 18a-ii](/gallery/figures/fig_18a-ii.png?raw=true) |
+| Directional| ![Fig 18a-i](/gallery/figures/fig_18a-i.png?raw=true) | ![Fig 18a-ii](/gallery/figures/fig_18a-ii.png?raw=true) |
 | Circular | ![Fig 18b-i](/gallery/figures/fig_18b-i.png?raw=true) | ![Fig 18b-ii](/gallery/figures/fig_18b-ii.png?raw=true) |
 | Rectangular | ![Fig 18c-i](/gallery/figures/fig_18c-i.png?raw=true) | ![Fig 18c-ii](/gallery/figures/fig_18c-ii.png?raw=true) |
 
@@ -290,12 +290,36 @@ For both rectangular and circular area lights, we first pick a point uniformly a
 In order to allow users to store hundreds of millions of photons in photon maps, it was necessary to compress the photon data structure as far as efficiently as possible (without losing accuracy). Using the compression suggestions from [Jensen][2], a storage size of only 30 Bytes per photon was achieved (this would be as low as 18 Bytes if single-precision floating-point values were used for position instead of double-precision).
 
 #### The Photon Data Structure
-A Photon object has three fields: `position`, `rgbe`, `direction`. The `position` field holds an R3Point, which consists of three doubles; the `rgbe` field is an `unsigned char` array of length four that compactly stores RGB channels with single-precision floating-point values); the `direction` field is an integer value in the range `[0, 65536)` which maps to the incident direction of the photon. The 65536 possible directions are precomputed before the rendering step as an optimization.
+A Photon object has three fields: `position`, `rgbe`, & `direction`. The `position` field holds an R3Point, which consists of three doubles; the `rgbe` field is an `unsigned char` array of length four that compactly stores RGB channels with single-precision floating-point values; the `direction` field is an integer value in the range `[0, 65536)` which maps to the incident direction of the photon. The 65536 possible directions are precomputed before the rendering step as an optimization.
 
 #### The Photon Map Data Structure
 A Photon Map is comprised of two objects: a global array of Photons, and a KdTree of Photons. Both of these data structures only hold pointers to Photons (which are stored in the heap). It is necessary to keep the original array of Photons even after the KdTree has been constructed because it is used for memory cleanup after rendering is complete. 
 
+#### Photon Map Types
+For certain renderings, it is necessary to store several types of photon maps. In particular, photon maps used to render caustic illumination are sampled directly and may have extremely fine features, so it is imperative that the map is of high quality (i.e. many photons). Conversely, photon maps used for indirect illumination are importance sampled, and so a small and lightweight map is strongly preferred to an accurate but slow photon map.
+
+In this program, three types of photon maps are implemented: (1) the global map, which is used for indirect illumination and stores photons that bounced through `L{S|D}*D` paths; (2) the caustic map, which is used for caustic illumination and stores photons that bounced through `LS+D` paths; and finally, (3) the "fast-global" indirect map, which is a reduction of the global map to *exclude* photons traced through paths that match `LS+D` (caustics) and `LD` (direct illumination). This final map provides an approximate estimation of indirect illumination in a more efficient amount of time (since it does not require importance sampling a photon map, which is a slow process) at the cost of increased noise.
+
+The following visualizations may be toggled from within the viewer by pressing either the `G` or `g` key for the global photon map, and either the `H` or `h` key for the caustic photon map. These maps will only show if the user has provided the appropriate arguments to generate a photon map beforehand (e.g. `-global <int N>` and/or `-caustic <int N>`).
+
+##### Figure 19: A visualization of the photon maps of a Cornell Box that contains a point light and a transparent glass sphere.
+| 500 Photons (Global Map) | 50,000 Photons (Global Map) | 5,000,000 Photons (Global Map) | 5,000 Photons (Caustic Map) |
+|:------:|:---:|:---:|:---:|
+|  ![Fig 19a](/gallery/figures/fig_19a.png?raw=true) | ![Fig 19b](/gallery/figures/fig_19b.png?raw=true) | ![Fig 19c](/gallery/figures/fig_19c.png?raw=true) | ![Fig 19d](/gallery/figures/fig_19d.png?raw=true) |
+
+##### Figure 20: A visualization of the global photon map of a still-life scene.
+| 5,000 Photons | 500,000 Photons | 
+|:---:|:---:|
+|  ![Fig 20a](/gallery/figures/fig_20a.png?raw=true) | ![Fig 20b](/gallery/figures/fig_20b.png?raw=true) |
+
+##### Figure 21: A visualization of the global photon map of a teapot scene. 50,000 photons are shown.
+![Fig 21](/gallery/figures/fig_21.png?raw=true)
+
+
 ### Radiance Sampling
+
+
+
 ## Global Illumination
 ### Caustics
 ### Indirect Illumination
