@@ -1348,7 +1348,7 @@ static void DrawEmitted(void)
   glLineWidth(1);
   int len = PHOTONS_EMITTED.NEntries();
   double radius = 0.01;
-  double norm_len = 20.0*radius;
+  double norm_len = 50.0*radius;
   for (int i = 0; i < len; i++) {
     Photon p = *(PHOTONS_EMITTED[i]);
     // Get photon info
