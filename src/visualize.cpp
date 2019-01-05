@@ -44,6 +44,8 @@ static int show_bboxes = 0;
 static int show_rays = 0;
 static int show_paths = 0;
 static int show_emit = 0;
+static int show_global = 0;
+static int show_caustic = 0;
 static int show_frame_rate = 0;
 
 
@@ -60,7 +62,8 @@ static int TEMPORARY_STORAGE_COUNT = 0;
 struct Photon {
   R3Point position; // Position
   unsigned char rgbe[4];     // compressed RGB values
-  unsigned short direction;  // compressed REFLECTION direction
+  unsigned short direction;  // compressed incident direction
+  unsigned short reflection;  // compressed REFLECTION direction
 };
 
 // Memory for photons
@@ -796,7 +799,7 @@ int FlushPhotonStorage(vector<Photon>& local_photon_storage, Photon_Type map_typ
 // Store Photons locally in vector; if vector is full, safely copy to
 // global memory using sychronization (thread safe); uses dynamic memory
 void StorePhoton(RNRgb& photon, vector<Photon>& local_photon_storage,
-  R3Vector& incident_vector, R3Point& point, Photon_Type map_type)
+  R3Vector& incident_vector, R3Vector& reflection_vector, R3Point& point, Photon_Type map_type)
 {
   // Flush buffer if necessary
   if (TEMPORARY_STORAGE_COUNT >= SIZE_LOCAL_PHOTON_STORAGE) {
@@ -816,6 +819,12 @@ void StorePhoton(RNRgb& photon, vector<Photon>& local_photon_storage,
                       / (RN_TWO_PI));
   int theta = (unsigned char) (255.0 * acos(incident_vector[2]) / RN_PI);
   photon_target.direction = phi*256 + theta;
+
+  phi = (unsigned char) (255.0
+                      * (atan2(reflection_vector[1], reflection_vector[0]) + RN_PI)
+                      / (RN_TWO_PI));
+  theta = (unsigned char) (255.0 * acos(reflection_vector[2]) / RN_PI);
+  photon_target.reflection = phi*256 + theta;
 
   TEMPORARY_STORAGE_COUNT++;
   PHOTONS_STORED_COUNT++;
@@ -884,7 +893,8 @@ void PhotonTrace(R3Ray ray, RNRgb photon, vector<Photon>& local_photon_storage,
 
       // Diffuse interaction (store unless first bounce of caustic)
       if (brdf->IsDiffuse() && (iter > 0 || (map_type == GLOBAL))) {
-        StorePhoton(photon, local_photon_storage, view, point, map_type);
+        R3Vector reflection = ReflectiveBounce(normal, view, cos_theta);
+        StorePhoton(photon, local_photon_storage, view, reflection, point, map_type);
       }
 
       // Compute Reflection Coefficient, carry reflection portion to Specular
@@ -1296,27 +1306,11 @@ static void MapPhotons(void)
   Threadable_PhotonTracer(global_photons_remaining, caustic_photons_remaining,
                           light_powers, total_power);
 
-  // Update globals and scale by power
-  if ((INDIRECT_ILLUM) && GLOBAL_PHOTONS.NEntries()) {
-    GLOBAL_PHOTON_COUNT = GLOBAL_PHOTONS.NEntries();
-    RNScalar photon_power = (RNScalar) total_power / global_emitted_count;
-    for (int i = 0; i < GLOBAL_PHOTON_COUNT; i++) {
-      RNRgb color = RGBE_to_RNRgb(GLOBAL_PHOTONS[i]->rgbe);
-      color *= photon_power;
-      RNRgb_to_RGBE(color, GLOBAL_PHOTONS[i]->rgbe);
-    }
-  } else if ((INDIRECT_ILLUM) && GLOBAL_PHOTONS.NEntries() == 0) {
+  // Update globals based on sucess
+  if ((INDIRECT_ILLUM) && GLOBAL_PHOTONS.NEntries() == 0) {
     INDIRECT_ILLUM = false;
   }
-  if (CAUSTIC_ILLUM && CAUSTIC_PHOTONS.NEntries()) {
-    CAUSTIC_PHOTON_COUNT = CAUSTIC_PHOTONS.NEntries();
-    RNScalar photon_power = total_power / caustic_emitted_count;
-    for (int i = 0; i < CAUSTIC_PHOTON_COUNT; i++) {
-      RNRgb color = RGBE_to_RNRgb(CAUSTIC_PHOTONS[i]->rgbe);
-      color *= photon_power;
-      RNRgb_to_RGBE(color, CAUSTIC_PHOTONS[i]->rgbe);
-    }
-  } else if (CAUSTIC_ILLUM && CAUSTIC_PHOTONS.NEntries() == 0) {
+  if (CAUSTIC_ILLUM && CAUSTIC_PHOTONS.NEntries() == 0) {
     CAUSTIC_ILLUM = false;
   }
 
@@ -1351,6 +1345,67 @@ static void DrawEmitted(void)
   double norm_len = 50.0*radius;
   for (int i = 0; i < len; i++) {
     Photon p = *(PHOTONS_EMITTED[i]);
+    // Get photon info
+    RNRgb p_color = RGBE_to_RNRgb(p.rgbe);
+    R3Point p_pos = p.position;
+    int direction = p.direction;
+    RNScalar x = PHOTON_X_LOOKUP[direction];
+    RNScalar y = PHOTON_Y_LOOKUP[direction];
+    RNScalar z = PHOTON_Z_LOOKUP[direction];
+    R3Vector incident_vector = R3Vector(x, y ,z);
+
+    // Draw
+    glColor3d(p_color[0], p_color[1], p_color[2]);
+    R3Sphere(p_pos, radius).Draw();
+    R3Span(p_pos, norm_len*incident_vector + p_pos).Draw();
+  }
+  glLineWidth(1);
+}
+
+
+static void DrawStoredGlobal(void)
+{
+  glDisable(GL_LIGHTING);
+  glLineWidth(1);
+  int len = GLOBAL_PHOTONS.NEntries();
+  double radius = 0.01;
+  double norm_len = 2.0*radius;
+  for (int i = 0; i < len; i++) {
+    Photon p = *(GLOBAL_PHOTONS[i]);
+    // Get photon info
+    RNRgb p_color = RGBE_to_RNRgb(p.rgbe);
+    R3Point p_pos = p.position;
+    int direction = p.direction;
+    RNScalar x = PHOTON_X_LOOKUP[direction];
+    RNScalar y = PHOTON_Y_LOOKUP[direction];
+    RNScalar z = PHOTON_Z_LOOKUP[direction];
+    R3Vector incident_vector = R3Vector(x, y ,z);
+
+    int reflection = p.reflection;
+    x = PHOTON_X_LOOKUP[reflection];
+    y = PHOTON_Y_LOOKUP[reflection];
+    z = PHOTON_Z_LOOKUP[reflection];
+    R3Vector reflection_vector = R3Vector(x, y ,z);
+
+    // Draw
+    glColor3d(p_color[0], p_color[1], p_color[2]);
+    R3Sphere(p_pos, radius).Draw();
+    R3Span(p_pos, -norm_len*incident_vector + p_pos).Draw();
+    R3Span(p_pos, 2*norm_len*reflection_vector + p_pos).Draw();
+  }
+  glLineWidth(1);
+}
+
+
+static void DrawStoredCaustic(void)
+{
+  glDisable(GL_LIGHTING);
+  glLineWidth(1);
+  int len = CAUSTIC_PHOTONS.NEntries();
+  double radius = 0.01;
+  double norm_len = 10.0*radius;
+  for (int i = 0; i < len; i++) {
+    Photon p = *(CAUSTIC_PHOTONS[i]);
     // Get photon info
     RNRgb p_color = RGBE_to_RNRgb(p.rgbe);
     R3Point p_pos = p.position;
@@ -1432,8 +1487,16 @@ void GLUTRedraw(void)
   }
 
   // Draw emitted photons
-  if (show_emit) {
+  if (show_emit && INDIRECT_ILLUM) {
     DrawEmitted();
+  }
+
+  if (show_global && INDIRECT_ILLUM) {
+    DrawStoredGlobal();
+  }
+
+  if (show_caustic && CAUSTIC_ILLUM) {
+    DrawStoredCaustic();
   }
 
   // Draw scene nodes
@@ -1642,6 +1705,14 @@ void GLUTKeyboard(unsigned char key, int x, int y)
   case 'F':
   case 'f':
     show_emit = !show_emit;
+    break;
+  case 'G':
+  case 'g':
+    show_global = !show_global;
+    break;
+  case 'H':
+  case 'h':
+    show_caustic = !show_caustic;
     break;
   case 'O':
   case 'o':

@@ -51,15 +51,6 @@ void RNRgb_to_RGBE(RNRgb& rgb_src, unsigned char* rgbe_target)
 {
   RNScalar max = MaxChannelVal(rgb_src);
 
-  // Corner case for black
-  if (max < RN_EPSILON) {
-    rgbe_target[0] = 0;
-    rgbe_target[1] = 0;
-    rgbe_target[2] = 0;
-    rgbe_target[3] = 0;
-    return;
-  }
-
   int exponent;
   RNScalar mantissa = frexp(max, &exponent);
   rgbe_target[0] = (unsigned char) (256.0 * rgb_src[0]/max * mantissa);

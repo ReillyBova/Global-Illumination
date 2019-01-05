@@ -57,7 +57,6 @@ int ParseArgs(int argc, char **argv, char*& input_scene_name,
         DIRECT_PHOTON_ILLUM = true;
       } else if (!strcmp(*argv, "-fast_global")) {
         FAST_GLOBAL = true;
-        CAUSTIC_ILLUM = false;
         DIRECT_PHOTON_ILLUM = true; // Needs to be on for fast_global to work
       }
       // Monte Carlo Toggles
