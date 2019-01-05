@@ -23,6 +23,10 @@ This repository contains a C++ program that uses multithreaded raytracing and ph
     + [Perfect Reflection](#perfect-reflection)
     + [Perfect Transmission](#perfect-transmission)
     + [Monte Carlo Path-Tracing](#monte-carlo-path-tracing)
+  * [Photon Mapping](#photon-mapping)
+    + [Photon Emission](#photon-emission)
+    + [Photon Storage](#photon-storage)
+    + [Radiance Sampling](#radiance-sampling)
 - [Credits](#credits)
   * [Authors](#authors)
   * [References](#references)
@@ -112,22 +116,22 @@ In order to converge more quickly on the correct solution to the rendering equat
 #### Diffuse Importance Sampling
 Under our BRDF model, the outgoing direction of a diffuse bounce is independent of the incident angle of the incoming ray (beyond determining the side of the surface off of which to bounce). Rather, its pdf is determined by a normalized cosine-weighted hemisphere along the surface normal. Borrowing the inverse mapping provided by Lawrence, the direction of the outgoing ray is sampled in spherical coordinates as `(θ, φ) = (arccos(sqrt(u)), 2πv)`, where `(u, v)` are uniformly-distributed random variables in the range `[0, 1)`, `θ` is the angle between the outgoing ray and the surface normal, and `φ` is the angle around the plane perpendicular to the surface normal.
 
+##### Figure 1: Diffuse importance sampling of 500 rays at three angles and two viewpoints.
 || Viewpoint A | Viewpoint B |
 |:----------------:|:----------------:|:----------------:|
 | 90° | ![Fig 1a.i](/gallery/figures/fig_1a-i.png?raw=true) | ![Fig 1a.ii](/gallery/figures/fig_1a-ii.png?raw=true) |
 | 45° | ![Fig 1b.i](/gallery/figures/fig_1b-i.png?raw=true) | ![Fig 1b.ii](/gallery/figures/fig_1b-ii.png?raw=true) |
 | 5° | ![Fig 1c.i](/gallery/figures/fig_1c-i.png?raw=true) | ![Fig 1c.ii](/gallery/figures/fig_1c-ii.png?raw=true) |
-##### Figure 1: Diffuse importance sampling of 500 rays at three angles and two viewpoints.
 
 #### Specular Importance Sampling
 For specular importance sampling, the outgoing direction is sampled as a perturbance from the direction of perfect reflection of the incident ray. Again referencing Lawrence's note, we initially sample this direction as `(α, φ) = (arccos(pow(u,1/(n+1))), 2πv)`, where `(u, v)` are uniformly-distributed random variables in the range `[0, 1)`, `α` is the angle between the outgoing ray and the direction of perfect reflection, and `φ` is the angle around the plane perpendicular to the direction of perfect reflection. Finally, although this is not mentioned in the notes, in order to ensure the sampled outgoing ray is on the same side of the surface as the incoming ray, it is necessary to scale alpha from the range `[0, pi/2)` to `[0, θ)`, where `θ` is the angle between the direction of perfect reflection and the plane of the surface. Note that this rescaling is not a perfectly accurate model and somewhat inconsistent with our BRDF (rejection sampling would be a more accurate approach, but significantly more inefficient and not worth the cost), but it is still has a physical basis since glossy reflections become significantly sharper at increasingly grazing angles.
 
+##### Figure 2: Specular importance sampling of 500 rays at three angles and two viewpoints for two materials with shininess of n = 100 and n = 1000 respectively.
 || Viewpoint A, n = 100| Viewpoint B, n = 100 | Viewpoint A, n = 1000 | Viewpoint B, n = 1000 |
 |:----------------:|:----------------:|:----------------:|:----------------:|:----------------:|
 | 90° | ![Fig 2a.i](/gallery/figures/fig_2a-i.png?raw=true) | ![Fig 2a.ii](/gallery/figures/fig_2a-ii.png?raw=true) | ![Fig 2a.iii](/gallery/figures/fig_2a-iii.png?raw=true) | ![Fig 2a.iv](/gallery/figures/fig_2a-iv.png?raw=true) |
 | 45° | ![Fig 2b.i](/gallery/figures/fig_2b-i.png?raw=true) | ![Fig 2b.ii](/gallery/figures/fig_2b-ii.png?raw=true) | ![Fig 2b.iii](/gallery/figures/fig_2b-iii.png?raw=true) | ![Fig 2b.iv](/gallery/figures/fig_2b-iv.png?raw=true) |
 | 5° | ![Fig 2c.i](/gallery/figures/fig_2c-i.png?raw=true) | ![Fig 2c.ii](/gallery/figures/fig_2c-ii.png?raw=true) | ![Fig 2c.iii](/gallery/figures/fig_2c-iii.png?raw=true) | ![Fig 2c.iv](/gallery/figures/fig_2c-iv.png?raw=true) |
-##### Figure 2: Specular importance sampling of 500 rays at three angles and two viewpoints for two materials with shininess of n = 100 and n = 1000 respectively.
 
 ### 2D Lights
 The only physically-plausible light in the R3Graphics codebase is a circular area light. Because all example scenes in Jensen's Photon Mapping paper use a rectangular area light, the we added an R3RectLight class. Additionally, the original R3AreaLight class required modifications to its reflectance function implementation in order to more accurately reflect how light is emitted through diffuse surfaces.
@@ -139,16 +143,15 @@ rect_light r g b    px py pz    a1x a1y a1z    a2x a2y a2z    len1 len2    ca la
 ```
 This defines a rectangular light with radiance `r g b` (in Watts/sr/m^2) centered at `px py pz`. The surface of the light is defined by axes `a1` and `a2`, with lengths `len1` and `len2` respectively. Note that if `a1` and `a2` are not perpendicular, the light will be a parallelogram. Light is only emitted in the `a1 x a2` direction, and `ca la qa` define the light's attenuation constants.
 
+##### Figure 3: A comparison of area lights. In Figure (3a) we see a Cornell Box illuminated by a circular area light. In Figure (3b) we see a Cornell Box illuminated by a rectangular area light.
 | Circular Area Light | Rectangular Area Light |
 |:----------------:|:----------------:|
 | ![Fig 3a](/gallery/figures/fig_3a.png?raw=true) | ![Fig 3b](/gallery/figures/fig_3b.png?raw=true) |
-##### Figure 3: A comparison of area lights. In Figure (3a) we see a Cornell Box illuminated by a circular area light. In Figure (3b) we see a Cornell Box illuminated by a rectangular area light.
 
 #### Weighted Area Light Reflectance
 Since area lights emit light diffusely — that is, according to the distribution of a cosine-weighted hemisphere — it was necessary to modify the area light reflectance implementation provided in R3AreaLight. When computing the illumination of a surface due to an area light (circular or rectangular), the intensity of the illumination doubled and then scaled by the cosine of the angle between the light normal and the vector spanning from the light to the surface. The doubling is necessary since we want to keep the power of the light consistent with the original implementation (the flux through an evenly-weighted hemisphere is 2π, whereas the flux through a cosine-weighted hemisphere is π).
 
 ##### Figure 4: A comparison of area light falloff. In Figure (4a) we see a Cornell Box illuminated by an area light that emits light evenly in all directions (the provided implemention). In Figure (4b) we see a Cornell Box illuminated by an area light that emits light according to a cosine-weighted hemisphere. Notice that this improvement alone already makes the box appear far more realistic and natural.
-
 | No Light Falloff | Cosine Light Falloff |
 |:----------------:|:----------------:|
 | ![Fig 4a](/gallery/figures/fig_4a.png?raw=true) | ![Fig 4b](/gallery/figures/fig_4b.png?raw=true) |
@@ -161,13 +164,11 @@ When sampling the illumination of a surface by a particular light, it is necessa
 For point lights and spotlights, a ray is cast from the light's position to the surface sample. Then the first intersection of the ray with an object in the scene is computed, and if the distance between this intersection point and the light does not match up with the distance between the light and the surface sample, the surface sample is taken to be in shadow.
 
 ##### Figure 5: A demonstration of how point lights illuminate surfaces and cast shadows. In (5a) a sphere is illuminated on a box by a bright blue point light outside of the camera's view. In (5b) a sphere is illuminated by three brightly-colored point lights outside of the camera's view. Notice how the colors of the lights mix to form new colors.
-
 | Figure 5a | Figure 5b |
 |:----------------:|:----------------:|
 | ![Fig 5a](/gallery/figures/fig_5a.png?raw=true) | ![Fig 5b](/gallery/figures/fig_5b.png?raw=true) |
 
 ##### Figure 6: A demonstration of how spotlights illuminate surfaces and cast shadows. In (6a) a sphere is illuminated on a box by a bright white spotlight (similar to a studio light) outside of the camera's view. In (6b) a sphere is illuminated by three brightly-colored spotlights outside of the camera's view that are focused on the sphere. Notice how only very faint shadows are cast in the scene because the cutoff angles of the spotlights are set such that the sphere "eclipses" the cones of light.
-
 | Figure 6a | Figure 6b |
 |:----------------:|:----------------:|
 | ![Fig 6a](/gallery/figures/fig_6a.png?raw=true) | ![Fig 6b](/gallery/figures/fig_6b.png?raw=true) |
@@ -176,7 +177,6 @@ For point lights and spotlights, a ray is cast from the light's position to the 
 For directional lights, it is first necessary to find a point far outside the scene such that the vector from this point to the surface sample is colinear with the direction of the the directional light. Then a ray is cast from this point to the surface sample. The rest of the shadowing computation continues as before.
 
 ##### Figure 7: A demonstration of how directional lights illuminate surfaces and cast shadows. In (7a) a sphere is illuminated on a box by a bright blue directional light. In (7b) a sphere is illuminated by three brightly-colored directional lights. Notice the coloring of the shadows is subtractive (whereas the coloring on the ball is additive) because of the sharpness of directional light (i.e. there is no bleeding).
-
 | Figure 7a | Figure 7b |
 |:----------------:|:----------------:|
 | ![Fig 7a](/gallery/figures/fig_7a.png?raw=true) | ![Fig 7b](/gallery/figures/fig_7b.png?raw=true) |
@@ -188,7 +188,6 @@ For area lights, it is possible for a surface to be partially occluded from a li
 Note that if the ray can make it all the way to the surface, then as an optimization, the surface illumination due to the ray is also sampled. For the R3AreaLight, this requires rewriting the provided reflection code to sit within the soft shadow loop. Note that this optimization is, remarkably, also a more accurate model since the illumination of a surface is now only sampled from unoccluded portions of area lights.
 
 ##### Figure 8: A comparison of soft shadow quality based the number of shadow rays sent per sample.
-
 | No Soft Shadows | 1 Sample | 4 Samples | 16 Samples | 64 Samples | 256 Samples |
 |:---:|:---:|:---:|:---:|:---:|:---:|
 | ![Fig 8a](/gallery/figures/fig_8a.png?raw=true) | ![Fig 8b](/gallery/figures/fig_8b.png?raw=true) | ![Fig 8c](/gallery/figures/fig_8c.png?raw=true) | ![Fig 8d](/gallery/figures/fig_8d.png?raw=true) | ![Fig 8e](/gallery/figures/fig_8e.png?raw=true) | ![Fig 8f](/gallery/figures/fig_8f.png?raw=true) |
@@ -314,8 +313,17 @@ The following visualizations may be toggled from within the viewer by pressing e
 
 
 ### Radiance Sampling
+Once the photon map is built, it is easy to use the map to estimate the radiance (due to photon paths traced in the map) at any point in the scene. First, as a preprocessing step, the photon map is fed into a data structure that can efficiently solve the K nearest neighbors problem, such as a KdTree. Then, for a given point, the K nearest photons to that point are found (up to a maximum distance), where K is a sampling parameter provided by the user. Finally, we use our BRDF to sample how much radiance each photon propagates along our incident ray, sum these values, and then normalize them by the area of a circle with a radius equal to the maximum distance between any one photon and the sample point, or, if fewer than K photons are found, the previously-discussed maximum distance parameter. The result of this computation is our radiance estimate.
 
+##### Figure 22: A comparison of how radiance sample size effects the overall radiance estimate. In these figures, direct radiance estimates were made on a global photon map containing 5000 photons, and the maximum distance parameter is always the size of the box. Notice figures (22c) and (22d) approach accurate global illumination.
+| 1 Photon per Sample | 8 Photons per Sample | 64 Photons per Sample | 128 Photons per Sample | 
+|:---:|:---:|:---:|:---:|
+|  ![Fig 22a](/gallery/figures/fig_22a.png?raw=true) | ![Fig 22b](/gallery/figures/fig_22b.png?raw=true) |  ![Fig 22c](/gallery/figures/fig_22c.png?raw=true) | ![Fig 22d](/gallery/figures/fig_22d.png?raw=true) |
 
+##### Figure 23: A comparison of how the maximum radius of a radiance sample effects the overall radiance estimate. In these figures, direct radiance estimates were on made a global photon map containing 5000 photons, and the number of samples per estimate is always 64.
+| R = 0.05 | R = 0.25 | R = 0.5 | R = 1 | 
+|:---:|:---:|:---:|:---:|
+|  ![Fig 23a](/gallery/figures/fig_23a.png?raw=true) | ![Fig 23b](/gallery/figures/fig_23b.png?raw=true) |  ![Fig 23c](/gallery/figures/fig_23c.png?raw=true) | ![Fig 22d](/gallery/figures/fig_22d.png?raw=true) |
 
 ## Global Illumination
 ### Caustics
