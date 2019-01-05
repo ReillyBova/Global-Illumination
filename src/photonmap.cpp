@@ -242,7 +242,7 @@ static void Threadable_PhotonTracer(const int num_global_photons,
   RNClearThreadRandomness();
 }
 
-// Multithreading method that populates the photon maps as necessarys
+// Multithreading method that populates the photon maps as arrays
 static void MapPhotons(void)
 {
   // Corner case

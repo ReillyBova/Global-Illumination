@@ -52,6 +52,13 @@ void PhotonTrace(R3Ray ray, RNRgb photon, vector<Photon>& local_photon_storage,
   R3Vector exact_bounce;
   R3Vector sampled_bounce;
 
+  // Storage boolean (used to differentiate map type)
+  bool store = false;
+  if (map_type == GLOBAL && !FAST_GLOBAL) {
+    // Global maps always store
+    store = true;
+  }
+
   // Trace the photon through its bounces, storing it at diffuse surfaces
   int iter;
   for (iter = 0; iter < MAX_PHOTON_DEPTH &&
@@ -67,7 +74,7 @@ void PhotonTrace(R3Ray ray, RNRgb photon, vector<Photon>& local_photon_storage,
       cos_theta = normal.Dot(-view);
 
       // Diffuse interaction (store unless first bounce of caustic)
-      if (brdf->IsDiffuse() && (iter > 0 || (map_type == GLOBAL && !FAST_GLOBAL))) {
+      if (brdf->IsDiffuse() && store) {
         StorePhoton(photon, local_photon_storage, view, point, map_type);
       }
 
@@ -102,6 +109,9 @@ void PhotonTrace(R3Ray ray, RNRgb photon, vector<Photon>& local_photon_storage,
           break;
         }
 
+        // Fast global maps can store after the first diffuse bounce
+        store = true;
+
         // Otherwise, compute direction of diffuse bounce
         sampled_bounce = Diffuse_ImportanceSample(normal, cos_theta);
         // Update weights
@@ -111,6 +121,10 @@ void PhotonTrace(R3Ray ray, RNRgb photon, vector<Photon>& local_photon_storage,
         exact_bounce = TransmissiveBounce(normal, view, cos_theta,
                                           brdf->IndexOfRefraction());
         if (DISTRIB_TRANSMISSIVE) {
+          // Caustics can now store after non diffuse bounce
+          if (map_type == CAUSTIC) {
+            store = true;
+          }
           // Use importance sampling
           sampled_bounce = Specular_ImportanceSample(exact_bounce, brdf->Shininess(), cos_theta);
         } else {
@@ -122,6 +136,10 @@ void PhotonTrace(R3Ray ray, RNRgb photon, vector<Photon>& local_photon_storage,
         // Compute direction of specular bounce
         exact_bounce = ReflectiveBounce(normal, view, cos_theta);
         if (DISTRIB_SPECULAR) {
+          // Caustics can now store after non diffuse bounce
+          if (map_type == CAUSTIC) {
+            store = true;
+          }
           // Use importance sampling
           sampled_bounce = Specular_ImportanceSample(exact_bounce, brdf->Shininess(), cos_theta);
         } else {
@@ -204,8 +222,8 @@ void EmitPhotons(int num_photons, R3Light* light, Photon_Type map_type, int thre
     for (int i = 0; i < num_photons; i++) {
       do {
         // Sample point in circle
-        r1 = RNThreadableRandomScalar();
-        r2 = RNThreadableRandomScalar();
+        r1 = RNThreadableRandomScalar()*2.0 - 1.0;
+        r2 = RNThreadableRandomScalar()*2.0 - 1.0;
       } while (r1*r1 + r2*r2 > 1.0);
 
       sample_point = r1*u + r2*v + center + light_norm*RN_EPSILON;
@@ -296,8 +314,8 @@ void EmitPhotons(int num_photons, R3Light* light, Photon_Type map_type, int thre
     for (int i = 0; i < num_photons; i++) {
       do {
         // Sample point in circle
-        r1 = RNThreadableRandomScalar();
-        r2 = RNThreadableRandomScalar();
+        r1 = RNThreadableRandomScalar()*2.0 - 1.0;
+        r2 = RNThreadableRandomScalar()*2.0 - 1.0;
       } while (r1*r1 + r2*r2 > 1.0);
 
       // Use values r1, r2 and vectors u, v to find a random point on light

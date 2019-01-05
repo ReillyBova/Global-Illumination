@@ -43,9 +43,44 @@ static int show_lights = 0;
 static int show_bboxes = 0;
 static int show_rays = 0;
 static int show_paths = 0;
+static int show_emit = 0;
 static int show_frame_rate = 0;
 
 
+static bool INDIRECT_ILLUM = false;
+static bool CAUSTIC_ILLUM = false;
+static int GLOBAL_PHOTON_COUNT = 1920; // Number of photons emmitted for global map
+static int CAUSTIC_PHOTON_COUNT = 3000; // Number of photons emmited for caustic map
+static int MAX_PHOTON_DEPTH = 10;
+
+static int PHOTONS_STORED_COUNT = 0;
+static int TEMPORARY_STORAGE_COUNT = 0;
+
+// Photon data structure
+struct Photon {
+  R3Point position; // Position
+  unsigned char rgbe[4];     // compressed RGB values
+  unsigned short direction;  // compressed REFLECTION direction
+};
+
+// Memory for photons
+static RNArray <Photon *> GLOBAL_PHOTONS;
+static RNArray <Photon *> CAUSTIC_PHOTONS;
+
+// Memory for emitted photons
+static RNArray <Photon *> PHOTONS_EMITTED;
+
+// Lookup tables for incident direction
+static RNScalar PHOTON_X_LOOKUP[65536];
+static RNScalar PHOTON_Y_LOOKUP[65536];
+static RNScalar PHOTON_Z_LOOKUP[65536];
+
+static int global_emitted_count  = 0;
+static int caustic_emitted_count = 0;
+
+static int SIZE_LOCAL_PHOTON_STORAGE = 100000;
+
+enum Photon_Type {GLOBAL, CAUSTIC};
 
 ////////////////////////////////////////////////////////////////////////
 // Draw functions
@@ -325,6 +360,34 @@ R3Vector TransmissiveBounce(R3Vector normal, R3Vector& view, RNScalar cos_theta,
   return view_refraction;
 }
 
+
+// Use importance sampling to return a vector sampled from a weighted hemisphere
+// around the surface normal (normal is flipped if cos_theta is negative)
+R3Vector Diffuse_ImportanceSample(R3Vector normal, const RNScalar cos_theta)
+{
+  // Check normal direction
+  if (cos_theta < 0) {
+    normal.Flip();
+  }
+
+  // Pick spherical coords
+  const RNAngle theta = acos(sqrt(RNRandomScalar()));
+  const RNAngle phi = 2*RN_PI*RNRandomScalar();
+
+  // Build a vector with angle alpha relative to the normal direction
+  R3Vector perpendicular_direction = R3Vector(normal[1], -normal[0], 0);
+  if (1.0 - abs(normal[2]) < 0.1) {
+    perpendicular_direction = R3Vector(normal[2], 0, -normal[0]);
+  }
+  perpendicular_direction.Normalize();
+  R3Vector result = perpendicular_direction*sin(theta) + normal*cos(theta);
+
+  // Rotate around axis by phi and normalize
+  result.Rotate(normal, phi);
+  result.Normalize();
+  return result;
+}
+
 // Use importance sampling to return a vector offset from a perfect bounce by
 // a random variable drawn from the brdf
 R3Vector Specular_ImportanceSample(const R3Vector& exact, const RNScalar n,
@@ -590,120 +653,720 @@ DrawPaths(R3Scene *scene)
       }
     }
   }
-
-        /*
-          for (int k = 0; k < 5; k++) {
-            material = (element) ? element->Material() : &R3default_material;
-            brdf = (material) ? material->Brdf() : &R3default_brdf;
-            if (brdf) {
-              if (!brdf->IsTransparent()) {
-                break;
-              }
-              R3Vector view = point - prev;
-              view.Normalize();
-              RNScalar cos_theta = normal.Dot(-view);
-              RNScalar ir_mat = IR;
-              // Get reflection
-              R3Vector exact = TransmissiveBounce(normal, view, cos_theta, ir_mat);
-              ray = R3Ray(point + exact*RN_EPSILON, exact, true);
-              prev = point;
-              if (scene->Intersects(ray, &node, &element, &shape, &point, &normal, &t)) {
-                glColor3d(1, 0, 0);
-                R3Sphere(point, radius).Draw();
-                if (k == 0)
-                  glColor3d(0.8, 0.8, 0.8);
-                else if (k == 1)
-                  glColor3d(0.0, 0.8, 0.2);
-                else
-                  glColor3d(0.8, 0.0, 0.2);
-                R3Span(prev, point).Draw();
-              } else {
-                glColor3d(1, 1, 1);
-                if (k == 0)
-                  glColor3d(0.8, 0.8, 0.8);
-                else if (k == 1)
-                  glColor3d(0.0, 0.8, 0.2);
-                else
-                  glColor3d(0.8, 0.0, 0.2);
-                R3Span(prev, prev + 200 * exact).Draw();
-                break;
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-  // Ray intersection variables
-  glDisable(GL_LIGHTING);
-  glLineWidth(2);
-  R3SceneNode *node;
-  R3SceneElement *element;
-  R3Shape *shape;
-  R3Point point;
-  R3Vector normal;
-  RNScalar t;
-  // Ray drawing variables
-  double radius = 0.025;
-  R3Vector beam = R3Vector(cos(0.0872665), sin(0.0872665), 0);
-  //R3Vector beam = R3Vector(0, 1, 0);
-  beam.Normalize();
-  beam *= 1.25;
-  R3Point top = beam.Point() + R3Vector(0, 1, 0);
-  R3Ray ray = R3Ray(top, -beam);
-  if (scene->Intersects(ray, &node, &element, &shape, &point, &normal, &t)) {
-      glColor3d(0.7, 0.1, 0.1);
-      R3Sphere(point, radius).Draw();
-      R3Sphere(top, radius).Draw();
-      R3Span(point, top).Draw();
-      radius = 0.015;
-      R3Vector view = point - top;
-      view.Normalize();
-      RNScalar cos_theta = abs(normal.Dot(view));
-      int n = 1000;
-      R3Vector view_flipped_perp = normal * cos_theta;
-      R3Vector view_reflection = view + view_flipped_perp*2.0;
-      view_reflection.Normalize();
-      R3Vector exact = view_reflection;
-      for (int i = 0; i < 500; i++) {
-        // Get the max value for alpha (becomes increasingly small as cos theta shrinks
-        // to prevent the reflection from penetrating the surface; mimics real behavior
-        // of increased specularity sharpness near grazing angles)
-        // Computed from: 2/pi * (angle between surface and exact) = 2/pi * (pi/2 - acos(N*V))
-        //                = 1 - 2/pi * cos(|cos_theta|)
-        const RNScalar angle_limit = (1.0 - acos(abs(cos_theta)) * 2.0 / RN_PI);
-
-        // Find axis perturbation values from brdf (see Lafortune & Williams, 1994)
-        const RNAngle alpha = acos(pow(RNRandomScalar(), 1.0 / (n + 1.0))) * angle_limit;
-
-        const RNAngle phi = RN_TWO_PI*RNRandomScalar();
-
-        // Build a vector with angle alpha relative to the exact direction
-        R3Vector perpendicular_direction = R3Vector(exact[1], -exact[0], 0);
-        if (1.0 - abs(exact[2]) < 0.1) {
-          perpendicular_direction = R3Vector(exact[2], 0, -exact[0]);
-        }
-        perpendicular_direction.Normalize();
-
-        R3Vector result = perpendicular_direction*sin(alpha) + exact*cos(alpha);
-
-        // Rotate around axis by phi and normalize
-        result.Rotate(exact, phi);
-        result.Normalize();
-
-        // Rotate around axis by phi and normalize
-        R3Point end = result + point;
-        glColor3d(0, 0, 0);
-        R3Sphere(end, radius).Draw();
-        glColor3d(0.1, 0.1, 0.7);
-        R3Span(point, end).Draw();
-      }
-  } */
-
   glLineWidth(1);
 }
 
+////////////////////////////////////////////////////////////////////////
+// Photon Tools
+////////////////////////////////////////////////////////////////////////
 
+// Return total power of light (sum of RGB channels and scaled by area)
+RNScalar LightPower(R3Light* light)
+{
+  // Flux into scene computation
+  const RNRgb& color = light->Color();
+  RNArea area = 1.0;
+  // Flux through closed gaussian surface is 4pi
+  RNScalar flux = 4.0 * RN_PI;
+  if (light->ClassID() == R3DirectionalLight::CLASS_ID()) {
+    // Area of Directional Light
+    area = RN_PI*pow(scene->BBox().DiagonalRadius(), 2.0);
+    flux = 1.0;
+  } else if (light->ClassID() == R3AreaLight::CLASS_ID()) {
+    // Area of Circular Light
+    R3AreaLight *area_light = (R3AreaLight *) light;
+    area = RN_PI*pow(area_light->Radius(), 2.0);
+    // Flux through hemisphere is 2pi
+    flux /= 2.0;
+  } else if (light->ClassID() == R3RectLight::CLASS_ID()) {
+    // Area of Parallelogram Light
+    R3RectLight *rect_light = (R3RectLight *) light;
+    R3Vector a1 = rect_light->PrimaryAxis() * rect_light->PrimaryLength();
+    R3Vector a2 = rect_light->SecondaryAxis() * rect_light->SecondaryLength();
+    area = (a1 % a2).Length();
+    // Flux through hemisphere is 2pi
+    flux /= 2.0;
+  } else if (light->ClassID() == R3SpotLight::CLASS_ID()) {
+    // Get Flux of cone (tricky!)
+    R3SpotLight *spot_light = (R3SpotLight *) light;
+    RNScalar s = spot_light->DropOffRate();
+    RNAngle c = spot_light->CutOffAngle();
+    flux = RN_TWO_PI / (s + 1.0) * (1.0 - pow(cos(c), s + 1.0));
+  }
+
+  // Return sum of color powers scaled by area
+  return (color[0] + color[1] + color[2]) * area * flux;
+}
+
+// Normalize Color channels so they sum to 1
+void NormalizeColor(RNRgb &color) {
+  // Compute L1 magnitude
+  RNScalar total = 0;
+  for (int i = 0; i < 3; i++) {
+    total += color[i];
+  }
+
+  if (total > 0) {
+    color /= total;
+  }
+}
+
+// Convert color from RGB to Ward's packed RGBE format; copies result into char[4]
+// array
+void RNRgb_to_RGBE(RNRgb& rgb_src, unsigned char* rgbe_target)
+{
+  RNScalar max = MaxChannelVal(rgb_src);
+
+  // Corner case for black
+  if (max < RN_EPSILON) {
+    rgbe_target[0] = 0;
+    rgbe_target[1] = 0;
+    rgbe_target[2] = 0;
+    rgbe_target[3] = 0;
+    return;
+  }
+
+  int exponent;
+  RNScalar mantissa = frexp(max, &exponent);
+  rgbe_target[0] = (unsigned char) (256.0 * rgb_src[0]/max * mantissa);
+  rgbe_target[1] = (unsigned char) (256.0 * rgb_src[1]/max * mantissa);
+  rgbe_target[2] = (unsigned char) (256.0 * rgb_src[2]/max * mantissa);
+  rgbe_target[3] = (unsigned char) (exponent + 128);
+}
+
+// Convert color from Ward's packed char[4] RGBE format to an RGB class
+RNRgb RGBE_to_RNRgb(unsigned char* rgbe_src)
+{
+  // Corner case for black
+  if (!rgbe_src[3]) {
+    return RNblack_rgb;
+  }
+
+  // Find inverse
+  RNScalar inverse = ldexp(1.0, ((int) rgbe_src[3]) - 128 - 8);
+
+  // Copy, scale, and return
+  RNRgb color = RNRgb(rgbe_src[0], rgbe_src[1], rgbe_src[2]);
+  color *= inverse;
+  return color;
+}
+
+
+
+// Build mapping from spherical coordinates to xyz coordinates for fast lookup
+void BuildDirectionLookupTable(void)
+{
+  for (int phi = 0; phi < 256; phi++) {
+    for (int theta = 0; theta < 256; theta++) {
+      // Convert to cartesian
+      RNAngle true_phi = (phi * RN_TWO_PI / 255.0) - RN_PI;
+      RNAngle true_theta = (theta * RN_PI / 255.0);
+      RNScalar x = sin(true_theta) * cos(true_phi);
+      RNScalar y = sin(true_theta) * sin(true_phi);
+      RNScalar z = cos(true_theta);
+      // Normalize (might be slightly off)
+      R3Vector norm = R3Vector(x, y, z);
+      norm.Normalize();
+      // Store
+      PHOTON_X_LOOKUP[256*phi + theta] = norm[0];
+      PHOTON_Y_LOOKUP[256*phi + theta] = norm[1];
+      PHOTON_Z_LOOKUP[256*phi + theta] = norm[2];
+    }
+  }
+}
+
+// Flush local memory to global memory using dynamic memory
+// primatives; returns 1 if successful, 0 otherwise
+int FlushPhotonStorage(vector<Photon>& local_photon_storage, Photon_Type map_type)
+{
+  // Insert photons into global array
+  for (int i = 0; i < TEMPORARY_STORAGE_COUNT; i++) {
+    Photon* photon = new Photon(local_photon_storage[i]);
+    if (map_type == GLOBAL) {
+      GLOBAL_PHOTONS.Insert(photon);
+    } else if (map_type == CAUSTIC) {
+      CAUSTIC_PHOTONS.Insert(photon);
+    }
+  }
+
+  TEMPORARY_STORAGE_COUNT = 0;
+  return 1;
+}
+
+// Store Photons locally in vector; if vector is full, safely copy to
+// global memory using sychronization (thread safe); uses dynamic memory
+void StorePhoton(RNRgb& photon, vector<Photon>& local_photon_storage,
+  R3Vector& incident_vector, R3Point& point, Photon_Type map_type)
+{
+  // Flush buffer if necessary
+  if (TEMPORARY_STORAGE_COUNT >= SIZE_LOCAL_PHOTON_STORAGE) {
+    int success = FlushPhotonStorage(local_photon_storage, map_type);
+    if (!success) {
+      fprintf(stderr, "\nError allocating photon memory \n");
+      exit(-1);
+    }
+  }
+
+  // Copy photon
+  Photon& photon_target = local_photon_storage[TEMPORARY_STORAGE_COUNT];
+  photon_target.position = point;
+  RNRgb_to_RGBE(photon, photon_target.rgbe);
+  int phi = (unsigned char) (255.0
+                      * (atan2(incident_vector[1], incident_vector[0]) + RN_PI)
+                      / (RN_TWO_PI));
+  int theta = (unsigned char) (255.0 * acos(incident_vector[2]) / RN_PI);
+  photon_target.direction = phi*256 + theta;
+
+  TEMPORARY_STORAGE_COUNT++;
+  PHOTONS_STORED_COUNT++;
+  return;
+}
+
+////////////////////////////////////////////////////////////////////////
+// Photon Tracing Method
+////////////////////////////////////////////////////////////////////////
+
+// Monte carlo trace photon, storing at each diffuse intersection
+void PhotonTrace(R3Ray ray, RNRgb photon, vector<Photon>& local_photon_storage,
+  Photon_Type map_type)
+{
+  // Store emitted photons
+  if (map_type == GLOBAL) {
+    // Copy photon
+    Photon *photon_emitted = new Photon();
+    photon_emitted->position = ray.Start();
+    RNRgb_to_RGBE(photon, photon_emitted->rgbe);
+    R3Vector v = ray.Vector();
+    int phi = (unsigned char) (255.0
+                        * (atan2(v[1], v[0]) + RN_PI)
+                        / (RN_TWO_PI));
+    int theta = (unsigned char) (255.0 * acos(v[2]) / RN_PI);
+    photon_emitted->direction = phi*256 + theta;
+    PHOTONS_EMITTED.Insert(photon_emitted);
+  }
+  // Intersection variables and forward declarations
+  R3SceneElement *element;
+  R3Point point;
+  R3Vector normal;
+  const R3Material *material;
+  const R3Brdf *brdf;
+  R3Point ray_start = ray.Start();
+  R3Vector view;
+  RNScalar cos_theta;
+  RNScalar R_coeff;
+
+  // Probability values
+  RNScalar max_channel;
+  RNScalar prob_diffuse;
+  RNScalar prob_transmission;
+  RNScalar prob_specular;
+  RNScalar prob_terminate;
+  RNScalar prob_total;
+  RNScalar rand;
+
+  // Bouncing geometries
+  R3Vector exact_bounce;
+  R3Vector sampled_bounce;
+
+  // Trace the photon through its bounces, storing it at diffuse surfaces
+  int iter;
+  for (iter = 0; iter < MAX_PHOTON_DEPTH &&
+    scene->Intersects(ray, NULL, &element, NULL, &point, &normal, NULL); iter++)
+  {
+    // Get intersection information
+    material = (element) ? element->Material() : &R3default_material;
+    brdf = (material) ? material->Brdf() : &R3default_brdf;
+    if (brdf) {
+      // Useful geometric values to precompute
+      view = (point - ray_start);
+      view.Normalize();
+      cos_theta = normal.Dot(-view);
+
+      // Diffuse interaction (store unless first bounce of caustic)
+      if (brdf->IsDiffuse() && (iter > 0 || (map_type == GLOBAL))) {
+        StorePhoton(photon, local_photon_storage, view, point, map_type);
+      }
+
+      // Compute Reflection Coefficient, carry reflection portion to Specular
+      R_coeff = 0;
+      if (brdf->IsTransparent()) {
+        R_coeff = ComputeReflectionCoeff(cos_theta, brdf->IndexOfRefraction());
+      }
+
+      // Generate material probabilities of bounce type
+      max_channel = MaxChannelVal(photon);
+      prob_diffuse = MaxChannelVal(brdf->Diffuse() * photon) / max_channel;
+      prob_transmission = MaxChannelVal(brdf->Transmission() * photon) / max_channel;
+      prob_specular = (MaxChannelVal(brdf->Specular() * photon) / max_channel)
+                        + R_coeff*prob_transmission;
+      prob_transmission *= (1.0 - R_coeff);
+      prob_terminate = 0.005;
+      prob_total = prob_diffuse + prob_transmission + prob_specular + prob_terminate;
+
+      // Scale down to 1.0 (but never scale up bc of implicit absorption)
+      // NB: faster to scale rand up than to normalize; would also need to adjust
+      //     brdf values when updating weights (dividing prob_total back out)
+      rand = RNRandomScalar();
+      if (prob_total > 1.0) {
+        rand *= prob_total;
+      }
+
+      // Bounce and recur (choose one from distribution)
+      if (rand < prob_diffuse) {
+        // Terminate if caustic trace
+        if (map_type == CAUSTIC) {
+          break;
+        }
+
+        // Otherwise, compute direction of diffuse bounce
+        sampled_bounce = Diffuse_ImportanceSample(normal, cos_theta);
+        // Update weights
+        photon *= brdf->Diffuse() / prob_diffuse;
+      } else if (rand < prob_diffuse + prob_transmission) {
+        // Compute direction of transmissive bounce
+        exact_bounce = TransmissiveBounce(normal, view, cos_theta,
+                                          brdf->IndexOfRefraction());
+        // Use importance sampling
+        sampled_bounce = Specular_ImportanceSample(exact_bounce, brdf->Shininess(), cos_theta);
+
+        // Update weights
+        photon *= brdf->Transmission() / prob_transmission;
+      } else if (rand < prob_diffuse + prob_transmission + prob_specular) {
+        // Compute direction of specular bounce
+        exact_bounce = ReflectiveBounce(normal, view, cos_theta);
+        // Use importance sampling
+        sampled_bounce = Specular_ImportanceSample(exact_bounce, brdf->Shininess(), cos_theta);
+
+        // Update weights
+        photon *= brdf->Specular() / prob_specular;
+      } else {
+        // Photon absorbed; terminate trace
+        break;
+      }
+
+      ray_start = point + sampled_bounce * RN_EPSILON;
+      ray = R3Ray(ray_start, sampled_bounce, TRUE);
+    }
+  }
+}
+
+////////////////////////////////////////////////////////////////////////
+// Photon Emitting Method (invokes internal photon tracer)
+////////////////////////////////////////////////////////////////////////
+
+void EmitPhotons(int num_photons, R3Light* light, Photon_Type map_type)
+{
+  // Corner cases
+  if (!(light->IsActive()) || !num_photons) return;
+
+  // Compute photon power (normalized across lights in scene)
+  RNRgb photon = light->Color();
+  NormalizeColor(photon);
+
+  // Allocate stack space for fast thread local storage
+  vector<Photon> local_photon_storage(SIZE_LOCAL_PHOTON_STORAGE);
+
+  // Reset counts
+  TEMPORARY_STORAGE_COUNT = 0;
+
+  // Emit photons based on geometry of light
+  if (light->ClassID() == R3DirectionalLight::CLASS_ID()) {
+    // Directional Light (emit from a large disk outside scene)
+    R3DirectionalLight *directional_light = (R3DirectionalLight *) light;
+    R3Vector light_norm = directional_light->Direction();
+    R3Point center = scene->Centroid() - light_norm * scene->BBox().DiagonalRadius() * 3.0;
+
+    // Find two perpendicular vectors spanning plane of light
+    R3Vector u = R3Vector(light_norm[1], -light_norm[0], 0);
+    if (1.0 - abs(light_norm[2]) < 0.1) {
+      u = R3Vector(light_norm[2], 0, -light_norm[0]);
+    }
+    R3Vector v = u % light_norm;
+    u.Normalize();
+    v.Normalize();
+
+    // Scale u and v
+    u *= scene->BBox().DiagonalRadius();
+    v *= scene->BBox().DiagonalRadius();
+
+    // General Forward Declarations
+    R3Point sample_point;
+    R3Ray ray;
+    RNScalar r1, r2;
+
+    // Emit photons
+    for (int i = 0; i < num_photons; i++) {
+      do {
+        // Sample point in circle
+        r1 = RNRandomScalar()*2.0 - 1.0;
+        r2 = RNRandomScalar()*2.0 - 1.0;
+      } while (r1*r1 + r2*r2 > 1.0);
+
+      sample_point = r1*u + r2*v + center + light_norm*RN_EPSILON;
+      ray = R3Ray(sample_point, light_norm, TRUE);
+      PhotonTrace(ray, photon,local_photon_storage, map_type);
+    }
+  } else if (light->ClassID() == R3PointLight::CLASS_ID()) {
+    // Point Light (use spherical point picking to pick emmission direction)
+    R3PointLight *point_light = (R3PointLight *) light;
+    R3Point center = point_light->Position();
+
+    // General Forward Declarations
+    R3Vector sample_direction;
+    R3Ray ray;
+    RNScalar x, y, z;
+
+    // Emit photons
+    for (int i = 0; i < num_photons; i++) {
+      do {
+        // Sample direction in sphere
+        x = RNRandomScalar()*2.0 - 1.0;
+        y = RNRandomScalar()*2.0 - 1.0;
+        z = RNRandomScalar()*2.0 - 1.0;
+      } while (x*x + y*y + z*z > 1.0);
+
+      sample_direction = R3Vector(x, y, z);
+      sample_direction.Normalize();
+      ray = R3Ray(center, sample_direction, TRUE);
+      PhotonTrace(ray, photon, local_photon_storage, map_type);
+    }
+  } else if (light->ClassID() == R3SpotLight::CLASS_ID()) {
+    // Spot Light (use specular importance sampling)
+    R3SpotLight *spot_light = (R3SpotLight *) light;
+    R3Point center = spot_light->Position();
+    R3Vector light_norm = spot_light->Direction();
+    RNScalar n = spot_light->DropOffRate();
+    RNScalar cutoff = abs(cos(spot_light->CutOffAngle()));
+
+    // General Forward Declarations
+    R3Vector sample_direction;
+    R3Ray ray;
+    int attempts_left;
+
+    // Emit photons
+    for (int i = 0; i < num_photons; i++) {
+      attempts_left = 20;
+      do {
+        // Sample perturbation from light direction
+        sample_direction = Specular_ImportanceSample(light_norm, n, 1.0);
+      } while (sample_direction.Dot(light_norm) < cutoff && attempts_left-- > 0);
+
+      // Cheat the dropoff
+      if (attempts_left == 0) {
+        sample_direction = Specular_ImportanceSample(light_norm, n, cutoff);
+      }
+
+      ray = R3Ray(center, sample_direction, TRUE);
+      PhotonTrace(ray, photon, local_photon_storage, map_type);
+    }
+  } else if (light->ClassID() == R3AreaLight::CLASS_ID()) {
+    // Area Light (pick from a circle and diffuse direction)
+    R3AreaLight *area_light = (R3AreaLight *) light;
+
+    // Get light geometry
+    R3Point center = area_light->Position();
+    R3Vector light_norm = area_light->Direction();
+    RNLength radius = area_light->Radius();
+
+    // Find two perpendicular vectors spanning circle plane
+    R3Vector u = R3Vector(light_norm[1], -light_norm[0], 0);
+    if (1.0 - abs(light_norm[2]) < 0.1) {
+      u = R3Vector(light_norm[2], 0, -light_norm[0]);
+    }
+    R3Vector v = u % light_norm;
+    u.Normalize();
+    v.Normalize();
+
+    // Scale u and v
+    u *= radius;
+    v *= radius;
+
+    // Genereal Forward Declarations
+    R3Point sample_point;
+    R3Vector sample_direction;
+    R3Ray ray;
+    RNScalar r1, r2;
+
+    for (int i = 0; i < num_photons; i++) {
+      do {
+        // Sample point in circle
+        r1 = (RNRandomScalar() * 2.0) - 1.0;
+        r2 = (RNRandomScalar() * 2.0) - 1.0;
+      } while (r1*r1 + r2*r2 > 1.0);
+
+      // Use values r1, r2 and vectors u, v to find a random point on light
+      sample_point = r1*u + r2*v + center + light_norm*RN_EPSILON;
+
+      // Use diffuse importance sampling to pick a direction
+      sample_direction = Diffuse_ImportanceSample(light_norm, 1.0);
+
+      ray = R3Ray(sample_point, sample_direction, TRUE);
+      PhotonTrace(ray, photon, local_photon_storage, map_type);
+    }
+  } else if (light->ClassID() == R3RectLight::CLASS_ID()) {
+    // Rect Light (pick from rectangle and emit in diffuse direction)
+    R3RectLight *rect_light = (R3RectLight *) light;
+
+    // Get light geometry
+    R3Point center = rect_light->Position();
+    R3Vector light_norm = rect_light->Direction();
+
+    // Get scaled axes
+    R3Vector a1 = rect_light->PrimaryAxis() * rect_light->PrimaryLength();
+    R3Vector a2 = rect_light->SecondaryAxis() * rect_light->SecondaryLength();
+
+    // Genereal Forward Declarations
+    R3Point sample_point;
+    R3Vector sample_direction;
+    R3Ray ray;
+    RNScalar r1, r2;
+
+    for (int i = 0; i < num_photons; i++) {
+      r1 = RNRandomScalar() - 0.5;
+      r2 = RNRandomScalar() - 0.5;
+
+      // Use values r1, r2 and vectors a1, a2 to find a random point on light
+      sample_point = r1*a1 + r2*a2 + center + light_norm*RN_EPSILON;
+
+      // Use diffuse importance sampling to pick a direction
+      sample_direction = Diffuse_ImportanceSample(light_norm, 1.0);
+      ray = R3Ray(sample_point, sample_direction, TRUE);
+      PhotonTrace(ray, photon, local_photon_storage, map_type);
+    }
+  } else {
+    fprintf(stderr, "Unrecognized light type: %d\n", light->ClassID());
+  }
+
+  // Flush storage
+  int success = FlushPhotonStorage(local_photon_storage, map_type);
+  if (!success) {
+    fprintf(stderr, "\nError allocating photon memory \n");
+    exit(-1);
+  }
+
+  return;
+}
+
+// photon tracing method caller
+static void Threadable_PhotonTracer(const int num_global_photons,
+  const int num_caustic_photons, vector<RNScalar> &light_powers, RNScalar total_power)
+{
+  // Global (Indirect) Illumination Photon mapping
+  int local_global_emitted_count = 0;
+  if (INDIRECT_ILLUM) {
+    // Print Info
+    if (print_verbose) {
+      printf("Building global photon map ...\n");
+    }
+
+    // Emit photons from each light in rounds (slowly reaching GLOBAL_PHOTON_COUNT)
+    PHOTONS_STORED_COUNT = 0;
+    RNScalar average_bounce_rate = 4.0; // Init with an overestimate (depends on scene)
+    RNScalar slowdown_factor = 1.0;
+    int attempts_left = 10;
+    while (PHOTONS_STORED_COUNT < num_global_photons && attempts_left > 0) {
+      // Approach goal based on how we've done thus far
+      int emit_goal = (int) (num_global_photons - PHOTONS_STORED_COUNT)
+                      / average_bounce_rate / slowdown_factor + 1;
+      int photons_assigned = 0;
+
+      // Emit photons
+      for (int i = 0; i < scene->NLights(); i++) {
+        // Emit photons proportional to light contribution over total power, as well as the
+        // assigned total number of photons to emit
+        int num_photons = ceil(emit_goal * (light_powers[i] / total_power));
+        EmitPhotons(num_photons, scene->Light(i), GLOBAL);
+        photons_assigned += num_photons;
+      }
+      local_global_emitted_count += photons_assigned;
+
+      // Update average
+      if (PHOTONS_STORED_COUNT > 0 && local_global_emitted_count > 0) {
+        average_bounce_rate = ((RNScalar) (PHOTONS_STORED_COUNT)) / local_global_emitted_count;
+
+        // Approach slower for first 75% to avoid shooting over
+        if ((RNScalar) PHOTONS_STORED_COUNT / local_global_emitted_count < 0.75) {
+          slowdown_factor = 2.0;
+        } else {
+          slowdown_factor = 1.0;
+        }
+      } else {
+        average_bounce_rate /= 2.0;
+        attempts_left--;
+      }
+    }
+  }
+
+  // Caustic Illumination Photon mapping
+  int local_caustic_emitted_count = 0;
+  if (CAUSTIC_ILLUM) {
+    // Print Info
+    if (print_verbose) {
+      printf("Building caustic photon map ...\n");
+    }
+
+    // Emit photons from each light
+    PHOTONS_STORED_COUNT = 0;
+    RNScalar average_bounce_rate = MAX_PHOTON_DEPTH; // Init with an overestimate (depends on scene)
+    RNScalar slowdown_factor = 1.0;
+    int attempts_left = 10;
+    while (PHOTONS_STORED_COUNT < num_caustic_photons && attempts_left > 0) {
+      // Approach goal based on how we've done thus far
+      int emit_goal = (int) (num_caustic_photons - PHOTONS_STORED_COUNT)
+                        / average_bounce_rate / slowdown_factor + 1;
+      int photons_assigned = 0;
+
+      // Emit photons
+      for (int i = 0; i < scene->NLights(); i++) {
+        // Emit photons proportional to light contribution to total power and the
+        // assigned total number of photons to emit
+        int num_photons = ceil(emit_goal * (light_powers[i] / total_power));
+        EmitPhotons(num_photons, scene->Light(i), CAUSTIC);
+        photons_assigned += num_photons;
+      }
+      local_caustic_emitted_count += photons_assigned;
+
+      // Update average
+      if (PHOTONS_STORED_COUNT > 0 && local_caustic_emitted_count > 0) {
+        average_bounce_rate = ((RNScalar) (PHOTONS_STORED_COUNT)) / local_caustic_emitted_count;
+
+        // Approach slower for first 75% to avoid shooting over
+        if ((RNScalar) PHOTONS_STORED_COUNT / num_caustic_photons < 0.75) {
+          slowdown_factor = 2.0;
+        } else {
+          slowdown_factor = 1.0;
+        }
+      } else {
+        average_bounce_rate /= 2.0;
+        attempts_left--;
+      }
+    }
+  }
+
+  // Update counts
+  global_emitted_count += local_global_emitted_count;
+  caustic_emitted_count += local_caustic_emitted_count;
+}
+
+// method that populates the photon maps as necessary
+static void MapPhotons(void)
+{
+  // Corner case
+  if (scene->NLights() <= 0) {
+    return;
+  }
+
+  // Start statistics
+  RNTime total_start_time;
+  total_start_time.Read();
+
+  // Compute power distribution of lights
+  vector<RNScalar> light_powers(scene->NLights(), 0.0);
+  RNScalar total_power = 0;
+  for (int i = 0; i < scene->NLights(); i++) {
+    R3Light *light = scene->Light(i);
+    if (!(light->IsActive())) continue;
+    RNScalar light_power = LightPower(light);
+    light_powers[i] = light_power;
+    total_power += light_power;
+  }
+
+  // Corner case
+  if (total_power <= 0) {
+    return;
+  }
+
+  // Build compressed spherical coordinates mapping for fast lookup
+  BuildDirectionLookupTable();
+
+  // For global photons
+  int global_photons_remaining = 0;
+  if (INDIRECT_ILLUM) {
+    // Compute how many photons to distribute to each thread
+    global_photons_remaining = GLOBAL_PHOTON_COUNT;
+  }
+
+  // For caustic photons
+  int caustic_photons_remaining = 0;
+  if (CAUSTIC_ILLUM) {
+    // Compute how many photons to distribute to each thread
+    caustic_photons_remaining = CAUSTIC_PHOTON_COUNT;
+  }
+
+  Threadable_PhotonTracer(global_photons_remaining, caustic_photons_remaining,
+                          light_powers, total_power);
+
+  // Update globals and scale by power
+  if ((INDIRECT_ILLUM) && GLOBAL_PHOTONS.NEntries()) {
+    GLOBAL_PHOTON_COUNT = GLOBAL_PHOTONS.NEntries();
+    RNScalar photon_power = (RNScalar) total_power / global_emitted_count;
+    for (int i = 0; i < GLOBAL_PHOTON_COUNT; i++) {
+      RNRgb color = RGBE_to_RNRgb(GLOBAL_PHOTONS[i]->rgbe);
+      color *= photon_power;
+      RNRgb_to_RGBE(color, GLOBAL_PHOTONS[i]->rgbe);
+    }
+  } else if ((INDIRECT_ILLUM) && GLOBAL_PHOTONS.NEntries() == 0) {
+    INDIRECT_ILLUM = false;
+  }
+  if (CAUSTIC_ILLUM && CAUSTIC_PHOTONS.NEntries()) {
+    CAUSTIC_PHOTON_COUNT = CAUSTIC_PHOTONS.NEntries();
+    RNScalar photon_power = total_power / caustic_emitted_count;
+    for (int i = 0; i < CAUSTIC_PHOTON_COUNT; i++) {
+      RNRgb color = RGBE_to_RNRgb(CAUSTIC_PHOTONS[i]->rgbe);
+      color *= photon_power;
+      RNRgb_to_RGBE(color, CAUSTIC_PHOTONS[i]->rgbe);
+    }
+  } else if (CAUSTIC_ILLUM && CAUSTIC_PHOTONS.NEntries() == 0) {
+    CAUSTIC_ILLUM = false;
+  }
+
+  // Print statistics
+  if (print_verbose) {
+    int total_photon_count = 0;
+    printf("Built photon map ...\n");
+    printf("  Total Time = %.2f seconds\n", total_start_time.Elapsed());
+    if (INDIRECT_ILLUM) {
+      printf("  # Global Photons Stored = %u\n", GLOBAL_PHOTONS.NEntries());
+      total_photon_count += GLOBAL_PHOTONS.NEntries();
+    }
+    if (CAUSTIC_ILLUM) {
+      printf("  # Caustic Photons Stored = %u\n", CAUSTIC_PHOTONS.NEntries());
+      total_photon_count += CAUSTIC_PHOTONS.NEntries();
+    }
+    printf("Total Photons Stored: %u\n", total_photon_count);
+    fflush(stdout);
+  }
+}
+
+////////////////////////////////////////////////////////////////////////
+// Photon Viz
+////////////////////////////////////////////////////////////////////////
+
+static void DrawEmitted(void)
+{
+  glDisable(GL_LIGHTING);
+  glLineWidth(1);
+  int len = PHOTONS_EMITTED.NEntries();
+  double radius = 0.01;
+  double norm_len = 20.0*radius;
+  for (int i = 0; i < len; i++) {
+    Photon p = *(PHOTONS_EMITTED[i]);
+    // Get photon info
+    RNRgb p_color = RGBE_to_RNRgb(p.rgbe);
+    R3Point p_pos = p.position;
+    int direction = p.direction;
+    RNScalar x = PHOTON_X_LOOKUP[direction];
+    RNScalar y = PHOTON_Y_LOOKUP[direction];
+    RNScalar z = PHOTON_Z_LOOKUP[direction];
+    R3Vector incident_vector = R3Vector(x, y ,z);
+
+    // Draw
+    glColor3d(p_color[0], p_color[1], p_color[2]);
+    R3Sphere(p_pos, radius).Draw();
+    R3Span(p_pos, norm_len*incident_vector + p_pos).Draw();
+  }
+  glLineWidth(1);
+}
 
 ////////////////////////////////////////////////////////////////////////
 // Glut user interface functions
@@ -766,6 +1429,11 @@ void GLUTRedraw(void)
   // Draw paths
   if (show_paths) {
     DrawPaths(scene);
+  }
+
+  // Draw emitted photons
+  if (show_emit) {
+    DrawEmitted();
   }
 
   // Draw scene nodes
@@ -971,6 +1639,10 @@ void GLUTKeyboard(unsigned char key, int x, int y)
   case 'r':
     show_rays = !show_rays;
     break;
+  case 'F':
+  case 'f':
+    show_emit = !show_emit;
+    break;
   case 'O':
   case 'o':
     show_shapes = !show_shapes;
@@ -1112,6 +1784,16 @@ ParseArgs(int argc, char **argv)
       else if (!strcmp(*argv, "-resolution")) {
         argc--; argv++; render_image_width = atoi(*argv);
         argc--; argv++; render_image_height = atoi(*argv);
+      } else if (!strcmp(*argv, "-global")) {
+        INDIRECT_ILLUM = true;
+        argc--; argv++; GLOBAL_PHOTON_COUNT = atoi(*argv);
+        if (GLOBAL_PHOTON_COUNT < 1)
+          GLOBAL_PHOTON_COUNT = 1;
+      } else if (!strcmp(*argv, "-caustic")) {
+        CAUSTIC_ILLUM = true;
+        argc--; argv++; CAUSTIC_PHOTON_COUNT = atoi(*argv);
+        if (CAUSTIC_PHOTON_COUNT < 1)
+          CAUSTIC_PHOTON_COUNT = 1;
       }
       else {
         fprintf(stderr, "Invalid program argument: %s", *argv);
@@ -1152,13 +1834,17 @@ int main(int argc, char **argv)
   scene = ReadScene(input_scene_name);
   if (!scene) exit(-1);
 
+  // Map Photons if necessary
+  if (INDIRECT_ILLUM || CAUSTIC_ILLUM) {
+    MapPhotons();
+  }
+
   // Initialize GLUT
   GLUTInit(&argc, argv);
 
   // Create viewer
   viewer = new R3Viewer(scene->Viewer());
   if (!viewer) exit(-1);
-
   // Run GLUT interface
   GLUTMainLoop();
 

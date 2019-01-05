@@ -1,20 +1,22 @@
-#camera 0 1.5 -4.5  0 -.1 1   0 1 0   0.33   0.01 100
-camera 0 10 -5  0 -2 1   0 1 0   0.33   0.01 100
-
+#camera 0 1.5 -1  0 -.1 1   0 1 0   0.33   0.01 100
+#camera 0 4 -1.5  0 -2 1   0 1 0   0.33   0.01 100
+camera 0 0 -2     0 0  1   0 1  0  0.33   0.01  100
 material 0 0 0   0 0 0   0 0 0   1 1 1   0 0 0   100000 200000000000 0
 
 
 # A point light source above and left of cube
-point_light   0 0 0           -2 -2 2   0 0 1
+point_light   5 5 5           -.2 0 0   0 0 1
+# A point light source above and left of cube
+point_light   5 0 0           .2 0 0   0 0 1
 
 # An axis-aligned box with default material (-1) and
 # with lower corner (-1,-1,-1) and upper corner (1,1,1)
-box   -1    -10 -2 -10   10 1 10
+box   -1    -10 -10 -10   10 10 10
 
-sphere 0   0 5 -2     1
+#sphere 0   0 5 -2     1
 
-background
-0.9 0.9 0.9
+#background
+#0.9 0.9 0.9
 
-ambient
-1.5 1.5 1.5
+#ambient
+#1.5 1.5 1.5
