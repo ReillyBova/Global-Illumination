@@ -260,7 +260,7 @@ Because the user provides how many photons they would (roughly) like to store in
 #### Point Light Photon Emission
 Point lights emit photons uniformly in all directions. In order to achieve this, each photon leaves the point light in a direction chosen from a standard spherical point-picking process with rejection-sampling.
 
-##### Figure 16: A visualization of photon emission from point lights. Note that the lines represent the vector of emission for each photon, and their color represents the carried power of the photon. In (16a) there is one point light with a power of 15, and in (16b) there are two point lights — one tinted red and with a power of 5, and the other tinted white and with a power 15. In both figures, 500 photons were emitted.
+##### Figure 16: A visualization of photon emission from point lights. Note that the lines represent the vector of emission for each photon, and their color represents the carried power of the photon. In (16a) there is one point light with a power of 15, and in (16b) there are two point lights — both with a power of 15, but one tinted red and the other white. In both figures, 1000 photons were stored.
 | Figure 16a | Figure 16b |
 |:---:|:---:|
 | ![Fig 16a](/gallery/figures/fig_16a.png?raw=true) | ![Fig 16b](/gallery/figures/fig_16b.png?raw=true) |
@@ -268,11 +268,23 @@ Point lights emit photons uniformly in all directions. In order to achieve this,
 #### Spotlight Photon Emission
 Spotlights emit photons in a distribution very similar to the specular lobe of the Phong BRDF. Therefore, we are able to recycle our specular importance sampling function to pick an emission vector for each photon emitted from a spotlight. As one modification, it is necessary restrict sampled vectors to fall the cutoff angle; this is again achieved with rejection sampling (however if enough samples are rejected, the program falls back to rescaling the displacement angle of the result by the cutoff angle).
 
+##### Figure 17: A visualization of photon emission from spotlights with different dropoff values, sd. 
+| sd = 100 | sd = 1000 |
+|:---:|:---:|
+| ![Fig 17a](/gallery/figures/fig_17a.png?raw=true) | ![Fig 17b](/gallery/figures/fig_17b.png?raw=true) |
+
 #### Directional Light Photon Emission
 To discuss emission from directional lights, we must first define our surface of emission. Although directional light is intended to simulate light emission from a extremely-bright and extremely-distant point (e.g. the sun), the same emission behavior can be achieved by emitting photons from a large disc that is oriented along the light's direction, placed sufficiently far outside the scene, and that has a diameter at least as wide as the diameter of the scene itself. With this established, emitting photons from a directional light is as simple as picking an emission point uniformly at random from the disc's surface and then sending that photon along the direction of the light.
 
 #### Area Light Emission
 For both rectangular and circular area lights, we first pick a point uniformly at random on their surface. Next, we use the diffuse important sampling function described in the first section to select a direction of emission from a cosine-weighted hemisphere along the light's normal.
+
+##### Figure 18: A visualization of area light point-picking and normal directions for photon emission.
+| Light Type | Point-Picking | Emission Normals |
+|:------:|:---:|:---:|
+| Directional| ![Fig 18a-i](/gallery/figures/fig_18a-a.png?raw=true) | ![Fig 18a-ii](/gallery/figures/fig_18a-ii.png?raw=true) |
+| Circular | ![Fig 18b-i](/gallery/figures/fig_18b-i.png?raw=true) | ![Fig 18b-ii](/gallery/figures/fig_18b-ii.png?raw=true) |
+| Rectangular | ![Fig 18c-i](/gallery/figures/fig_18c-i.png?raw=true) | ![Fig 18c-ii](/gallery/figures/fig_18c-ii.png?raw=true) |
 
 ### Photon Storage
 In order to allow users to store hundreds of millions of photons in photon maps, it was necessary to compress the photon data structure as far as efficiently as possible (without losing accuracy). Using the compression suggestions from [Jensen][2], a storage size of only 30 Bytes per photon was achieved (this would be as low as 18 Bytes if single-precision floating-point values were used for position instead of double-precision).
@@ -281,7 +293,7 @@ In order to allow users to store hundreds of millions of photons in photon maps,
 A Photon object has three fields: `position`, `rgbe`, `direction`. The `position` field holds an R3Point, which consists of three doubles; the `rgbe` field is an `unsigned char` array of length four that compactly stores RGB channels with single-precision floating-point values); the `direction` field is an integer value in the range `[0, 65536)` which maps to the incident direction of the photon. The 65536 possible directions are precomputed before the rendering step as an optimization.
 
 #### The Photon Map Data Structure
-A Photon Map is comprised of two objects: a global array of Photons, and a KdTree of Photons. Both of these data structures only hold pointers to Photons (which are stored in the heap). It is necessary to keep the original array of Photons even after the KdTree has been constructed because it is used for memory cleanup after rendering is complete.
+A Photon Map is comprised of two objects: a global array of Photons, and a KdTree of Photons. Both of these data structures only hold pointers to Photons (which are stored in the heap). It is necessary to keep the original array of Photons even after the KdTree has been constructed because it is used for memory cleanup after rendering is complete. 
 
 ### Radiance Sampling
 ## Global Illumination
