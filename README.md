@@ -88,14 +88,14 @@ Illumination flags:
   * `-tt <int N>` => Sets the number of test rays that should be sent when sampling a transmissive surface. Default is `N=128`
   * `-no_ds` => Disables distributed importance sampling of specular rays based on material shininess. For materials with low shininess but high specular values, this creates a "glossy surface" effect. Distributed specualar ray sampling is enabled by default
 * Photon Mapping flags:
-  * `-global <int N>` => Sets the approximate number of photons that should be stored in the global map. Default is `N=1920`
-  * `-caustic <int N>` => Sets the approximate number of photons that should be stored in the caustic map. Default is `N=60000`
+  * `-global <int N>` => Sets the approximate number of photons that should be stored in the global map. Default is `N=2176`
+  * `-caustic <int N>` => Sets the approximate number of photons that should be stored in the caustic map. Default is `N=10000000`
   * `-md <int N>` => Sets the max recursion depth of a Photon trace in the photon mapping step. Default is `N=128`
   * `-it <int N>` => Sets the number of test rays that should be sent when sampling the indirect illumination of a surface. Default is `N=256`
   * `-gs <int N>` => Sets the number of photons used in a radiance sample of the global photon map. Default is `N=50`
   * `-gd <float N>` => Sets the max radius of a radiance sample of the global photon map. Default is `N=2.5`
-  * `-cs <int N>` => Sets the number of photons used in a radiance sample of the caustic photon map. Default is `N=60`
-  * `-cd <float N>` => Sets the max radius of a radiance sample of the caustic photon map. Default is `N=0.2`
+  * `-cs <int N>` => Sets the number of photons used in a radiance sample of the caustic photon map. Default is `N=225`
+  * `-cd <float N>` => Sets the max radius of a radiance sample of the caustic photon map. Default is `N=0.225`
 * Shadow Sampling flags:
   * `-no_shadow` => Disables shadows entirely. Shadows are enabled by default
   * `-no_ss` => Disables soft shadows. Soft shadows are enabled by default
