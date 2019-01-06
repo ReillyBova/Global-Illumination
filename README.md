@@ -399,7 +399,7 @@ This program employs a straightforward technique in order to anti-alias its outp
 ##### Figure 32: A comparison of three renderings of the same scene, expept each is anti-aliased by a different parameter k. Each image is only 75x75 pixels.
 | k = 0 | k = 1 | k = 2 | 
 |:---:|:---:|:---:|
-|  ![Fig 33a](/gallery/figures/fig_33a.png?raw=true) | ![Fig 33b](/gallery/figures/fig_33b.png?raw=true) |  ![Fig 33c](/gallery/figures/fig_33c.png?raw=true) |
+|  ![Fig 32a](/gallery/figures/fig_32a.png?raw=true) | ![Fig 32b](/gallery/figures/fig_32b.png?raw=true) |  ![Fig 32c](/gallery/figures/fig_32c.png?raw=true) |
 
 ### Progress Bar & Statistics
 Because the photon tracing and rendering processes can take an extended amount of time for complex scenes, a real-time completion bar was implemented in order to ease impatience. If the verbose flag is provided by the user, applicable photon tracing and rendering statistics will be printed to the screen following program completetion. These statistics include number of photons stored shadow rays sent, and caustic randiance samples computed, among many others (including rendering time).
