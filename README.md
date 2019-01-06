@@ -336,7 +336,7 @@ When rendering a scene, the caustic map is directly radiance-sampled for all int
 |:---:|:---:|:---:|
 |  ![Fig 24a](/gallery/figures/fig_24a.png?raw=true) | ![Fig 24b](/gallery/figures/fig_24b.png?raw=true) |  ![Fig 24c](/gallery/figures/fig_24c.png?raw=true) |
 
-##### Figure 25: Merging the direct illumination layer of a Cornell Box with the caustic layer. The caustic photon map contains 10,000,000 photons, and radiance samples use estimates of 225 photons with maximum distances of 0.225. Rendering took 1564.3s for the image of size 512x512, where each pixel is sampled four times.
+##### Figure 25: Merging the direct illumination layer of a Cornell Box with the caustic layer. The caustic photon map contains 10,000,000 photons, and radiance samples use estimates of 225 photons with maximum distances of 0.225. Rendering took 1564.3s for the last image. All images are of size 512x512, where each pixel is sampled four times.
 | Direct | Caustic | Combined | 
 |:---:|:---:|:---:|
 |  ![Fig 25a](/gallery/figures/fig_25a.png?raw=true) | ![Fig 25b](/gallery/figures/fig_25b.png?raw=true) |  ![Fig 25c](/gallery/figures/fig_25c.png?raw=true) |
@@ -347,12 +347,12 @@ Indirect illumination is the illumination of surfaces by light that has bounced 
 #### Directly Sampling the Global Map
 The inaccurate method is to directly sample a modified version of the global photon map, just as we did for caustic sampling. Before we do this however, it is important to exclude certain paths — specifically, those that are sampled by other means. In particular, `LD` paths are computed by direct illumination, so we should never store a photon on its first bounce. Additionally, `LS+D` paths are already sampled through the caustic map, and so we conclude that we should only store photons at diffuse surfaces once they have already made at least one diffuse bounce, which fits the `L{S|D}*DD` path description of indirect illumination that terminates on diffuse surfaces.
 
-##### Figure 26: A comparison of three "fast indirect illumination" global photon maps, each with different parameters. Note that these maps only store photons that have made at least one diffuse bounce. In (26a), there are 300 photons, with an estimate size of 10 and maximum distance of 1. In (26b) there are 300,000 photons, with an estimate size of 200 and maximum distance of 1. Finally, in (26c) there are 100,000,000 photons, with an estimate size of 500 and maximum distance of 0.5. Photon tracing took 0.02s, 1.52s, and 61.4s, respectively. Rendering the 512x512 images took 0.19s, 6.50s, and 205.4s, respectively. The intensity of the lights in the scene were increased to ease viewing, and the back wall of the Cornell Box is approximately 5x5.
+##### Figure 26: A comparison of three "fast indirect illumination" global photon maps, each with different parameters. Note that these maps only store photons that have made at least one diffuse bounce. In (26a), there are 300 photons, with an estimate size of 10 and maximum distance of 1. In (26b) there are 300,000 photons, with an estimate size of 200 and maximum distance of 1. Finally, in (26c) there are 100,000,000 photons, with an estimate size of 500 and maximum distance of 0.5. Photon tracing took 0.02s, 1.52s, and 61.4s, respectively. Rendering the 512x512 images took 0.19s, 6.50s, and 205.4s, respectively. The back wall of the Cornell Box is approximately 5x5.
 | Figure 26a | Figure 26b | Figure 26c | 
 |:---:|:---:|:---:|
 |  ![Fig 26a](/gallery/figures/fig_26a.png?raw=true) | ![Fig 26b](/gallery/figures/fig_26b.png?raw=true) |  ![Fig 26c](/gallery/figures/fig_26c.png?raw=true) |
 
-##### Figure 27: Merging the direct illumination layer of a Cornell Box with the indirect layer using the fast visualization method. The global photon map contains 10,000,000 photons, and radiance samples use estimates of 225 photons with maximum distances of 0.225. Rendering took 1099.7s for the image of size 512x512, where each pixel is sampled four times.
+##### Figure 27: Merging the direct illumination layer of a Cornell Box with the indirect layer using the fast visualization method. The global photon map contains 10,000,000 photons, and radiance samples use estimates of 225 photons with maximum distances of 0.225. Rendering took 1099.7s for the last image. All images are size 512x512, where each pixel is sampled four times.
 | Direct | Indirect (Fast) | Combined | 
 |:---:|:---:|:---:|
 |  ![Fig 27a](/gallery/figures/fig_27a.png?raw=true) | ![Fig 27b](/gallery/figures/fig_27b.png?raw=true) |  ![Fig 27c](/gallery/figures/fig_27c.png?raw=true) |
@@ -366,6 +366,22 @@ To understand why this works, recall that indirect illumination is given by path
 
 ##### Figure 28: A direct visualization of the global photon map that we importance sample for this scene in future figures. In the interest of sampling efficiency, this map only contains about 2048 photons, and radiance samples use estimates of 50 photons with maximum distances of 2.5.
 ![Fig 28](/gallery/figures/fig_28.png?raw=true)
+
+##### Figure 29: A comparison of three indirect illumination layers, all of which importance sample the same global photon map, but each takes a different number of samples. Rendering (29a) took 3.95s, rendering (29b) took 51.8s, and rendering (29c) took 458.3s. Each image is 512x512 with a single sample per pixel. Compare these indirect estimates to those in figure 26.
+| 8 Samples | 64 Samples | 1024 Samples | 
+|:---:|:---:|:---:|
+|  ![Fig 29a](/gallery/figures/fig_29a.png?raw=true) | ![Fig 29b](/gallery/figures/fig_29b.png?raw=true) |  ![Fig 29c](/gallery/figures/fig_29c.png?raw=true) |
+
+##### Figure 30: Merging the direct illumination layer of a Cornell Box with the indirect layer using the importance sampling method. The global photon map contains about 2048 photons, and radiance samples use estimates of 50 photons with maximum distances of 2.5. The each indirect illumination radiance computation takes 320 importance-weighted samples. Rendering took 1099.7s for the last image. All images are of size 512x512, where each pixel is sampled four times (if there were no anti-aliasing, we would need to take 1,280 indirect samples for the same image quality).
+| Direct | Indirect (Accurate) | Combined | 
+|:---:|:---:|:---:|
+|  ![Fig 30a](/gallery/figures/fig_30a.png?raw=true) | ![Fig 30b](/gallery/figures/fig_30b.png?raw=true) |  ![Fig 30c](/gallery/figures/fig_30c.png?raw=true) |
+
+##### Figure 31: Merging all layers rendering layers into a full global illumination. The full image is 4096x4096 with four samples taken per pixel. Rendering time took about two days (169452.50 seconds), and required 67,108,864 Screen Rays, 21,510,009,344 Shadow Rays, 45,150,782,924 Monte Carlo Rays, 8,175,111,551 Transmissive Samples, 4,057,604,710 Specular Samples, 39,093,092,728 Indirect Samples, and 3,225,427,227 Caustic Samples. In total, this adds up to 121,279,137,348 total rays. Note that the BRDF model was adjusted since the merged rendering, so it might look slightly different than the ground truth. A new rendering is on its way.
+| Direct | Transmissive | Specular | Caustic | Indirect | 
+|:---:|:---:|:---:|:---:|:---:|
+|  ![Fig 31a](/gallery/figures/fig_31a.png?raw=true) | ![Fig 31b](/gallery/figures/fig_31b.png?raw=true) |  ![Fig 31c](/gallery/figures/fig_31c.png?raw=true) |  ![Fig 31d](/gallery/figures/fig_31d.png?raw=true) |  ![Fig 31e](/gallery/figures/fig_31e.png?raw=true) |
+![Fig 31f](/gallery/figures/fig_31f.png?raw=true)
 
 ## Additional Features
 ### Pixel Integration (Anti-Aliasing)
