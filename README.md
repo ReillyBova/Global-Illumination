@@ -320,16 +320,53 @@ Once the photon map is built, it is easy to use the map to estimate the radiance
 |:---:|:---:|:---:|:---:|
 |  ![Fig 22a](/gallery/figures/fig_22a.png?raw=true) | ![Fig 22b](/gallery/figures/fig_22b.png?raw=true) |  ![Fig 22c](/gallery/figures/fig_22c.png?raw=true) | ![Fig 22d](/gallery/figures/fig_22d.png?raw=true) |
 
-##### Figure 23: A comparison of how the maximum radius of a radiance sample effects the overall radiance estimate. In these figures, direct radiance estimates were on made a global photon map containing 5000 photons, and the number of samples per estimate is always 64.
+##### Figure 23: A comparison of how the maximum radius of a radiance sample effects the overall radiance estimate. In these figures, direct radiance estimates were on made a global photon map containing 5000 photons, and the number of samples per estimate is always 64. The back wall of the Cornell Box is approximately 5x5.
 | R = 0.05 | R = 0.25 | R = 0.5 | R = 1 | 
 |:---:|:---:|:---:|:---:|
 |  ![Fig 23a](/gallery/figures/fig_23a.png?raw=true) | ![Fig 23b](/gallery/figures/fig_23b.png?raw=true) |  ![Fig 23c](/gallery/figures/fig_23c.png?raw=true) | ![Fig 23d](/gallery/figures/fig_23d.png?raw=true) |
 
 ## Global Illumination
 ### Caustics
+As mentioned above, caustics are computed by directly radiance-sampling an extremely large photon map that only stores photons that travel along `LS+D` paths. Because this restriction is relatively tight (specular or transparent objects in most scenes are often small and few in number), generating caustic maps often takes much longer than generating global photon maps of the same storage size since caustic maps will reject a majority of emitted photons. Currently, even this slowdown yields extremely fast photon-tracing times (such that building the KdTree is the true bottleneck), however caustic photon tracing could be further optimized by adding photon emission importance sampling, as described by [Jensen][2].
+
+When rendering a scene, the caustic map is directly radiance-sampled for all intersections along our path-traces where shadowing is also computed (since they are both features caused by direct lighting). Although this is an accurate approach, not that this introduces a severe inefficiency into the rendering process: when Monte Carlo path-tracing reflections and refractions, integration allows us to reduce our shadow tests to one sample per recursive intersection; however we have no method — accurate or approximate — to reducing sample complexity of the caustic photon map (reducing radiance sampling parameters from within a Monte Carlo trace does not work because the same intersection point will still always give the same radiance; a stochastic solution combined with reduced parameters would be needed to optimize radiance-sampling in the same manner we optimized shadow rays). A potential solution to this problem would be to implement Ward's radiance caching algorithm, which would save us time wasted on both *new* radiance samplings and radiance samplings that had already been computed earlier! In its current state, this program does not implement Ward's radiance caching algorithm.
+
+##### Figure 24: A comparison of three caustic photon maps for the same scene but each with different parameters. In (24a), there are 300 photons, with an estimate size of 10 and maximum distance of 1. In (24b) there are 300,000 photons, with an estimate size of 200 and maximum distance of 1. Finally, in (24c) there are 100,000,000 photons, with an estimate size of 500 and maximum distance of 0.5. Photon tracing took 0.04s, 1.52s, and 300s, respectively. Rendering the 512x512 images took 0.16s, 6.90s, and 178.8s, respectively. The intensity of the lights in the scene were increased to ease viewing, and the back wall of the Cornell Box is approximately 5x5.
+| Figure 24a | Figure 24b | Figure 24c | 
+|:---:|:---:|:---:|
+|  ![Fig 24a](/gallery/figures/fig_24a.png?raw=true) | ![Fig 24b](/gallery/figures/fig_24b.png?raw=true) |  ![Fig 24c](/gallery/figures/fig_24c.png?raw=true) |
+
+##### Figure 25: Merging the direct illumination layer of a Cornell Box with the caustic layer. The caustic photon map contains 10,000,000 photons, and radiance samples use estimates of 225 photons with maximum distances of 0.225. Rendering took 1564.3s for the image of size 512x512, where each pixel is sampled four times.
+| Direct | Caustic | Combined | 
+|:---:|:---:|:---:|
+|  ![Fig 25a](/gallery/figures/fig_25a.png?raw=true) | ![Fig 25b](/gallery/figures/fig_25b.png?raw=true) |  ![Fig 25c](/gallery/figures/fig_25c.png?raw=true) |
+
 ### Indirect Illumination
-#### Importance Sampling
+Indirect illumination is the illumination of surfaces by light that has bounced off a diffuse surface at least once. Using path notation, this is given by `L{S|D}*D(D|S)` paths. In this subsection, we present our two methods to compute indirect illumination, one of which is accurate but slow, the other of which is much faster at the cost of increased noise due to direct photon map sampling.
+
 #### Directly Sampling the Global Map
+The inaccurate method is to directly sample a modified version of the global photon map, just as we did for caustic sampling. Before we do this however, it is important to exclude certain paths — specifically, those that are sampled by other means. In particular, `LD` paths are computed by direct illumination, so we should never store a photon on its first bounce. Additionally, `LS+D` paths are already sampled through the caustic map, and so we conclude that we should only store photons at diffuse surfaces once they have already made at least one diffuse bounce, which fits the `L{S|D}*DD` path description of indirect illumination that terminates on diffuse surfaces.
+
+##### Figure 26: A comparison of three "fast indirect illumination" global photon maps, each with different parameters. Note that these maps only store photons that have made at least one diffuse bounce. In (26a), there are 300 photons, with an estimate size of 10 and maximum distance of 1. In (26b) there are 300,000 photons, with an estimate size of 200 and maximum distance of 1. Finally, in (26c) there are 100,000,000 photons, with an estimate size of 500 and maximum distance of 0.5. Photon tracing took 0.02s, 1.52s, and 61.4s, respectively. Rendering the 512x512 images took 0.19s, 6.50s, and 205.4s, respectively. The intensity of the lights in the scene were increased to ease viewing, and the back wall of the Cornell Box is approximately 5x5.
+| Figure 26a | Figure 26b | Figure 26c | 
+|:---:|:---:|:---:|
+|  ![Fig 26a](/gallery/figures/fig_26a.png?raw=true) | ![Fig 26b](/gallery/figures/fig_26b.png?raw=true) |  ![Fig 26c](/gallery/figures/fig_26c.png?raw=true) |
+
+##### Figure 27: Merging the direct illumination layer of a Cornell Box with the indirect layer using the fast visualization method. The global photon map contains 10,000,000 photons, and radiance samples use estimates of 225 photons with maximum distances of 0.225. Rendering took 1099.7s for the image of size 512x512, where each pixel is sampled four times.
+| Direct | Indirect (Fast) | Combined | 
+|:---:|:---:|:---:|
+|  ![Fig 27a](/gallery/figures/fig_27a.png?raw=true) | ![Fig 27b](/gallery/figures/fig_27b.png?raw=true) |  ![Fig 27c](/gallery/figures/fig_27c.png?raw=true) |
+
+#### Importance Sampling
+The accurate method is to importance sample the photon map in order to compute the radiance at any point due to indirect illumination. Since the indirect illumination through photon maps is a diffuse interaction in the final layer (specular indirect illumination is handled seperately in the Monte Carlo path-tracing), we use diffuse importance sampling to shoot a numbern of rays into the scene. Each ray is path traced using the Monte Carlo process up until it makes a diffuse bounce, at which point the radiance at the bounce point is sampled from the global photon map. Finally, the results of all the path tracings are averaged into a final indirect illumination radiance. Because computing indirect illumination at a single point requires many path traces and many radiance samples, the global photon map is generally coarse and radiance estimates are made with relatively few photons because this will greatly increase the speed of the radiance sampling method.
+
+Note that because we are importance sampling through a stochastic process, it is possible to optimize our sampling when it occurs within a Monte Carlo path trace for a reflection or a refraction just as we did with shadow rays. That is, if we normally take sample 1024 different direction when computing the indirect illumination at points that intersect eye rays, then we can only take 1 sample from within the Monte Carlo process, and rely on the integration to average out the noise.
+
+To understand why this works, recall that indirect illumination is given by paths of light that follow `L{S|D}*D(D|S)` paths, where the final `(D|S)` is at the point that intersects with the eye ray. If the final bounce is specular, then our computation is handled by the Monte Carlo path tracer (which, as just discussed, will make indirect illumination samplings from the global photon map during diffuse bounces). Otherwise, in the diffuse case, the photons that hit the surface will have traveled along paths of `L{S|D}*D` before hitting, which is exactly what is stored in our global photon map!
+
+##### Figure 28: A direct visualization of the global photon map that we importance sample for this scene in future figures. In the interest of sampling efficiency, this map only contains about 2048 photons, and radiance samples use estimates of 50 photons with maximum distances of 2.5.
+![Fig 28](/gallery/figures/fig_28.png?raw=true)
+
 ## Additional Features
 ### Pixel Integration (Anti-Aliasing)
 ### Progress Bar & Statistics
