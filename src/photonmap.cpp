@@ -80,7 +80,7 @@ bool DISTRIB_SPECULAR = true; // Use importance sampling
 int SPECULAR_TEST = 128;
 
 // Photon Map Tracing Parameters
-int GLOBAL_PHOTON_COUNT = 1920; // Number of photons emmitted for global map
+int GLOBAL_PHOTON_COUNT = 2048; // Number of photons emmitted for global map
 int CAUSTIC_PHOTON_COUNT = 300000; // Number of photons emmited for caustic map
 int MAX_PHOTON_DEPTH = 128;
 

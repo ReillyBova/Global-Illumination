@@ -112,6 +112,7 @@ void SpecularIllumination(R3Point& point, R3Vector& normal, RNRgb& color,
 void IndirectIllumination(R3Point& point, R3Vector& normal, RNRgb& color,
   const R3Brdf *brdf, const RNScalar cos_theta, const bool inMonteCarlo)
 {
+  if (!brdf->IsDiffuse()) return;
   // Scale number of samples with contribution to final color of pixel
   RNRgb total_weight = brdf->Diffuse();
   RNScalar highest_weight = MaxChannelVal(total_weight);
@@ -211,7 +212,7 @@ void RayTrace(R3SceneElement* element, R3Point& point, R3Vector& normal,
       SpecularIllumination(point, normal, color, brdf, view, cos_theta,
         R_coeff);
     }
-    if (INDIRECT_ILLUM && brdf->IsDiffuse()) {
+    if (INDIRECT_ILLUM && (brdf->IsDiffuse())) {
       // Compute contribution from indirect illumination
       IndirectIllumination(point, normal, color, brdf, cos_theta, false);
     }
@@ -219,7 +220,7 @@ void RayTrace(R3SceneElement* element, R3Point& point, R3Vector& normal,
       // Compute contribution from caustic illumination
       CausticIllumination(point, normal, color, brdf, view, cos_theta);
     }
-    if (DIRECT_PHOTON_ILLUM) {
+    if (DIRECT_PHOTON_ILLUM && brdf->IsDiffuse()) {
       // Sample the global photon map directly for global illumination estimation
       EstimateGlobalIllumination(point, normal, color, brdf, view, cos_theta);
     }
