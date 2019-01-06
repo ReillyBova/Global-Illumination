@@ -80,16 +80,16 @@ bool DISTRIB_SPECULAR = true; // Use importance sampling
 int SPECULAR_TEST = 128;
 
 // Photon Map Tracing Parameters
-int GLOBAL_PHOTON_COUNT = 2048; // Number of photons emmitted for global map
-int CAUSTIC_PHOTON_COUNT = 300000; // Number of photons emmited for caustic map
+int GLOBAL_PHOTON_COUNT = 2176; // Number of photons emmitted for global map
+int CAUSTIC_PHOTON_COUNT = 10000000; // Number of photons emmited for caustic map
 int MAX_PHOTON_DEPTH = 128;
 
 // Photon Map Sampling Parameters
 int INDIRECT_TEST = 256;
 int GLOBAL_ESTIMATE_SIZE = 50;
 RNScalar GLOBAL_ESTIMATE_DIST = 2.5;
-int CAUSTIC_ESTIMATE_SIZE = 200;
-RNScalar CAUSTIC_ESTIMATE_DIST = 1.00;
+int CAUSTIC_ESTIMATE_SIZE = 225;
+RNScalar CAUSTIC_ESTIMATE_DIST = 0.225;
 
 ////////////////////////////////////////////////////////////////////////
 // Global Variable Defaults (Declared in render.h)

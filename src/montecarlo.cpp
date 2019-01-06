@@ -219,7 +219,7 @@ void MonteCarlo_IndirectSample(R3Ray& ray, RNRgb& color)
 
       // Compute Reflection Coefficient, carry reflection portion to Specular
       R_coeff = 0;
-      if (SPECULAR_ILLUM && TRANSMISSIVE_ILLUM && FRESNEL && brdf->IsTransparent()) {
+      if (FRESNEL && brdf->IsTransparent()) {
         R_coeff = ComputeReflectionCoeff(cos_theta, brdf->IndexOfRefraction());
       }
 
@@ -250,8 +250,6 @@ void MonteCarlo_IndirectSample(R3Ray& ray, RNRgb& color)
         color += color_buffer * brdf->Diffuse() * total_weight / prob_diffuse;
         break;
       } else if (rand < prob_diffuse + prob_transmission) {
-        if (!TRANSMISSIVE_ILLUM)
-          break;
         // Compute direction of transmissive bounce
         exact_bounce = TransmissiveBounce(normal, view, cos_theta,
                                           brdf->IndexOfRefraction());
@@ -267,9 +265,6 @@ void MonteCarlo_IndirectSample(R3Ray& ray, RNRgb& color)
         // Update weights
         total_weight *= brdf->Transmission() / prob_transmission;
       } else if (rand < prob_diffuse + prob_transmission + prob_specular) {
-        if (!SPECULAR_ILLUM)
-          break;
-
         // Compute direction of specular bounce
         exact_bounce = ReflectiveBounce(normal, view, cos_theta);
         // Compute direction of next ray
