@@ -386,8 +386,21 @@ To understand why this works, recall that indirect illumination is given by path
 
 ## Additional Features
 ### Pixel Integration (Anti-Aliasing)
+This program employs a straightforward technique in order to anti-alias its output. Given anti-aliasing factor `k` (specified by a user-provided parameter), an initial rendering is made for an output upscaled by `k`. Then, this image is downsampled to the final output resolution using an evenly-weighted grid filter.
+
+##### Figure 32: A comparison of three renderings of the same scene, expept each is anti-aliased by a different parameter k. Each image is only 75x75 pixels.
+| k = 0 | k = 1 | k = 2 | 
+|:---:|:---:|:---:|
+|  ![Fig 33a](/gallery/figures/fig_33a.png?raw=true) | ![Fig 33b](/gallery/figures/fig_33b.png?raw=true) |  ![Fig 33c](/gallery/figures/fig_33c.png?raw=true) |
+
 ### Progress Bar & Statistics
+Because the photon tracing and rendering processes can take an extended amount of time for complex scenes, a real-time completion bar was implemented in order to ease impatience. If the verbose flag is provided by the user, applicable photon tracing and rendering statistics will be printed to the screen following program completetion. These statistics include number of photons stored shadow rays sent, and caustic randiance samples computed, among many others (including rendering time).
+
 ### Optimized KdTree Implementation
+A program may make billions of radiance samples when rendering a scene with global illumination for high-resolution output. Therefore, it is of critical importance that our radiance-sampling function is extremely efficient. As pointed out by Nikhilesh Sigatapu, the provided R3KdTree's FindClosest() method uses linear-time lookup and quadratic-time insertion, which is very inefficient for radiance estimates that sample a large number of photons. As such, a new method was added called FindClosestQuick() which uses delayed heap construction, as suggested by [Jensen][2], to achieve a linearithmic solution to the k-closest points problem. Note that std::heap was used to maitain heap order.
+
+Empiracally, this improvement appeared to roughly halve overall runtime.
+
 ### Multithreading
 #### Multithreaded Randomness
 #### Multithreaded Rendering
