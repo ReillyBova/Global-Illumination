@@ -397,14 +397,25 @@ This program employs a straightforward technique in order to anti-alias its outp
 Because the photon tracing and rendering processes can take an extended amount of time for complex scenes, a real-time completion bar was implemented in order to ease impatience. If the verbose flag is provided by the user, applicable photon tracing and rendering statistics will be printed to the screen following program completetion. These statistics include number of photons stored shadow rays sent, and caustic randiance samples computed, among many others (including rendering time).
 
 ### Optimized KdTree Implementation
-A program may make billions of radiance samples when rendering a scene with global illumination for high-resolution output. Therefore, it is of critical importance that our radiance-sampling function is extremely efficient. As pointed out by Nikhilesh Sigatapu, the provided R3KdTree's FindClosest() method uses linear-time lookup and quadratic-time insertion, which is very inefficient for radiance estimates that sample a large number of photons. As such, a new method was added called FindClosestQuick() which uses delayed heap construction, as suggested by [Jensen][2], to achieve a linearithmic solution to the k-closest points problem. Note that std::heap was used to maitain heap order.
+A program may make billions of radiance samples when rendering a scene with global illumination for high-resolution output. Therefore, it is of critical importance that our radiance-sampling function is extremely efficient. As pointed out by Nikhilesh Sigatapu, the provided R3KdTree's FindClosest() method uses linear-time lookup and quadratic-time insertion, which is very inefficient for radiance estimates that sample a large number of photons. As such, a new method was added called `FindClosestQuick()` which uses delayed heap construction, as suggested by [Jensen][2], to achieve a linearithmic solution to the k-closest points problem. Note that std::heap was used to maitain heap order.
 
-Empiracally, this improvement appeared to roughly halve overall runtime.
+Empirically, this improvement appeared to roughly halve the runtime of the Radiance sampling method.
 
 ### Multithreading
+Both rendering and photon tracing are highly parallelizable processes. As such, as a major optimization, this program has full multithreading capabilities.
+
 #### Multithreaded Randomness
+One caveat of multithreading a distributed (stochastic) raytracer is that `rand()` and `drand48()` are not thread-safe because they use non-atomic global variables to store the PRNG state. As such, it was necessary to implement a thread-local PRNG, invoked through `RNThreadableRandomScalar()` using `std::mt19937` and `std::uniform_real_distribution`. 
+
 #### Multithreaded Rendering
+In order to fashion a single threaded raytracer into a multithreaded raytracer, very few adjustments were necessary. First, each thread (out of a total of `k` threads) is is responsible for sampling every `k`th pixel. The only shared variables among pixel samples are rendering statistics (e.g ray counts), and so it is necessary to fashion these into atomic variables through the `atomic.h` C++ library. Because atomic calls are slow, each thread maintains a thread-local count of the tracked statistics during the rendering process, and then the values are atomically added into the global statistics variables only once (right before each thread terminates).
+
 #### Multithreaded Photon Mapping
+Multithreading the photon mapper was significantly more challenging in part because photons themselves are stored in dynamic memory (the heap) and in part because pointers to photons are stored in a global resizing-array. It is necessary to store photons in the heap and their pointers in a global structure because we cannot know exactly how many photons will be stored in the map (the user only provides a rough storage target) and thread stack space is destroyed following thread termination. These requirements introduce two problems: (1) careless multithreaded heap-allocation can be slow due to heap contention, and (2) insertion into a resizing-array is not an atomic process.
+
+Thankfully, both of these problems can be solved by giving each thread a very large local photon buffer on the stack, which is then flushed to dynamic and global memory when it reaches capacity. The entire photon-flushing step is made atomic through synchonization primatives, which both prevents heap contention (only one thread can allocate dynamic memory at once) and ensures that array insertion is thread-safe.
+
+Empirically, using 8-threads on an 8-core (4 CPU) Intel i7 processor speeds up rendering and photon tracing by a factor of over four.
 
 # Credits
 ## Authors
