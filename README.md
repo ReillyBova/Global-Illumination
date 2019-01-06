@@ -381,6 +381,7 @@ To understand why this works, recall that indirect illumination is given by path
 | Direct | Transmissive | Specular | Caustic | Indirect | 
 |:---:|:---:|:---:|:---:|:---:|
 |  ![Fig 31a](/gallery/figures/fig_31a.png?raw=true) | ![Fig 31b](/gallery/figures/fig_31b.png?raw=true) |  ![Fig 31c](/gallery/figures/fig_31c.png?raw=true) |  ![Fig 31d](/gallery/figures/fig_31d.png?raw=true) |  ![Fig 31e](/gallery/figures/fig_31e.png?raw=true) |
+
 ![Fig 31f](/gallery/figures/fig_31f.png?raw=true)
 
 ## Additional Features
