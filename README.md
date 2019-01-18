@@ -447,6 +447,21 @@ For this submission, both cone filtering and weighted-gaussian filtering were im
 | 300k Photons | ![Fig 33b-i](/gallery/figures/fig_33b-i.png?raw=true) | ![Fig 33b-ii](/gallery/figures/fig_33b-ii.png?raw=true) | ![Fig 33b-iii](/gallery/figures/fig_33b-iii.png?raw=true) |
 | 3M Photons | ![Fig 33c-i](/gallery/figures/fig_33c-i.png?raw=true) | ![Fig 33c-ii](/gallery/figures/fig_33c-ii.png?raw=true) |![Fig 33c-iii](/gallery/figures/fig_33c-iii.png?raw=true) |
 
+### Irradiance caching
+As discussed earlier in this writeup, the most inefficient step of rendering by far is the radiance sample, but we observed that there is hope for improvement because many of these expensive computations sample the same point in space, which allows for caching. The techniqued used in this implementation is borrowed from Part III of the optimization section in Jensen's 2001 SIGGRAPH course notes. In this section, is it suggested that, as a preprocessing step, an irradiance sample is made at each traced photon. Then, the irradiance sample is placed into a KdTree so that taking radiance samples during the photontracing/gather stage reduces to just finding the single closest point in the tree and applying a BRDF. Note that non-lambertian surface behavior in necessarily lost in the simplification of indirect samplings from radiance estimates down to irradiance measures.
+
+
+It is noted that are some noticible artificats along sharp edges, however it is likely possible to remove them either with filtering, or with sort sort of adaptive sampling — where rays that move relatively little between samples use full radiance estimates instead.
+
+##### Figure 34: A comparision of indirect illumination techniques. Figure (34a) applies the full radiance sample everytime, wheres Figure (34b) utilized the accelerated approach using irradiance caching.
+| Figure 34a | Figure 34b |
+|:---:|:---:|
+| ![Fig 34a](/gallery/figures/fig_34a.png?raw=true) | ![Fig 34b](/gallery/figures/fig_34b.png?raw=true) |
+
+##### Figure 35: A visualization of the simplified indirect illumination layer that is being sampled under this optimized approach.
+
+
+
 # Credits
 ## Authors
 * **Reilly Bova** - *Rendering Program and Examples* - [ReillyBova](https://github.com/ReillyBova)
