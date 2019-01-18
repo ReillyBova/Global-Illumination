@@ -61,7 +61,7 @@ bool DIRECT_PHOTON_ILLUM = false;
 // than sampling the photon map alone
 bool FAST_GLOBAL = false;
 // Enable the irradiance cache (lose some effects at a major optimization gain)
-bool IRRADIANCE_CACHE = true;
+bool IRRADIANCE_CACHE = false;
 
 // Soft shadows (toggle and number of shadow rays sent per test)
 bool SHADOWS = true;
