@@ -37,6 +37,7 @@ This repository contains a C++ program that uses multithreaded raytracing and ph
     + [Multithreading](#multithreading)
   * [Implementation Extensions](#further-implementation-extensions)
     + [Filtering](#filtering)
+    + [Irradiance Cachin](#irradiance-caching)
 - [Credits](#credits)
   * [Authors](#authors)
   * [References](#references)
@@ -453,14 +454,22 @@ As discussed earlier in this writeup, the most inefficient step of rendering by 
 
 It is noted that are some noticible artificats along sharp edges, however it is likely possible to remove them either with filtering, or with sort sort of adaptive sampling — where rays that move relatively little between samples use full radiance estimates instead.
 
-##### Figure 34: A comparision of indirect illumination techniques. Figure (34a) applies the full radiance sample everytime, wheres Figure (34b) utilized the accelerated approach using irradiance caching.
+##### Figure 34: A comparision of indirect illumination techniques. Figure (34a) computes indirect illumination using expensive radiance estimations within large important sampling loops. It took over ten minutes to render. Conversely, Figure (34b) utilizes the accelerated approach of irradiance caching at the cost of accuracy.
 | Figure 34a | Figure 34b |
 |:---:|:---:|
 | ![Fig 34a](/gallery/figures/fig_34a.png?raw=true) | ![Fig 34b](/gallery/figures/fig_34b.png?raw=true) |
 
-##### Figure 35: A visualization of the simplified indirect illumination layer that is being sampled under this optimized approach.
+##### Figure 35: A visualization of the layers that are sampled for indirect illumination. Figure (34a) shows the layer for traditional approach, whereas Figure (34b) is the cached irradiance map.
+| Figure 35a | Figure 35b |
+|:---:|:---:|
+| ![Fig 35a](/gallery/figures/fig_35a.png?raw=true) | ![Fig 35b](/gallery/figures/fig_35b.png?raw=true) |
 
+### Depth of Field
+Thus far, we have only rendered scenes taken from ideal cameras. In reality, photographic devices have relatively sizable apertures that will warp the motion of light. When this effect is exaggerated in photography and videography, the resulting effect of a heavily blurred background is referred to as "Depth of Field".
 
+In order to implement this effect, a stochastic approach was used wherin many full ray traces were made for each pixel in the output. Rather than tracing all rays the same, however, each ray had its origin slightly perturbed along the plane of the aperture. This is what causes the depth of field in the first place because perturbed rays traced for the same pixel will diverge further (causing blur) as they race away from the camera.
+
+Note that there are many other methods for rendering depth of field; in fact, this method is particularly inefficient because it requires a rerender of the image (more or less) for each pixel it samples. Nevertheless, this approach was chosen above others (for instance, the z-buffer blurring method) because it was the most straightforward to implement and also the most physically accurate.
 
 # Credits
 ## Authors
