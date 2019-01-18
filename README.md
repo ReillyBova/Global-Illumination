@@ -35,7 +35,7 @@ This repository contains a C++ program that uses multithreaded raytracing and ph
     + [Progress Bar & Statistics](#progress-bar--statistics)
     + [Optimized KdTree Implementation](#optimized-kdtree-implementation)
     + [Multithreading](#multithreading)
-  * [Implementation Extensions](#implementation-extensions)
+  * [Implementation Extensions](#further-implementation-extensions)
     + [Filtering](#filtering)
 - [Credits](#credits)
   * [Authors](#authors)
@@ -443,8 +443,8 @@ For this submission, both cone filtering and weighted-gaussian filtering were im
 ##### Figure 33: A comparision of photon map filtering techniques. The figures in the first row all use 300 photons, with an estimate size of 10 and maximum distance of 1. In the second row, there are 300,000 photons, with an estimate size of 200 and maximum distance of 1. Finally, in final row there are 30,000,000 photons per image, with an estimate size of 500 and maximum distance of 0.5.
 |      | No Filter | Cone Filter (with k=1.25) | Gauss Filter |
 |:---:|:------:|:---:|:---:|
-| 300 Photons| ![Fig 33a-i](/gallery/figures/fig_33a-i.png?raw=true) | ![Fig 33a-ii](/gallery/figures/fig_33a-ii.png?raw=true) | ![Fig 33c-iii](/gallery/figures/fig_33c-iii.png?raw=true) |
-| 300k Photons | ![Fig 33b-i](/gallery/figures/fig_33b-i.png?raw=true) | ![Fig 33b-ii](/gallery/figures/fig_33b-ii.png?raw=true) | ![Fig 33c-iii](/gallery/figures/fig_33c-iii.png?raw=true) |
+| 300 Photons| ![Fig 33a-i](/gallery/figures/fig_33a-i.png?raw=true) | ![Fig 33a-ii](/gallery/figures/fig_33a-ii.png?raw=true) | ![Fig 33a-iii](/gallery/figures/fig_33a-iii.png?raw=true) |
+| 300k Photons | ![Fig 33b-i](/gallery/figures/fig_33b-i.png?raw=true) | ![Fig 33b-ii](/gallery/figures/fig_33b-ii.png?raw=true) | ![Fig 33b-iii](/gallery/figures/fig_33b-iii.png?raw=true) |
 | 3M Photons | ![Fig 33c-i](/gallery/figures/fig_33c-i.png?raw=true) | ![Fig 33c-ii](/gallery/figures/fig_33c-ii.png?raw=true) |![Fig 33c-iii](/gallery/figures/fig_33c-iii.png?raw=true) |
 
 # Credits
