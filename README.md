@@ -35,6 +35,8 @@ This repository contains a C++ program that uses multithreaded raytracing and ph
     + [Progress Bar & Statistics](#progress-bar--statistics)
     + [Optimized KdTree Implementation](#optimized-kdtree-implementation)
     + [Multithreading](#multithreading)
+  * [Implementation Extensions](#implementation-extensions)
+    + [Filtering](#filtering)
 - [Credits](#credits)
   * [Authors](#authors)
   * [References](#references)
@@ -104,7 +106,7 @@ Illumination flags:
   * `-no_ss` => Disables soft shadows. Soft shadows are enabled by default
   * `-lt <int N>` => Sets the number of occlusion + reflectance rays sent per light per sample. Used to compute both soft shadows and direct illumination by area light. Default is `N=128`
   * `-s <int N>` => Sets the number of occlusion (only) rays sent per light per sample. Used to take additional soft shadow estimates (on top of the number specified by the `-lt` flag). Default is `N=128`
-* Depth of Field flags:
+* Depth of Field flag:
   * `-dof <int N> <float R>` => Enables depth of field for a camera with radius `R`. `N` samples are sent through the aperture to approximate lense scattering. Depth of field is disabled by default.
 
 ## Program Input
@@ -342,7 +344,7 @@ Once the photon map is built, it is easy to use the map to estimate the radiance
 ### Caustics
 As mentioned above, caustics are computed by directly radiance-sampling an extremely large photon map that only stores photons that travel along `LS+D` paths. Because this restriction is relatively tight (specular or transparent objects in most scenes are often small and few in number), generating caustic maps often takes much longer than generating global photon maps of the same storage size since caustic maps will reject a majority of emitted photons. Currently, even this slowdown yields extremely fast photon-tracing times (such that building the KdTree is the true bottleneck), however caustic photon tracing could be further optimized by adding photon emission importance sampling, as described by [Jensen][2].
 
-When rendering a scene, the caustic map is directly radiance-sampled for all intersections along our path-traces where shadowing is also computed (since they are both features caused by direct lighting). Although this is an accurate approach, not that this introduces a severe inefficiency into the rendering process: when Monte Carlo path-tracing reflections and refractions, integration allows us to reduce our shadow tests to one sample per recursive intersection; however we have no method — accurate or approximate — to reducing sample complexity of the caustic photon map (reducing radiance sampling parameters from within a Monte Carlo trace does not work because the same intersection point will still always give the same radiance; a stochastic solution combined with reduced parameters would be needed to optimize radiance-sampling in the same manner we optimized shadow rays). A potential solution to this problem would be to implement Ward's radiance caching algorithm, which would save us time wasted on both *new* radiance samplings and radiance samplings that had already been computed earlier! In its current state, this program does not implement Ward's radiance caching algorithm.
+When rendering a scene, the caustic map is directly radiance-sampled for all intersections along our path-traces where shadowing is also computed (since they are both features caused by direct lighting). Although this is an accurate approach, not that this introduces a severe inefficiency into the rendering process: when Monte Carlo path-tracing reflections and refractions, integration allows us to reduce our shadow tests to one sample per recursive intersection; however we have no method — accurate or approximate — to reducing sample complexity of the caustic photon map (reducing radiance sampling parameters from within a Monte Carlo trace does not work because the same intersection point will still always give the same radiance; a stochastic solution combined with reduced parameters would be needed to optimize radiance-sampling in the same manner we optimized shadow rays). A potential solution to this problem would be to implement Ward's radiance caching algorithm, which would save us time wasted on both *new* radiance samplings and radiance samplings that had already been computed earlier! In its current state, this program does not implement Ward's radiance caching algorithm, but it does provide an irradiance computation speedup for global maps (the method is too inaccurate for caustic maps).
 
 ##### Figure 24: A comparison of three caustic photon maps for the same scene but each with different parameters. In (24a), there are 300 photons, with an estimate size of 10 and maximum distance of 1. In (24b) there are 300,000 photons, with an estimate size of 200 and maximum distance of 1. Finally, in (24c) there are 100,000,000 photons, with an estimate size of 500 and maximum distance of 0.5. Photon tracing took 0.04s, 1.52s, and 300s, respectively. Rendering the 512x512 images took 0.16s, 6.90s, and 178.8s, respectively. The intensity of the lights in the scene were increased to ease viewing, and the back wall of the Cornell Box is approximately 5x5.
 | Figure 24a | Figure 24b | Figure 24c | 
@@ -429,6 +431,21 @@ Multithreading the photon mapper was significantly more challenging in part beca
 Thankfully, both of these problems can be solved by giving each thread a very large local photon buffer on the stack, which is then flushed to dynamic and global memory when it reaches capacity. The entire photon-flushing step is made atomic through synchonization primatives, which both prevents heap contention (only one thread can allocate dynamic memory at once) and ensures that array insertion is thread-safe.
 
 Empirically, using 8-threads on an 8-core (4 CPU) Intel i7 processor speeds up rendering and photon tracing by a factor of over four.
+
+## Further Implementation Extensions
+This section details several extensions that were made to the assignment. Already, the program offers a plethora of bells and whistles, including indirect-illumination acceleration techniques, multithreaded photontracing, multithreaded raytracing, and fresnel reflections. The features detailed below were added at a later date, hence why they are listed seperetely.
+
+### Filtering
+A standard 60-Watt lightbulb emits over `1x10^20` photons per second. Obviously, it is not feasible to store or compute this many interactions, and so we instead must make do with our coarse, noisy estimates. One major issue with the basic radiance gathering step is that the KdTree call searches for photons in 3D space, even though we presume them to all lie on a 2D surface for the final computation. As such, Jensen suggests in his paper several filtering methods that reduce raytracing noise, and smooth out photon maps.
+
+For this submission, both cone filtering and weighted-gaussian filtering were implemented. Figure (33) demonstrates how the different filtering methods affect the caustic map (for which they are primarily intended due to the tradeoff between caustic detail and rendering time).
+
+##### Figure 33: A comparision of photon map filtering techniques. The figures in the first row all use 300 photons, with an estimate size of 10 and maximum distance of 1. In the second row, there are 300,000 photons, with an estimate size of 200 and maximum distance of 1. Finally, in final row there are 30,000,000 photons per image, with an estimate size of 500 and maximum distance of 0.5.
+|      | No Filter | Cone Filter (with k=1.25) | Gauss Filter |
+|:---:|:------:|:---:|:---:|
+| 300 Photons| ![Fig 33a-i](/gallery/figures/fig_33a-i.png?raw=true) | ![Fig 33a-ii](/gallery/figures/fig_33a-ii.png?raw=true) | ![Fig 33c-iii](/gallery/figures/fig_33c-iii.png?raw=true) |
+| 300k Photons | ![Fig 33b-i](/gallery/figures/fig_33b-i.png?raw=true) | ![Fig 33b-ii](/gallery/figures/fig_33b-ii.png?raw=true) | ![Fig 33c-iii](/gallery/figures/fig_33c-iii.png?raw=true) |
+| 3M Photons | ![Fig 33c-i](/gallery/figures/fig_33c-i.png?raw=true) | ![Fig 33c-ii](/gallery/figures/fig_33c-ii.png?raw=true) |![Fig 33c-iii](/gallery/figures/fig_33c-iii.png?raw=true) |
 
 # Credits
 ## Authors
