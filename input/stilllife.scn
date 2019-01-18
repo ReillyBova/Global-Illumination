@@ -1,9 +1,9 @@
 # This scene has the five platonic solids arranged on a box
-# It is good for testing combinations of ray-mesh interesections, 
+# It is good for testing combinations of ray-mesh interesections,
 # transformations, and illumination
 
-# A camera 
-camera   0.640 9.446 5.606   -0.055 -0.851 -0.522   -0.005 0.523 -0.853   0.25   0.01 100
+# A camera
+camera   0.740 6.346 5.706   -0.065 -0.475 -0.522   -0.005 0.523 -0.853   0.25   0.01 100
 
 # Two colored point lights and directional light
 point_light   5 5 0           -2 2 3   0 0 1
@@ -57,13 +57,3 @@ begin -1
   0 0 0 1
   mesh   4  ico.off
 end
-
-
-
-
-
-
-
-
-
-
