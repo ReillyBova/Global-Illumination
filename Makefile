@@ -5,6 +5,10 @@
 ########################################################################
 
 RESOLUTION= 512 512
+
+CFLAGS=  -resolution $(RESOLUTION) -aa 0 -v -lt 128 -ss 96 -tt 512 -st 512 -md 128 -threads 8 -it 480 -no_caustic -global 10000000 -gs 225 -gd .225 -cache
+
+
 #CFLAGS=  -resolution $(RESOLUTION) -aa 1 -v -lt 8 -ss 6 -tt 32 -st 32 -md 128 -threads 8 -it 64 -dof 64 .033
 #CFLAGS=  -resolution $(RESOLUTION) -aa 1 -v -lt 128 -ss 96 -tt 512 -st 512 -md 128 -threads 8 -it 960 -cf cone 1.0 -global 1000000 -gs 200 -gd .75
 #CFLAGS= -resolution $(RESOLUTION) -aa 0 -v -lt 128 -ss 64 -tt 128 -st 128 -md 128 -threads 8 -no_caustic -no_indirect -no_shadow
@@ -12,7 +16,7 @@ RESOLUTION= 512 512
 #-caustic 10000000 -cs 225 -cd .225
 #CFLAGS= -resolution $(RESOLUTION) -aa 0 -v -lt 128 -no_rs -no_ss -no_fresnel -no_dt -no_ds -tt 32 -st 32 -md 8 -threads 8
 #RESOLUTION= 1024 1024
-CFLAGS= -resolution $(RESOLUTION) -aa 1 -v -real -lt 64 -ss 64 -tt 128 -st 128 -md 64 -threads 8 -no_indirect -no_transmissive -no_direct -no_specular -caustic 3000000 -cs 300 -cd .5
+#CFLAGS= -resolution $(RESOLUTION) -aa 0 -v -real -lt 64 -ss 64 -tt 128 -st 128 -md 64 -threads 8 -no_indirect -no_transmissive -no_direct -no_specular -caustic 3000000 -cs 300 -cd .5
 #RESOLUTION= 4096 4096
 #CFLAGS= -resolution $(RESOLUTION) -aa 1 -v -real -lt 128 -ss 128 -tt 256 -st 256 -md 128 -threads 8 -it 512
 NICE=0# -20 is highest priority; negative values require root permissions
