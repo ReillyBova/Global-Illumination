@@ -79,6 +79,7 @@ Illumination flags:
   * `-no_caustic` => Disables caustic illumination (light that is focused through mirror and optical media) in scene. Caustic illumination is enabled by default
   * `-photon_viz` => Enables direct radiance sampling of the global photon map for vizualization. This layer will (nearly) approach global illumination on its own if given large enough samples. Disabled by default
   * `-fast_global` => Enables a faster estimate of global illumination by combining direct lighting with direct radiance sampling of a version of the global photon map where photons are only stored after their first diffuse bounce. Disabled by default
+  * `-cache` => Enables irradiance caching for the global map, which cuts accuracy for fast indirect illumination calculations without much noise. Irradiance caching is disabled by default.
 * Monte Carlo flags:
   * `-no-monte` => Disables Monte Carlo path-tracing (used to compute specular and transmissive illumination). Monte Carlo is path-tracing is enabled by default
   * `-md <int N>` => Sets the max recursion depth of a Monte Carlo path-trace. Default is `N=128`
@@ -94,13 +95,17 @@ Illumination flags:
   * `-it <int N>` => Sets the number of test rays that should be sent when sampling the indirect illumination of a surface. Default is `N=256`
   * `-gs <int N>` => Sets the number of photons used in a radiance sample of the global photon map. Default is `N=50`
   * `-gd <float N>` => Sets the max radius of a radiance sample of the global photon map. Default is `N=2.5`
+  * `-gf <"cone <float k>" | "gauss">` => Sets the filtering mechanism for the global photon map. The standard projected-sphere sample is used by default.
   * `-cs <int N>` => Sets the number of photons used in a radiance sample of the caustic photon map. Default is `N=225`
   * `-cd <float N>` => Sets the max radius of a radiance sample of the caustic photon map. Default is `N=0.225`
+  * `-cf <"cone <float k>" | "gauss">` => Sets the filtering mechanism for the caustic photon map. The standard projected-sphere sample is used by default.
 * Shadow Sampling flags:
   * `-no_shadow` => Disables shadows entirely. Shadows are enabled by default
   * `-no_ss` => Disables soft shadows. Soft shadows are enabled by default
   * `-lt <int N>` => Sets the number of occlusion + reflectance rays sent per light per sample. Used to compute both soft shadows and direct illumination by area light. Default is `N=128`
   * `-s <int N>` => Sets the number of occlusion (only) rays sent per light per sample. Used to take additional soft shadow estimates (on top of the number specified by the `-lt` flag). Default is `N=128`
+* Depth of Field flags:
+  * `-dof <int N> <float R>` => Enables depth of field for a camera with radius `R`. `N` samples are sent through the aperture to approximate lense scattering. Depth of field is disabled by default.
 
 ## Program Input
 ### Provided Scenes
