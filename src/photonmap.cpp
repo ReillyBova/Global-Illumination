@@ -84,6 +84,7 @@ int SPECULAR_TEST = 128;
 // Depth of Field Parameter
 bool DEPTH_OF_FIELD = FALSE;
 int DOF_TEST = 1;
+RNScalar FOCUS_DEPTH = 100.0;
 RNScalar APERTURE_RADIUS = 0.025;
 
 // Photon Map Tracing Parameters

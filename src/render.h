@@ -56,6 +56,7 @@ extern int SPECULAR_TEST;
 
 extern bool DEPTH_OF_FIELD;
 extern int DOF_TEST;
+extern RNScalar FOCUS_DEPTH;
 extern RNScalar APERTURE_RADIUS;
 
 

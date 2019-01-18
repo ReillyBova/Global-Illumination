@@ -159,9 +159,12 @@ int ParseArgs(int argc, char **argv, char*& input_scene_name,
       else if (!strcmp(*argv, "-dof")) {
         DEPTH_OF_FIELD = TRUE;
         argc--; argv++; DOF_TEST = atoi(*argv);
+        argc--; argv++; FOCUS_DEPTH = atof(*argv);
         argc--; argv++; APERTURE_RADIUS = atof(*argv);
         if (DOF_TEST < 1)
           DOF_TEST = 1;
+        if (FOCUS_DEPTH < RN_EPSILON)
+          FOCUS_DEPTH = RN_EPSILON;
         if (APERTURE_RADIUS <= 0)
           APERTURE_RADIUS = RN_EPSILON;
       } else if (!strcmp(*argv, "-cd")) {

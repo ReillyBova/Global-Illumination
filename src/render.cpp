@@ -64,9 +64,9 @@ static void Threadable_RayTracer(vector<vector<RNRgb> >& image_buffer, int width
   // World ray precomputation
   R3Camera camera = SCENE->Camera();
   R2Viewport viewport = SCENE->Viewport();
-  R3Point far_org = camera.Origin() + camera.Towards() * camera.Far();
-  R3Vector far_right = camera.Right() * camera.Far() * tan(camera.XFOV());
-  R3Vector far_up = camera.Up() * camera.Far() * tan(camera.YFOV());
+  R3Point far_org = camera.Origin() + camera.Towards() * FOCUS_DEPTH;
+  R3Vector far_right = camera.Right() * tan(camera.XFOV()) * FOCUS_DEPTH;
+  R3Vector far_up = camera.Up() * tan(camera.YFOV()) * FOCUS_DEPTH;
 
   // Depth of field precomputation (axes along which the orgin can be perturbed)
   R3Vector u = camera.Up();
