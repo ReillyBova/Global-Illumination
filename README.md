@@ -37,7 +37,8 @@ This repository contains a C++ program that uses multithreaded raytracing and ph
     + [Multithreading](#multithreading)
   * [Implementation Extensions](#further-implementation-extensions)
     + [Filtering](#filtering)
-    + [Irradiance Cachin](#irradiance-caching)
+    + [Irradiance Caching](#irradiance-caching)
+    + [Depth of Field](#depth-of-field)
 - [Credits](#credits)
   * [Authors](#authors)
   * [References](#references)
@@ -470,6 +471,11 @@ Thus far, we have only rendered scenes taken from ideal cameras. In reality, pho
 In order to implement this effect, a stochastic approach was used wherin many full ray traces were made for each pixel in the output. Rather than tracing all rays the same, however, each ray had its origin slightly perturbed along the plane of the aperture. This is what causes the depth of field in the first place because perturbed rays traced for the same pixel will diverge further (causing blur) as they race away from the camera.
 
 Note that there are many other methods for rendering depth of field; in fact, this method is particularly inefficient because it requires a rerender of the image (more or less) for each pixel it samples. Nevertheless, this approach was chosen above others (for instance, the z-buffer blurring method) because it was the most straightforward to implement and also the most physically accurate.
+
+##### Figure 36: On the left, a still life without depth of field. On the right, a still life with depth of field. Currently there is no way to adjust the focus plane, but this will come in a future version.
+| No Depth of Field | Depth of Field |
+|:---:|:---:|
+| ![Fig 36a](/gallery/figures/fig_36a.png?raw=true) | ![Fig 36b](/gallery/figures/fig_36b.png?raw=true) |
 
 # Credits
 ## Authors
