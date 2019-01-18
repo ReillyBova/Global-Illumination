@@ -60,6 +60,8 @@ bool DIRECT_PHOTON_ILLUM = false;
 // Used alongide other illuminations to quickly approximate global illumination with less noise
 // than sampling the photon map alone
 bool FAST_GLOBAL = false;
+// Enable the irradiance cache (lose some effects at a major optimization gain)
+bool IRRADIANCE_CACHE = true;
 
 // Soft shadows (toggle and number of shadow rays sent per test)
 bool SHADOWS = true;
@@ -79,6 +81,11 @@ int TRANSMISSIVE_TEST = 128;
 bool DISTRIB_SPECULAR = true; // Use importance sampling
 int SPECULAR_TEST = 128;
 
+// Depth of Field Parameter
+bool DEPTH_OF_FIELD = FALSE;
+int DOF_TEST = 1;
+RNScalar APERTURE_RADIUS = 0.025;
+
 // Photon Map Tracing Parameters
 int GLOBAL_PHOTON_COUNT = 2176; // Number of photons emmitted for global map
 int CAUSTIC_PHOTON_COUNT = 10000000; // Number of photons emmited for caustic map
@@ -88,8 +95,14 @@ int MAX_PHOTON_DEPTH = 128;
 int INDIRECT_TEST = 256;
 int GLOBAL_ESTIMATE_SIZE = 50;
 RNScalar GLOBAL_ESTIMATE_DIST = 2.5;
+Filter_Type GLOBAL_FILTER = DISK;
 int CAUSTIC_ESTIMATE_SIZE = 225;
 RNScalar CAUSTIC_ESTIMATE_DIST = 0.225;
+Filter_Type CAUSTIC_FILTER = DISK;
+
+RNScalar FILTER_CONST_A = 0.918;
+RNScalar FILTER_CONST_B = 1.953;
+RNScalar FILTER_CONST_K = 1.0;
 
 ////////////////////////////////////////////////////////////////////////
 // Global Variable Defaults (Declared in render.h)
@@ -254,8 +267,8 @@ static void MapPhotons(void)
   thread *children = new thread[THREADS - 1];
 
   // Start statistics
-  RNTime total_start_time, photon_time, kd_time;
-  RNScalar photon_dur, kd_dur;
+  RNTime total_start_time, photon_time, kd_time, irrad_time;
+  RNScalar photon_dur, kd_dur, irrad_dur;
   total_start_time.Read();
 
   // Compute power distribution of lights
@@ -363,6 +376,41 @@ static void MapPhotons(void)
   }
   kd_dur = kd_time.Elapsed();
 
+  // Build irradiance cache if necessary
+  if (IRRADIANCE_CACHE && (INDIRECT_ILLUM || DIRECT_PHOTON_ILLUM)) {
+    irrad_time.Read();
+    if (VERBOSE)
+      printf("Building irradiance cache ...\n");
+
+    // Make an irradiance sample for each photon
+    RNArray <Photon *> irradiances;
+    for (int i = 0; i < GLOBAL_PHOTON_COUNT; i++) {
+      Photon* new_photon = new Photon(*GLOBAL_PHOTONS[i]);
+      RNRgb irradiance = RGBE_to_RNRgb(new_photon->rgbe);
+      EstimateIrradiance(new_photon->position, irradiance, GLOBAL_PMAP,
+        GLOBAL_ESTIMATE_SIZE, GLOBAL_ESTIMATE_DIST);
+      RNRgb_to_RGBE(irradiance, new_photon->rgbe);
+      // Insert into cache
+      irradiances.Insert(new_photon);
+    }
+
+    // Overwrite the color values in the Global map
+    for (int i = 0; i < GLOBAL_PHOTON_COUNT; i++) {
+      Photon* photon = GLOBAL_PHOTONS[i];
+      Photon* irrad_photon = irradiances[i];
+      for (int j = 0; j < 4; j++) {
+        photon->rgbe[j] = irrad_photon->rgbe[j];
+      }
+    }
+
+    // Clean up memory
+    for (int i = 0; i < irradiances.NEntries(); i++) {
+      delete irradiances[i];
+    }
+
+    irrad_dur = irrad_time.Elapsed();
+  }
+
   // Print statistics
   if (VERBOSE) {
     int total_photon_count = 0;
@@ -370,6 +418,9 @@ static void MapPhotons(void)
     printf("  Total Time = %.2f seconds\n", total_start_time.Elapsed());
     printf("  Photon Tracing = %.2f seconds\n", photon_dur);
     printf("  KdTree Construction = %.2f seconds\n", kd_dur);
+    if (IRRADIANCE_CACHE && (INDIRECT_ILLUM || DIRECT_PHOTON_ILLUM)) {
+      printf("  Irradiance Cache Computation = %.2f seconds\n", irrad_dur);
+    }
     if (INDIRECT_ILLUM || DIRECT_PHOTON_ILLUM) {
       printf("  # Global Photons Stored = %u\n", GLOBAL_PHOTONS.NEntries());
       total_photon_count += GLOBAL_PHOTONS.NEntries();

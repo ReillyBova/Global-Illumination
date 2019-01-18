@@ -61,7 +61,22 @@ static void Threadable_RayTracer(vector<vector<RNRgb> >& image_buffer, int width
   // For progress bar printing
   int last_value = -1;
 
-  // Draw intersection point and normal for some rays
+  // World ray precomputation
+  R3Camera camera = SCENE->Camera();
+  R2Viewport viewport = SCENE->Viewport();
+  R3Point far_org = camera.Origin() + camera.Towards() * camera.Far();
+  R3Vector far_right = camera.Right() * camera.Far() * tan(camera.XFOV());
+  R3Vector far_up = camera.Up() * camera.Far() * tan(camera.YFOV());
+
+  // Depth of field precomputation (axes along which the orgin can be perturbed)
+  R3Vector u = camera.Up();
+  R3Vector v = camera.Right();
+  u.Normalize();
+  v.Normalize();
+  u *= APERTURE_RADIUS;
+  v *= APERTURE_RADIUS;
+
+  // Draw intersection point and normal for world rays
   for (int i = 0; i < width; i++) {
     if (id == 0 && !(i % 2)) {
       double progress = ((double) bars_completed.load()) / width;
@@ -73,22 +88,51 @@ static void Threadable_RayTracer(vector<vector<RNRgb> >& image_buffer, int width
     }
     // Each thread does 1/THREADS work
     if (i % THREADS != id) continue;
-
     for (int j = 0; j < height; j++) {
-      R3Ray ray = SCENE->Viewer().WorldRay(i, j);
-      if (SCENE->Intersects(ray, &node, &element, &shape, &point, &normal, &t)) {
-        color = RNblack_rgb;
-        // Call Raytracer on ray
-        RayTrace(element, point, normal, ray, eye, color);
+      // Zero out buffer
+      image_buffer[i][j] = RNblack_rgb;
 
-        // Set pixel color
-        image_buffer[i][j] = color;
+      // World ray computation
+      RNScalar dx = (RNScalar) (2 * (i - viewport.XCenter())) / (RNScalar) viewport.Width();
+      RNScalar dy = (RNScalar) (2 * (j - viewport.YCenter())) / (RNScalar) viewport.Height();
+      R3Point far_point = far_org + (far_right * dx) + (far_up * dy);
 
-        // Update ray count
-        LOCAL_RAY_COUNT++;
-      } else {
-        image_buffer[i][j] = SCENE->Background();
+      // Depth of field loop
+      R3Ray ray;
+      RNScalar r1;
+      RNScalar r2;
+      for (int k = 0; k < DOF_TEST; k++) {
+        if (DEPTH_OF_FIELD) {
+          // Spherical point picking
+          do {
+            // Sample point in circle
+            r1 = (RNThreadableRandomScalar()*2.0) - 1.0;
+            r2 = (RNThreadableRandomScalar()*2.0) - 1.0;
+          } while (r1*r1 + r2*r2 > 1.0);
+
+          // Move the eye every so slightly within aperture
+          ray = R3Ray(camera.Origin() + r1*u + r2*v, far_point);
+        } else {
+          ray = R3Ray(camera.Origin(), far_point);
+        }
+
+        if (SCENE->Intersects(ray, &node, &element, &shape, &point, &normal, &t)) {
+          color = RNblack_rgb;
+          // Call Raytracer on ray
+          RayTrace(element, point, normal, ray, eye, color);
+
+          // Set pixel color
+          image_buffer[i][j] += color;
+
+          // Update ray count
+          LOCAL_RAY_COUNT++;
+        } else {
+          image_buffer[i][j] += SCENE->Background();
+        }
       }
+
+      // Normalize
+      image_buffer[i][j] /= DOF_TEST;
     }
 
     bars_completed += 1;

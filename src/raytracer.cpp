@@ -144,7 +144,7 @@ void CausticIllumination(R3Point& point, R3Vector& normal, RNRgb& color,
 
   // Estimate radiance at point
   EstimateRadiance(point, normal, color, brdf, exact_bounce, cos_theta,
-    CAUSTIC_PMAP, CAUSTIC_ESTIMATE_SIZE, CAUSTIC_ESTIMATE_DIST);
+    CAUSTIC_PMAP, CAUSTIC_ESTIMATE_SIZE, CAUSTIC_ESTIMATE_DIST, CAUSTIC_FILTER);
   LOCAL_CAUSTIC_RAY_COUNT++;
 }
 
@@ -156,9 +156,14 @@ void EstimateGlobalIllumination(R3Point& point, R3Vector& normal, RNRgb& color,
   const R3Vector exact_bounce = ReflectiveBounce(normal, view, cos_theta);
 
   // Estimate radiance at point
-  EstimateRadiance(point, normal, color, brdf, exact_bounce, cos_theta,
-    GLOBAL_PMAP, GLOBAL_ESTIMATE_SIZE, GLOBAL_ESTIMATE_DIST);
-  LOCAL_INDIRECT_RAY_COUNT++;
+  if (IRRADIANCE_CACHE) {
+    EstimateCachedRadiance(point, normal, color, brdf, exact_bounce, cos_theta,
+      GLOBAL_PMAP, GLOBAL_ESTIMATE_DIST);
+    } else {
+    EstimateRadiance(point, normal, color, brdf, exact_bounce, cos_theta,
+      GLOBAL_PMAP, GLOBAL_ESTIMATE_SIZE, GLOBAL_ESTIMATE_DIST, GLOBAL_FILTER);
+    LOCAL_INDIRECT_RAY_COUNT++;
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////

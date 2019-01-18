@@ -111,6 +111,16 @@ int ParseArgs(int argc, char **argv, char*& input_scene_name,
         argc--; argv++; GLOBAL_ESTIMATE_DIST = atof(*argv);
         if (GLOBAL_ESTIMATE_DIST < 0.0)
           GLOBAL_ESTIMATE_DIST = RN_EPSILON;
+      } else if (!strcmp(*argv, "-gf")) {
+        argc--; argv++;
+        if (!strcmp(*argv, "cone")) {
+          GLOBAL_FILTER = CONE;
+          argc--; argv++; FILTER_CONST_K = atof(*argv);
+          if (FILTER_CONST_K < 1)
+            FILTER_CONST_K = 1;
+        } else if (!strcmp(*argv, "gauss")) {
+          GLOBAL_FILTER = GAUSS;
+        }
       } else if (!strcmp(*argv, "-cs")) {
         argc--; argv++; CAUSTIC_ESTIMATE_SIZE = atoi(*argv);
         if (CAUSTIC_ESTIMATE_SIZE < 1)
@@ -119,6 +129,16 @@ int ParseArgs(int argc, char **argv, char*& input_scene_name,
         argc--; argv++; CAUSTIC_ESTIMATE_DIST = atof(*argv);
         if (CAUSTIC_ESTIMATE_DIST < 0.0)
           CAUSTIC_ESTIMATE_DIST = RN_EPSILON;
+      } else if (!strcmp(*argv, "-cf")) {
+        argc--; argv++;
+        if (!strcmp(*argv, "cone")) {
+          CAUSTIC_FILTER = CONE;
+          argc--; argv++; FILTER_CONST_K = atof(*argv);
+          if (FILTER_CONST_K < 1)
+            FILTER_CONST_K = 1;
+        } else if (!strcmp(*argv, "gauss")) {
+          CAUSTIC_FILTER = GAUSS;
+        }
       }
       // Shadows
       else if (!strcmp(*argv, "-no_shadow")) {
@@ -133,6 +153,27 @@ int ParseArgs(int argc, char **argv, char*& input_scene_name,
         argc--; argv++; SHADOW_TEST = atoi(*argv);
         if (SHADOW_TEST < 0)
           SHADOW_TEST = 0;
+      }
+      else if (!strcmp(*argv, "-dof")) {
+        DEPTH_OF_FIELD = TRUE;
+        argc--; argv++; DOF_TEST = atoi(*argv);
+        argc--; argv++; APERTURE_RADIUS = atof(*argv);
+        if (DOF_TEST < 1)
+          DOF_TEST = 1;
+        if (APERTURE_RADIUS <= 0)
+          APERTURE_RADIUS = RN_EPSILON;
+      } else if (!strcmp(*argv, "-cd")) {
+        argc--; argv++; CAUSTIC_ESTIMATE_DIST = atof(*argv);
+        if (CAUSTIC_ESTIMATE_DIST < 0.0)
+          CAUSTIC_ESTIMATE_DIST = RN_EPSILON;
+      } else if (!strcmp(*argv, "-cf")) {
+        argc--; argv++;
+        if (!strcmp(*argv, "cone")) {
+          CAUSTIC_FILTER = CONE;
+          argc--; argv++; FILTER_CONST_K = atof(*argv);
+        } else if (!strcmp(*argv, "gauss")) {
+          CAUSTIC_FILTER = GAUSS;
+        }
       }
       // Image Resolution
       else if (!strcmp(*argv, "-resolution")) {

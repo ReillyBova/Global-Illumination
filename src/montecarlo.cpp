@@ -244,9 +244,14 @@ void MonteCarlo_IndirectSample(R3Ray& ray, RNRgb& color)
         // Sample photon map directly
         color_buffer = RNblack_rgb;
         exact_bounce = ReflectiveBounce(normal, view, cos_theta);
-        EstimateRadiance(point, normal, color_buffer, brdf,
-          exact_bounce, cos_theta, GLOBAL_PMAP, GLOBAL_ESTIMATE_SIZE,
-          GLOBAL_ESTIMATE_DIST);
+        if (IRRADIANCE_CACHE) {
+          EstimateCachedRadiance(point, normal, color_buffer, brdf,
+            exact_bounce, cos_theta, GLOBAL_PMAP, GLOBAL_ESTIMATE_DIST);
+        } else {
+          EstimateRadiance(point, normal, color_buffer, brdf,
+            exact_bounce, cos_theta, GLOBAL_PMAP, GLOBAL_ESTIMATE_SIZE,
+            GLOBAL_ESTIMATE_DIST, GLOBAL_FILTER);
+          }
         color += color_buffer * brdf->Diffuse() * total_weight / prob_diffuse;
         break;
       } else if (rand < prob_diffuse + prob_transmission) {

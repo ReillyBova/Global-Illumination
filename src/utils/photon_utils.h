@@ -32,7 +32,16 @@ void StorePhoton(RNRgb& photon, vector<Photon>& local_photon_storage,
 void EstimateRadiance(R3Point& point, R3Vector& normal, RNRgb& color,
   const R3Brdf *brdf, const R3Vector& exact_bounce, RNScalar cos_theta,
   R3Kdtree<Photon*>* photon_map, int estimate_size,
-  RNScalar estimate_dist);
+  RNScalar estimate_dist, Filter_Type filter);
+
+// Sample the radiance from the irradiance cache
+void EstimateCachedRadiance(R3Point& point, R3Vector& normal, RNRgb& color,
+  const R3Brdf *brdf, const R3Vector& exact_bounce, RNScalar cos_theta,
+  R3Kdtree<Photon*>*  photon_map, RNScalar estimate_dist);
+
+// Roughly sample the irradiance at a point
+void EstimateIrradiance(R3Point& point, RNRgb& color, R3Kdtree<Photon*>* photon_map,
+    int estimate_size, RNScalar estimate_dist);
 
 ////////////////////////////////////////////////////////////////////////
 // Efficiency Utils

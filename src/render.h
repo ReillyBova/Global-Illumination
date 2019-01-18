@@ -38,6 +38,7 @@ extern bool CAUSTIC_ILLUM;
 
 extern bool DIRECT_PHOTON_ILLUM;
 extern bool FAST_GLOBAL;
+extern bool IRRADIANCE_CACHE;
 
 extern bool SHADOWS;
 extern bool SOFT_SHADOWS;
@@ -53,7 +54,13 @@ extern int TRANSMISSIVE_TEST;
 extern bool DISTRIB_SPECULAR;
 extern int SPECULAR_TEST;
 
+extern bool DEPTH_OF_FIELD;
+extern int DOF_TEST;
+extern RNScalar APERTURE_RADIUS;
+
+
 enum Photon_Type {GLOBAL, CAUSTIC};
+enum Filter_Type {DISK, CONE, GAUSS};
 
 extern int GLOBAL_PHOTON_COUNT;
 extern int CAUSTIC_PHOTON_COUNT;
@@ -63,8 +70,14 @@ extern int MAX_PHOTON_DEPTH;
 extern int INDIRECT_TEST;
 extern int GLOBAL_ESTIMATE_SIZE;
 extern RNScalar GLOBAL_ESTIMATE_DIST;
+extern Filter_Type GLOBAL_FILTER;
 extern int CAUSTIC_ESTIMATE_SIZE;
 extern RNScalar CAUSTIC_ESTIMATE_DIST;
+extern Filter_Type CAUSTIC_FILTER;
+
+extern RNScalar FILTER_CONST_A;
+extern RNScalar FILTER_CONST_B;
+extern RNScalar FILTER_CONST_K;
 
 extern R3Kdtree<Photon *> *GLOBAL_PMAP;
 extern R3Kdtree<Photon *> *CAUSTIC_PMAP;
