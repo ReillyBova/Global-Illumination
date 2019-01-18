@@ -111,7 +111,7 @@ static void Threadable_RayTracer(vector<vector<RNRgb> >& image_buffer, int width
           } while (r1*r1 + r2*r2 > 1.0);
 
           // Move the eye every so slightly within aperture
-          ray = R3Ray(camera.Origin() + r1*u + r2*v, far_point + camera.Towards() * camera.Far() * 7.0);
+          ray = R3Ray(camera.Origin() + r1*u + r2*v, far_point);
         } else {
           ray = R3Ray(camera.Origin(), far_point);
         }
