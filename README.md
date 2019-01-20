@@ -455,7 +455,7 @@ As discussed earlier in this writeup, the most inefficient step of rendering by 
 
 It is noted that are some noticible artificats along sharp edges, however it is likely possible to remove them either with filtering, or with sort sort of adaptive sampling — where rays that move relatively little between samples use full radiance estimates instead.
 
-##### Figure 34: A comparision of indirect illumination techniques. Figure (34a) computes indirect illumination using expensive radiance estimations within large important sampling loops. It took over ten minutes to render. Conversely, Figure (34b) utilizes the accelerated approach of irradiance caching at the cost of accuracy.
+##### Figure 34: A comparision of indirect illumination techniques. Figure (34a) computes indirect illumination using expensive radiance estimations within large important sampling loops. It took over ten minutes to render. Conversely, Figure (34b) utilizes the accelerated approach of irradiance caching at the cost of accuracy and took about 3 minutes to render.
 | Figure 34a | Figure 34b |
 |:---:|:---:|
 | ![Fig 34a](/gallery/figures/fig_34a.png?raw=true) | ![Fig 34b](/gallery/figures/fig_34b.png?raw=true) |
@@ -476,6 +476,31 @@ Note that there are many other methods for rendering depth of field; in fact, th
 | No Depth of Field | Depth of Field |
 |:---:|:---:|
 | ![Fig 36a](/gallery/figures/fig_36a.png?raw=true) | ![Fig 36b](/gallery/figures/fig_36b.png?raw=true) |
+
+
+# Art Gallery
+This section contains several photorealistic renderings that were made using the entire feature-set of the global-illumination renderer.
+
+## The Rainbow Room
+This scene contains two spotlights and one pointlight behind a wall of multicolored glass columns. The "frostedness" of the glass decreases from left to right. Without caustics and indirect illumination, the glass would would fully occlude the three lights, rendering the scene black. Notice how each column casts a color of light, and how light transmitted from the focused purple column is scattered more sharply than light from the frosted red column.
+
+![Fig 37](/gallery/figures/fig_37.png?raw=true)
+
+## The Crystal Teapot
+This scene contains a teapot with similar material properties as diamond (slightly frosted and with a similar refractive index; dispersion has not been implemented here for full accuracy). Observe how fresnel effects cause reflections on the teapot, even though the material itself is fully transparent.
+
+![Fig 38](/gallery/figures/fig_38.png?raw=true)
+
+## Life out of Focus
+This scene contains a shiny purple teapot in front of objects from the still-life scene. Depth of field was used to focus on the teapot, thereby rendering the still-life objects blurry. Although somewhat difficult to decipher even here, notice how the bits of reflection of the still-life on the teapot are still out of focus. This is physically accurate behavior, however it is particularly difficult to achieve with traditional z-buffer depth of field implementations (since depth is stored at the plane of reflection and not for the objects in a reflection).
+
+![Fig 39](/gallery/figures/fig_39.png?raw=true)
+
+# Future Features
+- Importance Sampling
+- Hemisphere Lights for Outdoor Scenes
+- Dispersion Effects
+- Volumetric Raytracing
 
 # Credits
 ## Authors
