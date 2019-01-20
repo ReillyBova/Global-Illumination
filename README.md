@@ -115,7 +115,7 @@ Illumination flags:
   * `-lt <int N>` => Sets the number of occlusion + reflectance rays sent per light per sample. Used to compute both soft shadows and direct illumination by area light. Default is `N=128`
   * `-s <int N>` => Sets the number of occlusion (only) rays sent per light per sample. Used to take additional soft shadow estimates (on top of the number specified by the `-lt` flag). Default is `N=128`
 * Depth of Field flag:
-  * `-dof <int N> <float R>` => Enables depth of field for a camera with radius `R`. `N` samples are sent through the aperture to approximate lense scattering. Depth of field is disabled by default.
+  * `-dof <int N> <float D> <float R>` => Enables depth of field for a camera with aperture radius `R` and focused on a plane at distance `D` from itself. `N` samples are sent through the aperture to approximate lense scattering. Depth of field is disabled by default.
 
 ## Program Input
 ### Provided Scenes
