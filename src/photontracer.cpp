@@ -117,36 +117,37 @@ void PhotonTrace(R3Ray ray, RNRgb photon, vector<Photon>& local_photon_storage,
         // Update weights
         photon *= brdf->Diffuse() / prob_diffuse;
       } else if (rand < prob_diffuse + prob_transmission) {
+        // Caustics can now store after non diffuse bounce
+        if (map_type == CAUSTIC) {
+          store = true;
+        }
         // Compute direction of transmissive bounce
         exact_bounce = TransmissiveBounce(normal, view, cos_theta,
                                           brdf->IndexOfRefraction());
         if (DISTRIB_TRANSMISSIVE) {
-          // Caustics can now store after non diffuse bounce
-          if (map_type == CAUSTIC) {
-            store = true;
-          }
           // Use importance sampling
           sampled_bounce = Specular_ImportanceSample(exact_bounce, brdf->Shininess(), cos_theta);
         } else {
           sampled_bounce = exact_bounce;
         }
         // Update weights
-        photon *= brdf->Transmission() / prob_transmission;
+        photon *= (1.0 - R_coeff) * brdf->Transmission() / prob_transmission;
       } else if (rand < prob_diffuse + prob_transmission + prob_specular) {
+        // Caustics can now store after non diffuse bounce
+        if (map_type == CAUSTIC) {
+          store = true;
+        }
+        
         // Compute direction of specular bounce
         exact_bounce = ReflectiveBounce(normal, view, cos_theta);
         if (DISTRIB_SPECULAR) {
-          // Caustics can now store after non diffuse bounce
-          if (map_type == CAUSTIC) {
-            store = true;
-          }
           // Use importance sampling
           sampled_bounce = Specular_ImportanceSample(exact_bounce, brdf->Shininess(), cos_theta);
         } else {
           sampled_bounce = exact_bounce;
         }
         // Update weights
-        photon *= brdf->Specular() / prob_specular;
+        photon *= (brdf->Specular() + R_coeff*brdf->Transmission()) / prob_specular;
       } else {
         // Photon absorbed; terminate trace
         break;

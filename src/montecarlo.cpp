@@ -135,7 +135,7 @@ void MonteCarlo_PathTrace(R3Ray& ray, RNRgb& color)
 
           LOCAL_TRANSMISSIVE_RAY_COUNT++;
           // Update weights
-          total_weight *= brdf->Transmission() / prob_transmission;
+          total_weight *= (1.0 - R_coeff) * brdf->Transmission() / prob_transmission;
         } else if (rand < prob_diffuse + prob_transmission + prob_specular) {
           if (!SPECULAR_ILLUM)
             break;
@@ -152,7 +152,7 @@ void MonteCarlo_PathTrace(R3Ray& ray, RNRgb& color)
 
           LOCAL_SPECULAR_RAY_COUNT++;
           // Update weights
-          total_weight *= brdf->Specular() / prob_specular;
+          total_weight *= (brdf->Specular() +  R_coeff*brdf->Transmission()) / prob_specular;
         } else {
           // Photon absorbed; terminate trace
           break;
@@ -272,7 +272,7 @@ void MonteCarlo_IndirectSample(R3Ray& ray, RNRgb& color)
 
           LOCAL_TRANSMISSIVE_RAY_COUNT++;
           // Update weights
-          total_weight *= brdf->Transmission() / prob_transmission;
+          total_weight *= (1.0 - R_coeff) * brdf->Transmission() / prob_transmission;
         } else if (rand < prob_diffuse + prob_transmission + prob_specular) {
           // Compute direction of specular bounce
           exact_bounce = ReflectiveBounce(normal, view, cos_theta);
@@ -286,7 +286,7 @@ void MonteCarlo_IndirectSample(R3Ray& ray, RNRgb& color)
 
           LOCAL_SPECULAR_RAY_COUNT++;
           // Update weights
-          total_weight *= brdf->Specular() / prob_specular;
+          total_weight *= (brdf->Specular() +  R_coeff*brdf->Transmission()) / prob_specular;
         } else {
           // Photon absorbed; terminate trace
           break;
