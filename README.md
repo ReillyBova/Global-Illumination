@@ -39,6 +39,12 @@ This repository contains a C++ program that uses multithreaded raytracing and ph
     + [Filtering](#filtering)
     + [Irradiance Caching](#irradiance-caching)
     + [Depth of Field](#depth-of-field)
+- [Art Gallery](#art-gallery)
+  * [The Rainbow Room](#the-rainbow-room)
+  * [The Crystal Teapot](#the-crystal-teapot)
+  * [Life out of Focus](#life-out-of-focus)
+- [Future Features](#future-features)
+    
 - [Credits](#credits)
   * [Authors](#authors)
   * [References](#references)
