@@ -146,13 +146,15 @@ void EstimateRadiance(R3Point& point, R3Vector& normal, RNRgb& color,
   }
 
   // Filter
-  if (filter == DISK) {
+  if (filter == DISK && max_dist_sqd > 0) {
     estimate /= RN_PI * max_dist_sqd;
-  } else if (filter == CONE) {
+  } else if (filter == CONE && max_dist_sqd > 0) {
     estimate /= (1.0 - 2.0 / 3.0 / FILTER_CONST_K) * RN_PI * max_dist_sqd;
-  } else if (filter == GAUSS) {
+  } else if (filter == GAUSS && total_fweight > 0 && max_dist_sqd > 0) {
     // Scale, Normalize, and Project
     estimate *= FILTER_CONST_A * (num_nearby / total_fweight) / (RN_PI * max_dist_sqd);
+  } else {
+    return;
   }
 
   // Save estimate and cleanup

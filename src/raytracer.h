@@ -12,7 +12,7 @@
 
 // Compute Direct Illumination on point
 void DirectIllumination(R3Point& point, R3Vector& normal, const R3Point& eye,
-  RNRgb& color, const R3Brdf *brdf, const bool inMonteCarlo);
+  RNRgb& color, const R3Brdf *brdf, const RNScalar cos_theta, const bool inMonteCarlo);
 
 // Compute transmissive bounce on point
 void TransmissiveIllumination(R3Point& point, R3Vector& normal, RNRgb& color,

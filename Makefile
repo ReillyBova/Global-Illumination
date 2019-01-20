@@ -4,12 +4,12 @@
 # output directory from the ones in your input directory.
 ########################################################################
 
-RESOLUTION= 512 512
+RESOLUTION= 1024 1024
 
-CFLAGS= -resolution $(RESOLUTION) -aa 0 -v -lt 128 -ss 96 -tt 512 -st 512 -md 128 -threads 8 -it 480 -cache -global 500000 -gs 50 -gd .5 -no_caustic -no_transmissive -no_specular -dof 1024 0.3 -no_indirect
+#CFLAGS= -resolution $(RESOLUTION) -aa 1 -v -real -lt 128 -ss 96 -tt 512 -st 512 -md 128 -threads 8 -it 720 -cache -global 1000000 -gd 0.15 -gs 100
 
 #CFLAGS=  -resolution $(RESOLUTION) -aa 1 -v -lt 8 -ss 6 -tt 32 -st 32 -md 128 -threads 8 -it 64 -dof 64 .033
-#CFLAGS=  -resolution $(RESOLUTION) -aa 1 -v -lt 128 -ss 96 -tt 512 -st 512 -md 128 -threads 8 -it 960 -cf cone 1.0 -global 1000000 -gs 200 -gd .75
+CFLAGS=  -resolution $(RESOLUTION) -aa 1 -v -lt 128 -ss 96 -tt 512 -st 512 -md 128 -threads 8 -it 960 -cf cone 1.0 -global 1000000 -gs 200 -gd .75
 #CFLAGS= -resolution $(RESOLUTION) -aa 0 -v -lt 128 -ss 64 -tt 128 -st 128 -md 128 -threads 8 -no_caustic -no_indirect -no_shadow
 #CFLAGS= -resolution $(RESOLUTION) -aa 0 -v -lt 128 -ss 64 -tt 128 -st 128 -md 128 -threads 8 -no_caustic -fast_global -global 10000000 -gs 225 -gd .225
 #-caustic 10000000 -cs 225 -cd .225
@@ -64,6 +64,21 @@ display:
 	rm -f output/display.png
 	cd src; make photonmap
 	$(MAKE) $(EXE) output/display.png
+
+art:
+	rm -f output/art.png
+	cd src; make photonmap
+	$(MAKE) $(EXE) output/art.png
+
+art2:
+	rm -f output/art2.png
+	cd src; make photonmap
+	$(MAKE) $(EXE) output/art2.png
+
+art3:
+	rm -f output/art3.png
+	cd src; make photonmap
+	$(MAKE) $(EXE) output/art3.png
 
 box:
 	rm -f output/box.png

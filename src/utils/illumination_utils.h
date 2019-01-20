@@ -41,7 +41,7 @@ void ComputeRectLightReflection(R3RectLight& rect_light, RNRgb& color,
 // Compute illumination (and occlusion if applicable) between points on node and
 // light and update color
 void ComputeIllumination(RNRgb& color, R3Light* light, const R3Brdf *brdf,
-  const R3Point& eye, const R3Point& point_in_scene, const R3Vector& normal,
+  const R3Point& eye, const R3Point& point_in_scene, const R3Vector& normal, const RNScalar cos_theta,
   const bool inMonteCarlo);
 
 #endif

@@ -16,7 +16,7 @@
 
 // Compute Direct Illumination on point
 void DirectIllumination(R3Point& point, R3Vector& normal, const R3Point& eye,
-  RNRgb& color, const R3Brdf *brdf, const bool inMonteCarlo)
+  RNRgb& color, const R3Brdf *brdf, const RNScalar cos_theta, const bool inMonteCarlo)
 {
   // Check for single emmissive side of area lights
   bool should_emit = true;
@@ -34,7 +34,7 @@ void DirectIllumination(R3Point& point, R3Vector& normal, const R3Point& eye,
       continue;
     }
 
-    ComputeIllumination(color, light, brdf, eye, point, normal, inMonteCarlo);
+    ComputeIllumination(color, light, brdf, eye, point, normal, cos_theta, inMonteCarlo);
   }
 
   // Account for emission
@@ -199,7 +199,7 @@ void RayTrace(R3SceneElement* element, R3Point& point, R3Vector& normal,
     }
     if (DIRECT_ILLUM && (brdf->IsDiffuse() || brdf->IsSpecular())) {
       // Compute contribution from direct illumination
-      DirectIllumination(point, normal, eye, color, brdf, false);
+      DirectIllumination(point, normal, eye, color, brdf, cos_theta, false);
     }
     if (TRANSMISSIVE_ILLUM && brdf->IsTransparent()) {
       // Compute Reflection Coefficient, carry reflection portion to Specular

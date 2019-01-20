@@ -423,7 +423,7 @@ void ComputeRectLightReflection(R3RectLight& rect_light, RNRgb& color,
 // Compute illumination (and occlusion if applicable) between points on node and
 // light and update color
 void ComputeIllumination(RNRgb& color, R3Light* light, const R3Brdf *brdf,
-  const R3Point& eye, const R3Point& point_in_scene, const R3Vector& normal,
+  const R3Point& eye, const R3Point& point_in_scene, const R3Vector& normal, const RNScalar cos_theta,
   const bool inMonteCarlo)
 {
   // Determine which boolean we should use
@@ -484,7 +484,11 @@ void ComputeIllumination(RNRgb& color, R3Light* light, const R3Brdf *brdf,
     return;
   }
 
-  // No soft shadows
+  if ((normal.Dot(point_on_light - point_in_scene) >  0 && cos_theta < 0)
+      || (normal.Dot(point_on_light - point_in_scene) <  0 && cos_theta > 0)) {
+    return;
+  }
+
   if (RayIlluminationTest(point_in_scene, point_on_light))
     color += light->Reflection(*brdf, eye, point_in_scene, normal, num_light_samples);
 }
