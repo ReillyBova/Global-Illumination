@@ -490,17 +490,23 @@ This section contains several photorealistic renderings that were made using the
 ## The Rainbow Room
 This scene contains two spotlights and one pointlight behind a wall of multicolored glass columns. The "frostedness" of the glass decreases from left to right. Without caustics and indirect illumination, the glass would would fully occlude the three lights, rendering the scene black. Notice how each column casts a color of light, and how light transmitted from the focused purple column is scattered more sharply than light from the frosted red column.
 
-![Fig 37](/gallery/figures/fig_37.png?raw=true)
+<p align="center">
+  <img width="1024" height="auto" src="/gallery/figures/fig_37.png?raw=true">
+</p>
 
 ## The Crystal Teapot
 This scene contains a teapot with similar material properties as diamond (slightly frosted and with a similar refractive index; dispersion has not been implemented here for full accuracy). Observe how fresnel effects cause reflections on the teapot, even though the material itself is fully transparent.
 
-![Fig 38](/gallery/figures/fig_38.png?raw=true)
+<p align="center">
+  <img width="1024" height="auto" src="/gallery/figures/fig_38.png?raw=true">
+</p>
 
 ## Life out of Focus
 This scene contains a shiny purple teapot in front of objects from the still-life scene. Depth of field was used to focus on the teapot, thereby rendering the still-life objects blurry. Although somewhat difficult to decipher even here, notice how the bits of reflection of the still-life on the teapot are still out of focus. This is physically accurate behavior, however it is particularly difficult to achieve with traditional z-buffer depth of field implementations (since depth is stored at the plane of reflection and not for the objects in a reflection).
 
-![Fig 39](/gallery/figures/fig_39.png?raw=true)
+<p align="center">
+  <img width="1024" height="auto" src="/gallery/figures/fig_39.png?raw=true">
+</p>
 
 # Future Features
 - Importance Sampling
